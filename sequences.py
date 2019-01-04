@@ -14,6 +14,8 @@ images' EXIF tags.
 
 
 def order_by_sequences(path_from, path_to=None):
+    if not check_paths(path_from, path_to):
+        return
     # read the EXIF data of all images in path_from
     et = exiftool.ExifTool()
     et.start()
@@ -48,12 +50,23 @@ def order_by_sequences(path_from, path_to=None):
 
 
 def copy_sequence(seq_number, path_from, path_to, images, start, end):
+    if not check_paths(path_from, path_to):
+        return
     path_to_seq = os.path.join(path_to, "seq_" + str(seq_number))
     os.mkdir(path_to_seq)
     for i in range(start, end):
         path_from_image = os.path.join(path_from, images[i][2])
         path_to_image = os.path.join(path_to_seq, images[i][2])
         shutil.copyfile(path_from_image, path_to_image)
+
+
+def check_paths(path_from, path_to):
+    if not os.path.exists(path_from):
+        print("Input path '{}' does not exist.".format(path_from))
+        return False
+    if not os.path.exists(path_to):
+        print("Output path '{}' does not exist.".format(path_to))
+        return False
 
 
 order_by_sequences("/home/joschi/Documents/testDDD/dama_dama_damhirsch/dayvision",
