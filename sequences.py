@@ -60,6 +60,20 @@ def order_by_sequences(images, path_to):
 
 
 def copy_sequence(seq_number, path_to, images, start, end):
+    """
+    Copies all images that belong to the same sequence into a new directory
+    named after their sequence number. Additionally, a file will be written to
+    the directory with all empty images of the sequence.
+    :author; Joschka Strüber
+    :param seq_number: The sequence number which the new directory will be named
+        after.
+    :param path_to: The directory where the new sequence directory will be made.
+    :param images: A list of tuples with image data (serial number, creation
+        date, path and whether or not the image is empty and shows no animal).
+    :param start: Start index of the sequence.
+    :param end: Index behind the last image of the sequence.
+    :return: None
+    """
     if not os.path.exists(path_to):
         print("Output directory '{}' does not exist.".format(path_to))
         return
@@ -67,7 +81,8 @@ def copy_sequence(seq_number, path_to, images, start, end):
     os.mkdir(path_to_seq)
     for i in range(start, end):
         path_from_image = images[i][2]
-        path_to_image = os.path.join(path_to_seq, os.path.basename(images[i][2]))
+        filename = os.path.basename(path_from_image)
+        path_to_image = os.path.join(path_to_seq, filename)
         shutil.copyfile(path_from_image, path_to_image)
 
 damhirsch_images = read_images("/home/joschi/Documents/testDDD/dama_dama_damhirsch/dayvision")
