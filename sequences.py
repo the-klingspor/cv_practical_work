@@ -43,6 +43,8 @@ def order_by_sequences(path_from, path_to=None):
             seq_start = counter
             seq_serial_number = image[0]
             seq_number += 1
+    copy_sequence(seq_number, path_from, path_to, images, seq_start,
+                  len(images))
 
 
 def copy_sequence(seq_number, path_from, path_to, images, start, end):
