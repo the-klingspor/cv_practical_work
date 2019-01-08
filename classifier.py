@@ -3,6 +3,10 @@ import numpy as np
 import random
 import HirschData
 import DachsData
+import os
+from matplotlib import pyplot as plt
+import matplotlib.patches as patches
+
 
 PATCH_SIZE = (64, 32)
 LABEL_MAP = ["Wood", "Deer", "Badger"]
@@ -22,11 +26,11 @@ def get_roi(img, roi):
     x = roi[0]
     w = roi[2]
     h = roi[3]
-    return img[y:y+h, x:x+w]
+    return img[y:y + h, x:x + w]
 
 
 def rescale(img, scale=PATCH_SIZE):
-    return cv2.resize(img, scale, interpolation = cv2.INTER_CUBIC)
+    return cv2.resize(img, scale, interpolation=cv2.INTER_CUBIC)
 
 
 def get_hog():
@@ -130,11 +134,12 @@ def shuffle_list(*ls):
 if __name__ == '__main__':
     print('Training SVM model ...')
     hog = get_hog()
-
-    badger_data = DachsData.data
-    badger_roi = DachsData.rois
-    deer_data = HirschData.data#[:int(len(badger_data)+100)]
-    deer_roi = HirschData.rois#[:int(len(badger_data)+100)]
+    badger = np.load(os.path.dirname(os.path.realpath(__file__)) + '\\badger.npy').item()
+    deer = np.load(os.path.dirname(os.path.realpath(__file__)) + '\deer.npy').item()
+    badger_data = list(badger.keys())
+    badger_roi = list(badger.values())
+    deer_data = list(deer.keys())  # HirschData.data#[:int(len(badger_data)+100)]
+    deer_roi = list(deer.values())  # HirschData.rois#[:int(len(badger_data)+100)]
 
     if SHUFFLE_TRAINING_DATA:
         deer_data, deer_roi = shuffle_list(deer_data, deer_roi)
@@ -152,7 +157,8 @@ if __name__ == '__main__':
     des, labs = get_descriptors_and_labels(hog, deer_data[deer_test_data_length:], deer_roi[deer_test_data_length:], 1)
     descriptors += des
     desc_labs += labs
-    des, labs = get_descriptors_and_labels(hog, badger_data[badger_test_data_length:], badger_roi[badger_test_data_length:], 2)
+    des, labs = get_descriptors_and_labels(hog, badger_data[badger_test_data_length:],
+                                           badger_roi[badger_test_data_length:], 2)
     descriptors += des
     desc_labs += labs
 
@@ -162,26 +168,36 @@ if __name__ == '__main__':
 
     # let the user select rois and predict them
     count_deer_good = 0
-    count_batcher_good = 0
+    count_badger_good = 0
     for i in range(len(test_data)):
         img = read_image(test_data[i])
+        fig, ax = plt.subplots(1)
+        ax.imshow(img, cmap='gray')
         roi = test_rois[i]
+        x,y,w,h = roi
         # window_name = "Select ROI to predice ..."
         # window = cv2.namedWindow(window_name, flags=cv2.WINDOW_NORMAL)
         # roi = cv2.selectROI(window_name, img)
+        rect = patches.Rectangle((x, y), w, h, linewidth=1, edgecolor='r', facecolor='none')
+        ax.add_patch(rect)
         img = get_roi(img, roi)
         img = rescale(img)
         cv2.equalizeHist(img)
         descriptor = hog.compute(img)
         prediction = model.predict(np.array([descriptor]))[1].ravel()
+
+        ax.set_title(LABEL_MAP[int(prediction[0])], fontsize=25)
+        plt.show()
         if (prediction == 1 and i < deer_test_data_length):
             count_deer_good += 1
         elif prediction == 2 and i >= deer_test_data_length:
-            count_batcher_good += 1
+            count_badger_good += 1
 
-        print("#", i+1, ":", LABEL_MAP[int(prediction[0])])
+        print("#", i + 1, ":", LABEL_MAP[int(prediction[0])])
 
-    print(f"Evaluation Deer: {count_deer_good}/{deer_test_data_length} = {count_deer_good/deer_test_data_length * 100}%")
-    print(f"Evaluation Badger: {count_batcher_good}/{badger_test_data_length} = {count_batcher_good/badger_test_data_length * 100}%")
+    print(
+        f"Evaluation Deer: {count_deer_good}/{deer_test_data_length} = {count_deer_good/deer_test_data_length * 100}%")
+    print(
+        f"Evaluation Badger: {count_badger_good}/{badger_test_data_length} = {count_badger_good/badger_test_data_length * 100}%")
     print('done!')
     cv2.destroyAllWindows()
