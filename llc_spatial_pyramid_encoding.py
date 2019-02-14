@@ -1,6 +1,6 @@
 from sklearn.cluster import k_means
-import numpy as np
 from itertools import chain as chain
+import numpy as np
 
 
 class LlcSpatialPyramidEncoder:
@@ -14,17 +14,26 @@ class LlcSpatialPyramidEncoder:
     :author: Joschka Strüber
     """
 
-    def __init__(self, size=None, codebook=None):
+    def __init__(self, size=None, codebook=None, alpha=1, sigma=1):
         """
         :author: Joschka Strüber
-        :param size: The number of features in the codebook.
-        :param codebook: Set of features in a matrix, which is a good
-        representation of the feature space. Usually, this will be trained based
-        on a larger set of features, but a precomputed codebook can be used as
-        well.
+        :param size: int
+        The number of features in the codebook.
+        :param codebook: ndarray
+        Set of features in a matrix, which is a good representation of the
+        feature space. Usually, this will be trained based on a larger set of
+        features, but a precomputed codebook can be used as well.
+        :param alpha: float (default = 1)
+        Hyperparameter for regularization, which affects how much choosing
+        non-local bases of the codebook is penalized.
+        :param sigma: float (default = 1)
+        Hyperparameter for regularization, which is used for adjusting the
+        weight decay speed of the locality adaptor.
         """
         self.size = size
         self.codebook = codebook
+        self.alpha = alpha
+        self.sigma = sigma
 
     def train_codebook(self, features, size=1024):
         """
@@ -73,27 +82,46 @@ class LlcSpatialPyramidEncoder:
         :return: array of doubles
         The concatenation of the pooled and normalized codes for all 21 spatial
         bins. The first part corresponds to the level 0 bin, followed by level
-        1, followed by level 2. In case of an error, an empty array will be
-        returned.
+        1, followed by level 2. In case of an error, None will be returned.
         """
         codes = []
         # flatten nested spatial pyramid and compute code
-        level0_code = _encode_spatial_bin(list(chain.from_iterable(
+        level0_code = self._encode_spatial_bin(list(chain.from_iterable(
             chain.from_iterable(spatial_pyramid))), pooling, normalization)
         codes.append(level0_code)
 
         for level1_spatial_bin in spatial_pyramid:
-            level1_code = _encode_spatial_bin(list(chain.from_iterable(
+            level1_code = self._encode_spatial_bin(list(chain.from_iterable(
                 level1_spatial_bin)), pooling, normalization)
             codes.append(level1_code)
 
         for level1_spatial_bin in spatial_pyramid:
             for level2_spatial_bin in level1_spatial_bin:
-                level2_code = _encode_spatial_bin(level2_spatial_bin, pooling,
-                                                  normalization)
+                level2_code = self._encode_spatial_bin(level2_spatial_bin,
+                                                       pooling, normalization)
                 codes.append(level2_code)
 
         spm_code = np.concatenate(codes).ravel()
         return spm_code
+
+
+    def _encode_spatial_bin(self, features, pooling='max',
+                            normalization='eucl'):
+        """
+
+        :param features:
+        :param pooling:
+        :param normalization:
+        :return:
+        """
+        return 0
+
+    def _get_llc_code(self, feature):
+        """
+
+        :param feature:
+        :return:
+        """
+        return 0
 
 
