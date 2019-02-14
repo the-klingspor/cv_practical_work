@@ -12,14 +12,28 @@ This script orders camera trap images into consecutive sequences by using the
 images' EXIF tags.
 """
 
+
 def read_images(path, empty=False):
+    """
+    Loads the relevant EXIF metadata for all image files in the given directory.
+    Returns this data in a list or an empty list, if the directory did not exist
+    or if it contained no image files.
+
+    :author: Joschka Strüber
+    :param path: Path of the directory with image files, which EXIF tags will
+    be read and returned.
+    :param empty: Information, if this image is empty or contains a relevant
+    subject (e.g. an animal in camera trap images).
+    :return: List of tuples with a serial number, date of creation, filename and
+    the empty information of all image files in the given path.
+    """
     if not os.path.exists(path):
         print("Input directory '{}' does not exist".format(path))
-        return
-    # read the EXIF data of all images in path_from
+        return []
+    # read the EXIF data of all images in path
     et = exiftool.ExifTool()
     et.start()
-    images = []     # list of tuples [(string, datetime, string), ...]
+    images = []     # list of tuples [(string, datetime, string, boolean), ...]
     for image_path in os.listdir(path):
         if image_path.endswith(('.jpg', '.JPG')):
             metadata = et.get_metadata(os.path.join(path, image_path))
@@ -33,6 +47,23 @@ def read_images(path, empty=False):
 
 
 def order_by_sequences(images, path_to):
+    """
+    Orders tuples of image data into consecutive sequences based on the serial
+    number of the camera and the creation date. Images from different cameras
+    or with a too large time difference cannot be from the same camera trap
+    sequence. Pictures of the same sequence will be copied into the same
+    directory, which is a subdirectory of path_to.
+
+    :todo: write empty information into text file
+    :todo: option to not only copy, but also relocate image files
+
+    :author: Joschka Strüber
+    :param images: List of tuples of image data: [(serial number, create date,
+    file name, empty information), ...]
+    :param path_to: The directory where the sequence directories will be written
+    to.
+    :return: None
+    """
     if not os.path.exists(path_to):
         print("Output directory '{}' does not exist.".format(path_to))
         return
@@ -64,6 +95,7 @@ def copy_sequence(seq_number, path_to, images, start, end):
     Copies all images that belong to the same sequence into a new directory
     named after their sequence number. Additionally, a file will be written to
     the directory with all empty images of the sequence.
+
     :author; Joschka Strüber
     :param seq_number: The sequence number which the new directory will be named
         after.
@@ -84,6 +116,7 @@ def copy_sequence(seq_number, path_to, images, start, end):
         filename = os.path.basename(path_from_image)
         path_to_image = os.path.join(path_to_seq, filename)
         shutil.copyfile(path_from_image, path_to_image)
+
 
 damhirsch_images = read_images("/home/joschi/Documents/testDDD/dama_dama_damhirsch/dayvision")
 damhirsch_empty = read_images("/home/joschi/Documents/testDDD/dama_dama_damhirsch/empty/day")
