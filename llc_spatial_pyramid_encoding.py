@@ -1,5 +1,6 @@
 from sklearn.cluster import k_means
 import numpy as np
+from itertools import chain as chain
 
 
 class LlcSpatialPyramidEncoder:
@@ -71,5 +72,28 @@ class LlcSpatialPyramidEncoder:
         (default) and manhattan norm are supported.
         :return: array of doubles
         The concatenation of the pooled and normalized codes for all 21 spatial
-        bins. 
+        bins. The first part corresponds to the level 0 bin, followed by level
+        1, followed by level 2. In case of an error, an empty array will be
+        returned.
         """
+        codes = []
+        # flatten nested spatial pyramid and compute code
+        level0_code = _encode_spatial_bin(list(chain.from_iterable(
+            chain.from_iterable(spatial_pyramid))), pooling, normalization)
+        codes.append(level0_code)
+
+        for level1_spatial_bin in spatial_pyramid:
+            level1_code = _encode_spatial_bin(list(chain.from_iterable(
+                level1_spatial_bin)), pooling, normalization)
+            codes.append(level1_code)
+
+        for level1_spatial_bin in spatial_pyramid:
+            for level2_spatial_bin in level1_spatial_bin:
+                level2_code = _encode_spatial_bin(level2_spatial_bin, pooling,
+                                                  normalization)
+                codes.append(level2_code)
+
+        spm_code = np.concatenate(codes).ravel()
+        return spm_code
+
+
