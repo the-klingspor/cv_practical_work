@@ -108,20 +108,30 @@ class LlcSpatialPyramidEncoder:
     def _encode_spatial_bin(self, features, pooling='max',
                             normalization='eucl'):
         """
-
-        :param features:
-        :param pooling:
-        :param normalization:
-        :return:
+        Computes the LLC codes for a set of features, pools them with the
+        specified pooling method and returns them after normalization.
         """
         return 0
 
     def _get_llc_code(self, feature):
         """
-
-        :param feature:
-        :return:
+        Computes a LLC code based on the feature vector and the codebook.
         """
-        return 0
 
+        """
+        Broadcast the feature into a matrix that is self.size times the feature.
+        Example: feature = [1, 2], self.size = 3.
+        Then the result will be:
+        [[1, 2],
+         [1, 2],
+         [1, 2]]
+        Use this matrix to center the codebook around the input feature vector.
+        """
+        centered = self.codebook - np.broadcast_to(feature, (self.size,
+                                                             len(feature)))
+        cov = np.dot(centered, centered.T)
+
+        llc_code_unnormalized = np.solve 
+
+        return 0
 
