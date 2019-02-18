@@ -1,7 +1,7 @@
 import numpy as np
+import sklearn
 
-from sklearn.cluster import k_means
-
+from sklearn.cluster import KMeans
 
 class LlcSpatialPyramidEncoder:
     """
@@ -51,8 +51,8 @@ class LlcSpatialPyramidEncoder:
             self.size = size
         else:
             self.size = features.shape[0]
-        kMeans = k_means(n_clusters=self.size).fit(features)
-        self.codebook = kMeans.cluster_centers_
+        k_means_clusters = KMeans(n_clusters=self.size).fit(X=features)
+        self.codebook = k_means_clusters.cluster_centers_
 
     def encode(self, spatial_pyramid, pooling='max', normalization='eucl'):
         """
