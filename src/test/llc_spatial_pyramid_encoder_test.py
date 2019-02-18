@@ -27,18 +27,92 @@ class LlcSpatialPyramidEncoderTest(unittest.TestCase):
         permutation_1 = (self.encoder.codebook == expected_codebook_1).all()
         permutation_2 = (self.encoder.codebook == expected_codebook_2).all()
 
-        print(self.encoder.codebook)
         self.assertTrue(permutation_1 or permutation_2)
 
-
     def test_get_llc_code(self):
-        self.assertTrue(True)
+        result = self.encoder._get_llc_code(np.array([3, 0]))
+        expected = np.array([1.12383, -0.23659, 0.21778])
+        self.assertArrayAlmostEqual(result, expected)
 
-    def test_encode_spatial_bin(self):
-        self.assertTrue(True)
+        result = self.encoder._get_llc_code(np.array([-1, -1]))
+        expected = np.array([-0.20915, 0.22858, 0.98056])
+        self.assertArrayAlmostEqual(result, expected)
+
+        result = self.encoder._get_llc_code(np.array([1, -1]))
+        expected = np.array([0.33553, -0.13899, 0.80346])
+        self.assertArrayAlmostEqual(result, expected)
+
+        result = self.encoder._get_llc_code(np.array([1, 2]))
+        expected = np.array([3.02107, -1.96539, -0.05568])
+        self.assertArrayAlmostEqual(result, expected)
+
+    def test_encode_spatial_bin_empty(self):
+        result = self.encoder._encode_spatial_bin(np.array([]))
+        expected = np.zeros(self.encoder._size)
+        self.assertEqual((result == expected).all())
+
+    def test_encode_spatial_bin_l2_max_eucl(self):
+        result = self.encoder._encode_spatial_bin(np.array([[3, 0], [-1, -1]]),
+                                                  pooling='max',
+                                                  normalization='eucl')
+        expected = np.array([0.744807, 0.151489, 0.649856])
+        self.assertArrayAlmostEqual(result, expected)
+
+    def test_encode_spatial_bin_l2_max_sum(self):
+        result = self.encoder._encode_spatial_bin(np.array([[3, 0], [-1, -1]]),
+                                                  pooling='max',
+                                                  normalization='sum')
+        expected = np.array([0.481716, 0.0979781, 0.420305])
+        self.assertArrayAlmostEqual(result, expected)
+
+    def test_encode_spatial_bin_l1_sum_sum(self):
+        result = self.encoder._encode_spatial_bin(np.array([[3, 0], [-1, -1],
+                                                            [1, -1]]),
+                                                  pooling='sum',
+                                                  normalization='sum')
+        expected = np.array([0.416738, -0.08401, 0.66727])
+        self.assertArrayAlmostEqual(result, expected)
+
+    def test_encode_spatial_bin_l0_max_eucl(self):
+        result = self.encoder._encode_spatial_bin(np.array([[3, 0], [-1, -1],
+                                                            [1, -1], [1, 2]]),
+                                                  pooling='eucl',
+                                                  normalization='eucl')
+        expected = np.array([0.94870, 0.071781, 0.307923])
+        self.assertArrayAlmostEqual(result, expected)
 
     def test_encode(self):
-        self.assertTrue(True)
+        # each row is a level 2 bin, each four rows are a level 1 bin
+        spatial_pyramid_features = np.array([[[[3, 0], [-1, -1]],
+                                              [[1, -1]],
+                                              [],
+                                              []]  # l1 bin top left
+                                             [[],
+                                              [],
+                                              [],
+                                              []],  # l1 bin top right
+                                             [[],
+                                              [],
+                                              [],
+                                              []],  # l1 bin bottom left
+                                             [[1, 2],
+                                              [],
+                                              [],
+                                              []]])  # l1 bin bottom right
+        result = self.encoder.encode(spatial_pyramid_features, pooling='max',
+                                     normalization='eucl')
+        expected = np.array([0.94870, 0.071781, 0.307923,  # l0 bin
+                             
+                            ])
+
+    def assertArrayAlmostEqual(self, arr1, arr2):
+        try:
+            np.allclose(arr1, arr2, atol=1e-5)
+            result = True
+        except AssertionError as err:
+            result = False
+            print(err)
+        self.assertTrue(result)
 
 
 if __name__ == '__main__':

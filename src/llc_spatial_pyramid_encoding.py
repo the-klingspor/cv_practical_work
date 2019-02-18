@@ -30,10 +30,10 @@ class LlcSpatialPyramidEncoder:
         Hyperparameter for regularization, which is used for adjusting the
         weight decay speed of the locality adaptor.
         """
-        self.size = size
-        self.codebook = codebook
-        self.alpha = alpha
-        self.sigma = sigma
+        self._size = size
+        self._codebook = codebook
+        self._alpha = alpha
+        self._sigma = sigma
 
     def train_codebook(self, features, size=1024):
         """
@@ -48,11 +48,11 @@ class LlcSpatialPyramidEncoder:
         """
         # size of codebook must be maximum of number of features and wanted size
         if features.shape[0] >= size:
-            self.size = size
+            self._size = size
         else:
-            self.size = features.shape[0]
-        k_means_clusters = KMeans(n_clusters=self.size).fit(X=features)
-        self.codebook = k_means_clusters.cluster_centers_
+            self._size = features.shape[0]
+        k_means_clusters = KMeans(n_clusters=self._size).fit(X=features)
+        self._codebook = k_means_clusters.cluster_centers_
 
     def encode(self, spatial_pyramid, pooling='max', normalization='eucl'):
         """
@@ -100,7 +100,6 @@ class LlcSpatialPyramidEncoder:
         spm_code = np.concatenate(codes).ravel()
         return spm_code
 
-
     def _encode_spatial_bin(self, features, pooling='max',
                             normalization='eucl'):
         """
@@ -123,7 +122,7 @@ class LlcSpatialPyramidEncoder:
          [1, 2]]
         Use this matrix to center the codebook around the input feature vector.
         """
-        centered = self.codebook - np.broadcast_to(feature, (self.size,
+        centered = self._codebook - np.broadcast_to(feature, (self._size,
                                                              len(feature)))
         cov = np.dot(centered, centered.T)
 
