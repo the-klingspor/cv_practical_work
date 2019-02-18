@@ -1,6 +1,6 @@
-from sklearn.cluster import k_means
-from itertools import chain as chain
 import numpy as np
+
+from sklearn.cluster import k_means
 
 
 class LlcSpatialPyramidEncoder:
@@ -40,13 +40,18 @@ class LlcSpatialPyramidEncoder:
         Trains a codebook as the cluster centers for a larger set of features.
         k-means is the used clustering algorithm.
         :author: Joschka Strüber
-        :param size: Number of cluster centers for the codebook.
-        :param features: ndarray of features, which will be clustered for the
-        codebook.
+        :param size: unsigned int (default 1024)
+        Number of cluster centers for the codebook.
+        :param features: ndarray
+        ndarray of features, which will be clustered for the codebook.
         :return: None
         """
-        self.size = size
-        kMeans = k_means(n_clusters=size).fit(features)
+        # size of codebook must be maximum of number of features and wanted size
+        if features.shape[0] >= size:
+            self.size = size
+        else:
+            self.size = features.shape[0]
+        kMeans = k_means(n_clusters=self.size).fit(features)
         self.codebook = kMeans.cluster_centers_
 
     def encode(self, spatial_pyramid, pooling='max', normalization='eucl'):
@@ -59,41 +64,32 @@ class LlcSpatialPyramidEncoder:
         concatenated and returned.
 
         :author: Joschka Strüber
-        :param spatial_pyramid: A spatial pyramid of feature vectors, which is
-        three layers deep. It is a nested list of 4 lists of 4 lists each of
-        features. C.f. Lazebnik et al.'s publication "Beyond bags of features:
-        spatial pyramid matching for recognizing natural scene categories" (2006
-        CVPR).
-        Each of the 16 most inner lists holds the features of a level 2 spatial
+        :param spatial_pyramid: ndarray
+        A spatial pyramid of feature vectors, which is three layers deep. It is
+        a nested ndarray of 4 of four array of 4 array each of features. C.f.
+        Lazebnik et al.'s publication "Beyond bags of features: spatial pyramid
+        matching for recognizing natural scene categories" (2006 CVPR).
+        Each of the 16 most inner array holds the features of a level 2 spatial
         bin. A level 1 spatial bin consists of all features of all level 2 bins
-        that are part of the same inner list. The level 0 spatial bin consists
+        that are part of the same inner array. The level 0 spatial bin consists
         of all features.
         Example:
         [[f0, f1, f2, f3], ..., [f12, f13, f14, f15]]
-        The list of features f0 is a level 2 spatial bin, {f0, ..., f3} is a
+        The array of features f0 is a level 2 spatial bin, {f0, ..., f3} is a
         level 1 spatial bin and {f0, ..., f15} is the level 0 spatial bin.
         :param pooling: {'max' (default), 'sum'}
         The method used for pooling the locality-constrained linear codes of
         each feature. The supported pooling methods are max pooling (default)
         and sum pooling.
-        :param normalization: {'eucl' (default), 'manh'}
+        :param normalization: {'eucl' (default), 'sum'}
         The method used for normalizing the pooled encoding. The euclidean norm
-        (default) and manhattan norm are supported.
+        (default) and sum normalization are supported.
         :return: array of doubles
         The concatenation of the pooled and normalized codes for all 21 spatial
         bins. The first part corresponds to the level 0 bin, followed by level
         1, followed by level 2. In case of an error, None will be returned.
         """
         codes = []
-        # flatten nested spatial pyramid and compute code
-        level0_code = self._encode_spatial_bin(list(chain.from_iterable(
-            chain.from_iterable(spatial_pyramid))), pooling, normalization)
-        codes.append(level0_code)
-
-        for level1_spatial_bin in spatial_pyramid:
-            level1_code = self._encode_spatial_bin(list(chain.from_iterable(
-                level1_spatial_bin)), pooling, normalization)
-            codes.append(level1_code)
 
         for level1_spatial_bin in spatial_pyramid:
             for level2_spatial_bin in level1_spatial_bin:
