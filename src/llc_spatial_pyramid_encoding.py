@@ -90,7 +90,7 @@ class LlcSpatialPyramidEncoder:
         1, followed by level 2. In case of an error, None will be returned.
         """
         # index 0: level 0 bin; 1-4: level 1 bins; 5-20: level 2 bins
-        spm_code = np.zeros(21, self._size)
+        spm_code = np.zeros((21, self._size))
         # encode all features of all level 2 bins
         for l1_bin in range(4):
             for l2_bin in range(4):
@@ -121,7 +121,20 @@ class LlcSpatialPyramidEncoder:
             for l1_bin in range(2, 5):
                 spm_code[0] += spm_code[l1_bin]
         else:
-            raise ValueError("Invalid pooling method was chosen.")
+            raise ValueError("Invalid pooling method was chosen: {}".
+                             format(pooling))
+
+        spm_code = spm_code.ravel()
+
+        # normalization
+        if normalization == 'eucl':
+            spm_code = spm_code / np.linalg.norm(spm_code)
+        elif normalization == 'sum':
+            spm_code = spm_code / np.sum(spm_code)
+        else:
+            raise ValueError("Invalid normalization method was chosen: {}".
+                             format(normalization))
+        return spm_code
 
     # todo: ravel and normalize concatenated llc vector
 
@@ -144,7 +157,8 @@ class LlcSpatialPyramidEncoder:
             for i in range(1, num_features):
                 llc_code += self._get_llc_code(features[i])
         else:
-            raise ValueError("Invalid pooling method was chosen.")
+            raise ValueError("Invalid pooling method was chosen: {}".
+                             format(pooling))
 
         return llc_code
 

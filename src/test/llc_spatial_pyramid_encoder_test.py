@@ -95,7 +95,6 @@ class LlcSpatialPyramidEncoderTest(unittest.TestCase):
         expected = np.array([1.11015, 0.45485, 0.98056])
         self.assertArrayAlmostEqual(result, expected)
 
-    @unittest.skip("implement and test low level functions first")
     def test_encode_max_eucl(self):
         # each row is a level 2 bin, each four rows are a level 1 bin
         spatial_pyramid_features = np.array([[[[3, 0], [-1, -1]],
@@ -116,13 +115,13 @@ class LlcSpatialPyramidEncoderTest(unittest.TestCase):
                                               []]])  # l1 bin bottom right
         result = self.encoder.encode(spatial_pyramid_features, pooling='max',
                                      normalization='eucl')
-        expected = np.array([0.469204, 0.0355009, 0.152291,     # l0 bin
-                             0.174543, 0.0355009, 0.152291,     # l1 bins
+        expected = np.array([0.370860, 0.151949, 0.327569,      # l0 bin
+                             0.370860, 0.076360, 0.327569,      # l1 bins
                              0, 0, 0,
                              0, 0, 0,
-                             0.469204, -0.305246, -0.00864769,
-                             0.174543, 0.0355009, 0.152291,     # l2 bins top left
-                             0.0521114, -0.0215866, 0.124786,
+                             0.218494, 0.151949, -0.036379,
+                             0.370860, 0.076360, 0.327569,      # l2 bins top left
+                             0.116962, -0.048269, 0.265370,
                              0, 0, 0,
                              0, 0, 0,
                              0, 0, 0,                           # l2 bins top right
@@ -133,13 +132,12 @@ class LlcSpatialPyramidEncoderTest(unittest.TestCase):
                              0, 0, 0,
                              0, 0, 0,
                              0, 0, 0,
-                             0.469204, -0.305246, -0.00864769,  # l2 bins bottom right
+                             0.218494,  0.151949, -0.036379,    # l2 bins bottom right
                              0, 0, 0,
                              0, 0, 0,
                              0, 0, 0])
         self.assertArrayAlmostEqual(result, expected)
 
-    @unittest.skip("implement and test low level functions first")
     def test_encode_max_sum(self):
         # each row is a level 2 bin, each four rows are a level 1 bin
         spatial_pyramid_features = np.array([[[[3, 0], [-1, -1]],
@@ -160,24 +158,24 @@ class LlcSpatialPyramidEncoderTest(unittest.TestCase):
                                               []]])  # l1 bin bottom right
         result = self.encoder.encode(spatial_pyramid_features, pooling='max',
                                      normalization='sum')
-        expected = np.array([0.253955, 0.0192147, 0.082427,     # l0 bin
-                             0.0944705, 0.0192147, 0.082427,    # l1 bins
+        expected = np.array([0.109008, 0.04466, 0.09628,        # l0 bin
+                             0.109008, 0.02244, 0.09628,        # l1 bins
                              0, 0, 0,
                              0, 0, 0,
-                             0.253955, -0.165213, -0.00468053,
-                             0.0944705, 0.0192147, 0.082427,    # l2 bins, top left
-                             0.028205, -0.0116837, 0.0675398,
+                             0.064222, 0.044663, -0.010693,
+                             0.109008, 0.022445, 0.096283,      # l2 bins top left
+                             0.034379, -0.014188, 0.078000,
                              0, 0, 0,
                              0, 0, 0,
-                             0, 0, 0,                           # l2 bins, top right
-                             0, 0, 0,
-                             0, 0, 0,
-                             0, 0, 0,
-                             0, 0, 0,                           # l2 bins, bottom left
+                             0, 0, 0,                           # l2 bins top right
                              0, 0, 0,
                              0, 0, 0,
                              0, 0, 0,
-                             0.253955, -0.165213, -0.00468053,  # l2 bins, bottom right
+                             0, 0, 0,                           # l2 bins bottom left
+                             0, 0, 0,
+                             0, 0, 0,
+                             0, 0, 0,
+                             0.064222, 0.044663, -0.010693,     # l2 bins bottom right
                              0, 0, 0,
                              0, 0, 0,
                              0, 0, 0])
