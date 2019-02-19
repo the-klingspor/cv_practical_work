@@ -89,16 +89,41 @@ class LlcSpatialPyramidEncoder:
         bins. The first part corresponds to the level 0 bin, followed by level
         1, followed by level 2. In case of an error, None will be returned.
         """
-        codes = []
+        # index 0: level 0 bin; 1-4: level 1 bins; 5-20: level 2 bins
+        spm_code = np.zeros(21, self._size)
+        # encode all features of all level 2 bins
+        for l1_bin in range(4):
+            for l2_bin in range(4):
+                # skip the l0 and the four l1 codes
+                l2_index = 5 + 4 * l1_bin + l2_bin
+                spm_code[l2_index] = self._encode_spatial_bin(
+                    spatial_pyramid[l1_bin][l2_bin], pooling=pooling)
 
-        for level1_spatial_bin in spatial_pyramid:
-            for level2_spatial_bin in level1_spatial_bin:
-                level2_code = self._encode_spatial_bin(level2_spatial_bin,
-                                                       pooling, normalization)
-                codes.append(level2_code)
+        # use associativity of pooling methods to compute pooled codes for l1
+        # bins and l0 bin
+        if pooling == 'max':
+            for l1_index in range(1, 5):
+                start_index = 5 + 4 * l1_index
+                spm_code[l1_index] = spm_code[start_index]
+                for l2_bin in range(1, 4):
+                    spm_code[l1_index] = np.maximum(spm_code[l1_index],
+                                                spm_code[start_index + l2_bin])
+            spm_code[0] = spm_code[1]
+            for l1_bin in range(2,5):
+                spm_code[0] = np.maximum(spm_code[0], spm_code[l1_bin])
+        elif pooling == 'sum':
+            for l1_index in range(1, 5):
+                start_index = 5 + 4 * l1_index
+                spm_code[l1_index] = spm_code[start_index]
+                for l2_bin in range(1, 4):
+                    spm_code[l1_index] += spm_code[start_index + l2_bin]
+            spm_code[0] = spm_code[1]
+            for l1_bin in range(2, 5):
+                spm_code[0] += spm_code[l1_bin]
+        else:
+            raise ValueError("Invalid pooling method was chosen.")
 
-        spm_code = np.concatenate(codes).ravel()
-        return spm_code
+    # todo: ravel and normalize concatenated llc vector
 
     def _encode_spatial_bin(self, features, pooling='max'):
         """
@@ -117,7 +142,7 @@ class LlcSpatialPyramidEncoder:
                 llc_code = np.maximum(llc_code, self._get_llc_code(features[i]))
         elif pooling == 'sum':
             for i in range(1, num_features):
-                llc_code = llc_code + self._get_llc_code(features[i])
+                llc_code += self._get_llc_code(features[i])
         else:
             raise ValueError("Invalid pooling method was chosen.")
 
@@ -125,7 +150,7 @@ class LlcSpatialPyramidEncoder:
 
     def _get_llc_code(self, feature):
         """
-        Computes a LLC code based on the feature vector and the codebook.
+        Computes an LLC code based on the feature vector and the codebook.
         """
 
         """
