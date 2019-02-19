@@ -123,10 +123,40 @@ class LlcSpatialPyramidEncoder:
         Use this matrix to center the codebook around the input feature vector.
         """
         centered = self._codebook - np.broadcast_to(feature, (self._size,
-                                                             len(feature)))
-        cov = np.dot(centered, centered.T)
+                                                              len(feature)))
+        covariance = np.dot(centered, centered.T)
+        regularization_matrix = self._alpha * np.diag(
+            self._get_distance_vector(feature))
+        covariance_regularized = covariance + regularization_matrix
 
-        llc_code_unnormalized = np.solve 
+        llc_code_not_norm = np.linalg.solve(covariance_regularized,
+                                                np.ones(self._size))
+        sum = np.sum(llc_code_not_norm)
+        if sum != 0:
+            llc_code = llc_code_not_norm / sum
+        else:
+            llc_code = np.zeros(self._size)
+            # todo: error handling for llc_code with sum of zero
+        return llc_code
 
-        return 0
+    def _get_distance_vector(self, feature):
+        """
+        Computes a normalized distance vector from a feature to every visual
+        word of the codebook.
+        """
+        distances = np.zeros(self._size)
+        max_distance = 0
+        # get euclidean distance from feature to every visual word of the
+        # codebook, save maximum distance for normalization
+        for i in range(self._size):
+            distance = np.linalg.norm(feature - self._codebook[i])
+            max_distance = max(max_distance, distance)
+            distances[i] = distance
+
+        # normalize every vector with maximum distance and hyperparameter sigma
+        distances = distances - max_distance
+        distances = distances / self._sigma
+
+        return np.exp(distances)
+
 
