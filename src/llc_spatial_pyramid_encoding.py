@@ -106,7 +106,10 @@ class LlcSpatialPyramidEncoder:
         specified pooling method. In case of an empty set, a zero vector will be
         returned.
         """
-        return 0
+        if features.size == 0:
+            return np.zeros(self._size)
+
+        
 
     def _get_llc_code(self, feature):
         """

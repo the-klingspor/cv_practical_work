@@ -68,35 +68,31 @@ class LlcSpatialPyramidEncoderTest(unittest.TestCase):
         expected = np.zeros(self.encoder._size)
         self.assertTrue((result == expected).all())
 
-    @unittest.skip("implement and test low level functions first")
     def test_encode_spatial_bin_l2_max(self):
         result = self.encoder._encode_spatial_bin(np.array([[3, 0], [-1, -1]]),
                                                   pooling='max')
-        expected = np.array([1.12383, 0.22858, 0.98056])
+        expected = np.array([1.11015, 0.22858, 0.98056])
         self.assertArrayAlmostEqual(result, expected)
 
-    @unittest.skip("implement and test low level functions first")
     def test_encode_spatial_bin_l1_sum(self):
         result = self.encoder._encode_spatial_bin(np.array([[3, 0], [-1, -1],
                                                             [1, -1]]),
                                                   pooling='sum')
-        expected = np.array([1.25021, -0.25202, 2.0018])
+        expected = np.array([1.25112, -0.26089, 2.00956])
         self.assertArrayAlmostEqual(result, expected)
 
-    @unittest.skip("implement and test low level functions first")
     def test_encode_spatial_bin_l1_max(self):
         result = self.encoder._encode_spatial_bin(np.array([[3, 0], [-1, -1],
                                                             [1, -1]]),
                                                   pooling='max')
-        expected = np.array([1.12383, 0.22858, 0.98056])
+        expected = np.array([1.11015, 0.22858, 0.98056])
         self.assertArrayAlmostEqual(result, expected)
 
-    @unittest.skip("implement and test low level functions first")
     def test_encode_spatial_bin_l0_max(self):
         result = self.encoder._encode_spatial_bin(np.array([[3, 0], [-1, -1],
                                                             [1, -1], [1, 2]]),
                                                   pooling='max')
-        expected = np.array([3.02107, 0.22858, 0.98056])
+        expected = np.array([1.11015, 0.45485, 0.98056])
         self.assertArrayAlmostEqual(result, expected)
 
     @unittest.skip("implement and test low level functions first")
