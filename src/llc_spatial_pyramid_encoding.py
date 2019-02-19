@@ -100,7 +100,7 @@ class LlcSpatialPyramidEncoder:
         spm_code = np.concatenate(codes).ravel()
         return spm_code
 
-    # todo: normalization only for full encoding, not invidual bin encodings,
+    # todo: normalization only for full encoding, not individual bin encodings,
     #  comments might have to be changed as well
 
     def _encode_spatial_bin(self, features, pooling='max',

@@ -51,7 +51,7 @@ class LlcSpatialPyramidEncoderTest(unittest.TestCase):
         expected = np.zeros(self.encoder._size)
         self.assertTrue((result == expected).all())
 
-    # todo: normalization only for full encoding, not invidual bin encodings
+    # todo: normalization only for full encoding, not individual bin encodings
 
     def test_encode_spatial_bin_l2_max_eucl(self):
         result = self.encoder._encode_spatial_bin(np.array([[3, 0], [-1, -1]]),
