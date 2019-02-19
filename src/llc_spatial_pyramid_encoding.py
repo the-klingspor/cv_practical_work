@@ -106,10 +106,22 @@ class LlcSpatialPyramidEncoder:
         specified pooling method. In case of an empty set, a zero vector will be
         returned.
         """
-        if features.size == 0:
+        num_features = features.shape[0]
+
+        if num_features == 0:
             return np.zeros(self._size)
 
-        
+        llc_code = self._get_llc_code(features[0])
+        if pooling == 'max':
+            for i in range(1, num_features):
+                llc_code = np.maximum(llc_code, self._get_llc_code(features[i]))
+        elif pooling == 'sum':
+            for i in range(1, num_features):
+                llc_code = llc_code + self._get_llc_code(features[i])
+        else:
+            raise ValueError("Invalid pooling method was chosen.")
+
+        return llc_code
 
     def _get_llc_code(self, feature):
         """

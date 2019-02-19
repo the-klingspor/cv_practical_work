@@ -78,7 +78,7 @@ class LlcSpatialPyramidEncoderTest(unittest.TestCase):
         result = self.encoder._encode_spatial_bin(np.array([[3, 0], [-1, -1],
                                                             [1, -1]]),
                                                   pooling='sum')
-        expected = np.array([1.25112, -0.26089, 2.00956])
+        expected = np.array([1.25112, -0.260689, 2.00956])
         self.assertArrayAlmostEqual(result, expected)
 
     def test_encode_spatial_bin_l1_max(self):
