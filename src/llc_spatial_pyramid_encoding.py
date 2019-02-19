@@ -85,7 +85,7 @@ class LlcSpatialPyramidEncoder:
         The method used for normalizing the pooled encoding. The euclidean norm
         (default) and sum normalization are supported.
         :return: array of doubles
-        The concatenation of the pooled and normalized codes for all 21 spatial
+        The normalized concatenation of the pooled codes for all 21 spatial
         bins. The first part corresponds to the level 0 bin, followed by level
         1, followed by level 2. In case of an error, None will be returned.
         """
@@ -100,14 +100,11 @@ class LlcSpatialPyramidEncoder:
         spm_code = np.concatenate(codes).ravel()
         return spm_code
 
-    # todo: normalization only for full encoding, not individual bin encodings,
-    #  comments might have to be changed as well
-
-    def _encode_spatial_bin(self, features, pooling='max',
-                            normalization='eucl'):
+    def _encode_spatial_bin(self, features, pooling='max'):
         """
-        Computes the LLC codes for a set of features, pools them with the
-        specified pooling method and returns them after normalization.
+        Computes the LLC codes for a set of features and pools them with the
+        specified pooling method. In case of an empty set, a zero vector will be
+        returned.
         """
         return 0
 
