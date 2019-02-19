@@ -24,8 +24,8 @@ class LlcSpatialPyramidEncoderTest(unittest.TestCase):
         expected_codebook_1 = np.array([[1, 0], [4, 4]])
         expected_codebook_2 = np.array([[4, 4], [1, 0]])
 
-        permutation_1 = (self.encoder.codebook == expected_codebook_1).all()
-        permutation_2 = (self.encoder.codebook == expected_codebook_2).all()
+        permutation_1 = (self.encoder._codebook == expected_codebook_1).all()
+        permutation_2 = (self.encoder._codebook == expected_codebook_2).all()
 
         self.assertTrue(permutation_1 or permutation_2)
 
@@ -49,7 +49,7 @@ class LlcSpatialPyramidEncoderTest(unittest.TestCase):
     def test_encode_spatial_bin_empty(self):
         result = self.encoder._encode_spatial_bin(np.array([]))
         expected = np.zeros(self.encoder._size)
-        self.assertEqual((result == expected).all())
+        self.assertTrue((result == expected).all())
 
     def test_encode_spatial_bin_l2_max_eucl(self):
         result = self.encoder._encode_spatial_bin(np.array([[3, 0], [-1, -1]]),
@@ -86,7 +86,7 @@ class LlcSpatialPyramidEncoderTest(unittest.TestCase):
         spatial_pyramid_features = np.array([[[[3, 0], [-1, -1]],
                                               [[1, -1]],
                                               [],
-                                              []]  # l1 bin top left
+                                              []],  # l1 bin top left
                                              [[],
                                               [],
                                               [],
@@ -101,9 +101,28 @@ class LlcSpatialPyramidEncoderTest(unittest.TestCase):
                                               []]])  # l1 bin bottom right
         result = self.encoder.encode(spatial_pyramid_features, pooling='max',
                                      normalization='eucl')
-        expected = np.array([0.94870, 0.071781, 0.307923,  # l0 bin
-                             
-                            ])
+        expected = np.array([0.94870, 0.071781, 0.307923,   # l0 bin
+                             0.744807, 0.151489, 0.649856,  # l1 bins
+                             0, 0, 0,
+                             0, 0, 0,
+                             0.838129, -0.545254, -0.0154472,
+                             0.744807, 0.151489, 0.649856,  # l2 bins, top left
+                             0.380536, -0.157633, 0.911231,
+                             0, 0, 0,
+                             0, 0, 0,
+                             0, 0, 0,                   # l2 bins, top right
+                             0, 0, 0,
+                             0, 0, 0,
+                             0, 0, 0,
+                             0, 0, 0,                   # l2 bins, bottom left
+                             0, 0, 0,
+                             0, 0, 0,
+                             0, 0, 0,
+                             0.838129, -0.545254, -0.0154472,  # l2 bins, bottom right
+                             0, 0, 0,
+                             0, 0, 0,
+                             0, 0, 0])
+        self.assertArrayAlmostEqual(result, expected)
 
     def assertArrayAlmostEqual(self, arr1, arr2):
         try:
