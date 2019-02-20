@@ -54,6 +54,10 @@ class LlcSpatialPyramidEncoder:
         k_means_clusters = KMeans(n_clusters=self._size).fit(X=features)
         self._codebook = k_means_clusters.cluster_centers_
 
+    # todo: implement spatial_pyramid as a list of lists of numpy arrays,
+    #  because numpy arrays have to have consistent dimensions. Documentation
+    #  has to be changed as well.
+
     def encode(self, spatial_pyramid, pooling='max', normalization='eucl'):
         """
         Computes a locality-constrained linear code for a spatial pyramid of
@@ -102,7 +106,7 @@ class LlcSpatialPyramidEncoder:
         # use associativity of pooling methods to compute pooled codes for l1
         # bins and l0 bin
         if pooling == 'max':
-            for l1_index in range(1, 5):
+            for l1_index in range(4):
                 start_index = 5 + 4 * l1_index
                 spm_code[l1_index] = spm_code[start_index]
                 for l2_bin in range(1, 4):
@@ -135,8 +139,6 @@ class LlcSpatialPyramidEncoder:
             raise ValueError("Invalid normalization method was chosen: {}".
                              format(normalization))
         return spm_code
-
-    # todo: ravel and normalize concatenated llc vector
 
     def _encode_spatial_bin(self, features, pooling='max'):
         """
@@ -177,7 +179,7 @@ class LlcSpatialPyramidEncoder:
         Use this matrix to center the codebook around the input feature vector.
         """
         centered = self._codebook - np.broadcast_to(feature, (self._size,
-                                                              len(feature)))
+                                                              feature.shape[0]))
         covariance = np.dot(centered, centered.T)
         regularization_matrix = self._alpha * np.diag(
             self._get_distance_vector(feature))

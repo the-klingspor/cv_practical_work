@@ -97,22 +97,22 @@ class LlcSpatialPyramidEncoderTest(unittest.TestCase):
 
     def test_encode_max_eucl(self):
         # each row is a level 2 bin, each four rows are a level 1 bin
-        spatial_pyramid_features = np.array([[[[3, 0], [-1, -1]],
-                                              [[1, -1]],
-                                              [],
-                                              []],  # l1 bin top left
-                                             [[],
-                                              [],
-                                              [],
-                                              []],  # l1 bin top right
-                                             [[],
-                                              [],
-                                              [],
-                                              []],  # l1 bin bottom left
-                                             [[1, 2],
-                                              [],
-                                              [],
-                                              []]])  # l1 bin bottom right
+        spatial_pyramid_features = [[np.array([[3, 0], [-1, -1]]),
+                                     np.array([[1, -1]]),
+                                     np.array([]),
+                                     np.array([])],  # l1 bin top left
+                                    [np.array([]),
+                                     np.array([]),
+                                     np.array([]),
+                                     np.array([])],  # l1 bin top right
+                                    [np.array([]),
+                                     np.array([]),
+                                     np.array([]),
+                                     np.array([])],  # l1 bin bottom left
+                                    [np.array([[1, 2]]),
+                                     np.array([]),
+                                     np.array([]),
+                                     np.array([])]]  # l1 bin bottom right
         result = self.encoder.encode(spatial_pyramid_features, pooling='max',
                                      normalization='eucl')
         expected = np.array([0.370860, 0.151949, 0.327569,      # l0 bin
@@ -140,22 +140,22 @@ class LlcSpatialPyramidEncoderTest(unittest.TestCase):
 
     def test_encode_max_sum(self):
         # each row is a level 2 bin, each four rows are a level 1 bin
-        spatial_pyramid_features = np.array([[[[3, 0], [-1, -1]],
-                                              [[1, -1]],
-                                              [],
-                                              []],  # l1 bin top left
-                                             [[],
-                                              [],
-                                              [],
-                                              []],  # l1 bin top right
-                                             [[],
-                                              [],
-                                              [],
-                                              []],  # l1 bin bottom left
-                                             [[1, 2],
-                                              [],
-                                              [],
-                                              []]])  # l1 bin bottom right
+        spatial_pyramid_features = [[np.array([[3, 0], [-1, -1]]),
+                                     np.array([[1, -1]]),
+                                     np.array([]),
+                                     np.array([])],  # l1 bin top left
+                                    [np.array([]),
+                                     np.array([]),
+                                     np.array([]),
+                                     np.array([])],  # l1 bin top right
+                                    [np.array([]),
+                                     np.array([]),
+                                     np.array([]),
+                                     np.array([])],  # l1 bin bottom left
+                                    [np.array([[1, 2]]),
+                                     np.array([]),
+                                     np.array([]),
+                                     np.array([])]]  # l1 bin bottom right
         result = self.encoder.encode(spatial_pyramid_features, pooling='max',
                                      normalization='sum')
         expected = np.array([0.109008, 0.04466, 0.09628,        # l0 bin
