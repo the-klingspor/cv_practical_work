@@ -70,12 +70,12 @@ class LlcSpatialPyramidEncoder:
         :author: Joschka Strüber
         :param spatial_pyramid: ndarray
         A spatial pyramid of feature vectors, which is three layers deep. It is
-        a nested ndarray of 4 of four array of 4 array each of features. C.f.
+        a nested list of four lists of four  numpy arrays each of features. C.f.
         Lazebnik et al.'s publication "Beyond bags of features: spatial pyramid
         matching for recognizing natural scene categories" (2006 CVPR).
-        Each of the 16 most inner array holds the features of a level 2 spatial
+        Each of the 16 most inner arrays holds the features of a level 2 spatial
         bin. A level 1 spatial bin consists of all features of all level 2 bins
-        that are part of the same inner array. The level 0 spatial bin consists
+        that are part of the same inner list. The level 0 spatial bin consists
         of all features.
         Example:
         [[f0, f1, f2, f3], ..., [f12, f13, f14, f15]]
@@ -88,10 +88,11 @@ class LlcSpatialPyramidEncoder:
         :param normalization: {'eucl' (default), 'sum'}
         The method used for normalizing the pooled encoding. The euclidean norm
         (default) and sum normalization are supported.
-        :return: array of doubles
+        :return: ndarray, dtype=float64
         The normalized concatenation of the pooled codes for all 21 spatial
         bins. The first part corresponds to the level 0 bin, followed by level
-        1, followed by level 2. In case of an error, None will be returned.
+        1, followed by level 2. In case of an error, a ValueError will be
+        raised.
         """
         # index 0: level 0 bin; 1-4: level 1 bins; 5-20: level 2 bins
         spm_code = np.zeros((21, self._size))
@@ -106,8 +107,8 @@ class LlcSpatialPyramidEncoder:
         # use associativity of pooling methods to compute pooled codes for l1
         # bins and l0 bin
         if pooling == 'max':
-            for l1_index in range(4):
-                start_index = 5 + 4 * l1_index
+            for l1_index in range(1, 5):
+                start_index = 5 + 4 * (l1_index - 1)
                 spm_code[l1_index] = spm_code[start_index]
                 for l2_bin in range(1, 4):
                     spm_code[l1_index] = np.maximum(spm_code[l1_index],
