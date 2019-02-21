@@ -1,0 +1,32 @@
+%!TEX TS-program = pdflatex
+\documentclass[10pt,%
+	wide,%
+	xcolor={x11names},%
+	hyperref={colorlinks},%
+	pantone312,%
+	handout,%
+	]{beamer}
+\input{configBeamer.tex}
+\author{??? (\texttt{???@wwu.de})}
+\title{Camera Trap Challenge}
+\subtitle{Praktikum Computer Vision}
+\date{05. März 2019}
+
+\begin{document}
+\setbeamertemplate{section in toc}[sections numbered]
+
+\begin{frame}[plain]
+  \maketitle
+\end{frame}
+
+\begin{frame}[t]{Aufbau}
+\tableofcontents[hidesubsections, hideothersubsections]
+\end{frame}
+
+\input{content/einleitung.tex}
+\input{content/sequenzen.tex}
+\input{content/pca.tex}
+\input{content/hog.tex}
+\input{content/spm.tex}
+\input{content/evaluierung.tex}
+\end{document}
