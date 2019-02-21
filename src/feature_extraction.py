@@ -1,8 +1,5 @@
 import cv2
 import numpy as np
-import time
-
-from src.llc_spatial_pyramid_encoding import LlcSpatialPyramidEncoder
 
 
 class FeatureExtraction:
@@ -125,37 +122,3 @@ class FeatureExtraction:
             output = cv2.resize(output, None, fx=scaling_factor,
                                 fy=scaling_factor, interpolation=cv2.INTER_AREA)
         return output
-
-
-if __name__ == '__main__':
-    start = time.clock()
-    image1 = cv2.imread("/home/joschi/Pictures/pangolin.jpg", 1)
-    image2 = cv2.imread("/home/joschi/Pictures/pangolin2.jpg", 1)
-
-    gray1 = cv2.cvtColor(image1, cv2.COLOR_BGR2GRAY)
-    gray2 = cv2.cvtColor(image2, cv2.COLOR_BGR2GRAY)
-
-    image_list = [gray1, gray2]
-
-    feature_extraction = FeatureExtraction(cv2.xfeatures2d.SIFT_create())
-
-    dense_features = feature_extraction.get_dense_features(image_list)
-
-    start = time.clock()
-    spatial_pyramid = feature_extraction.get_spatial_pyramid(gray2)
-    end = time.clock()
-    print(end - start)
-
-    encoder = LlcSpatialPyramidEncoder()
-    start = time.clock()
-    encoder.train_codebook(dense_features)
-    end = time.clock()
-    print(end - start)
-
-    print(spatial_pyramid)
-
-    start = time.clock()
-    encoder.encode(spatial_pyramid)
-    end = time.clock()
-    print(end - start)
-

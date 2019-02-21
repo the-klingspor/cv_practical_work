@@ -1,6 +1,6 @@
 import numpy as np
-
 from sklearn.cluster import MiniBatchKMeans
+
 
 class LlcSpatialPyramidEncoder:
     """
@@ -125,7 +125,6 @@ class LlcSpatialPyramidEncoder:
         else:
             raise ValueError("Invalid pooling method was chosen: {}".
                              format(pooling))
-
         spm_code = spm_code.ravel()
 
         # normalization
@@ -136,6 +135,7 @@ class LlcSpatialPyramidEncoder:
         else:
             raise ValueError("Invalid normalization method was chosen: {}".
                              format(normalization))
+
         return spm_code
 
     def _encode_spatial_bin(self, features, pooling='max'):
@@ -149,6 +149,7 @@ class LlcSpatialPyramidEncoder:
         if num_features == 0:
             return np.zeros(self._size)
 
+        # todo: parallelization for call to _get_llc_code
         llc_code = self._get_llc_code(features[0])
         if pooling == 'max':
             for i in range(1, num_features):
@@ -183,7 +184,7 @@ class LlcSpatialPyramidEncoder:
             self._get_distance_vector(feature))
         covariance_regularized = covariance + regularization_matrix
 
-        # check is the regularized covariance matrix is singular
+        # check if the regularized covariance matrix is singular
         if self._is_invertible(covariance_regularized):
             llc_code_not_norm = np.linalg.solve(covariance_regularized,
                                                 np.ones(self._size))
