@@ -20,12 +20,15 @@ class LlcSpatialPyramidEncoderTest(unittest.TestCase):
                              [1, -1]])
         self.encoder.train_codebook(features, 2)
 
+        print(self.encoder._codebook)
+
         expected_codebook_1 = np.array([[1, 0], [4, 4]])
         expected_codebook_2 = np.array([[4, 4], [1, 0]])
 
-        permutation_1 = (self.encoder._codebook == expected_codebook_1).all()
-        permutation_2 = (self.encoder._codebook == expected_codebook_2).all()
-
+        permutation_1 = np.allclose(self.encoder._codebook, expected_codebook_1,
+                                    atol=1e-1)
+        permutation_2 = np.allclose(self.encoder._codebook, expected_codebook_2,
+                                    atol=1e-1)
         self.assertTrue(permutation_1 or permutation_2)
 
     def test_get_distance_vector(self):
