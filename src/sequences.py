@@ -1,8 +1,10 @@
 import os
-import exiftool
 import shutil
+
 from operator import itemgetter
 from datetime import datetime, timedelta
+
+from src.exiftool import ExifTool
 
 
 """
@@ -31,7 +33,7 @@ def read_images(path, empty=False):
         print("Input directory '{}' does not exist".format(path))
         return []
     # read the EXIF data of all images in path
-    et = exiftool.ExifTool()
+    et = ExifTool()
     et.start()
     images = []     # list of tuples [(string, datetime, string, boolean), ...]
     for image_path in os.listdir(path):

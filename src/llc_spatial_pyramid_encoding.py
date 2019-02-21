@@ -13,7 +13,7 @@ class LlcSpatialPyramidEncoder:
     :author: Joschka Strüber
     """
 
-    def __init__(self, size=None, codebook=None, alpha=1, sigma=1):
+    def __init__(self, size=None, codebook=None, alpha=500, sigma=100):
         """
         :author: Joschka Strüber
         :param size: int
@@ -22,10 +22,10 @@ class LlcSpatialPyramidEncoder:
         Set of features in a matrix, which is a good representation of the
         feature space. Usually, this will be trained based on a larger set of
         features, but a precomputed codebook can be used as well.
-        :param alpha: float (default = 1)
+        :param alpha: float (default = 500)
         Hyperparameter for regularization, which affects how much choosing
         non-local bases of the codebook is penalized.
-        :param sigma: float (default = 1)
+        :param sigma: float (default = 100)
         Hyperparameter for regularization, which is used for adjusting the
         weight decay speed of the locality adaptor.
         """
