@@ -181,6 +181,8 @@ class LlcSpatialPyramidEncoderTest(unittest.TestCase):
                              0, 0, 0])
         self.assertArrayAlmostEqual(result, expected)
 
+    # todo: write test for sum pooling
+
     def assertArrayAlmostEqual(self, arr1, arr2):
         try:
             np.testing.assert_allclose(arr1, arr2, atol=5e-4)
