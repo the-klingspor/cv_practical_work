@@ -1,6 +1,5 @@
 import unittest
 import numpy as np
-
 from src.llc_spatial_pyramid_encoding import LlcSpatialPyramidEncoder
 
 

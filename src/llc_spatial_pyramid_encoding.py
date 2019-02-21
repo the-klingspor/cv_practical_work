@@ -1,7 +1,6 @@
 import numpy as np
-import sklearn
 
-from sklearn.cluster import KMeans
+from sklearn.cluster import MiniBatchKMeans
 
 class LlcSpatialPyramidEncoder:
     """
@@ -35,7 +34,7 @@ class LlcSpatialPyramidEncoder:
         self._alpha = alpha
         self._sigma = sigma
 
-    def train_codebook(self, features, size=1024):
+    def train_codebook(self, features, size=256):
         """
         Trains a codebook as the cluster centers for a larger set of features.
         k-means is the used clustering algorithm.
@@ -51,12 +50,10 @@ class LlcSpatialPyramidEncoder:
             self._size = size
         else:
             self._size = features.shape[0]
-        k_means_clusters = KMeans(n_clusters=self._size).fit(X=features)
-        self._codebook = k_means_clusters.cluster_centers_
 
-    # todo: implement spatial_pyramid as a list of lists of numpy arrays,
-    #  because numpy arrays have to have consistent dimensions. Documentation
-    #  has to be changed as well.
+        mini_batch_kMeans = MiniBatchKMeans(n_clusters=self._size)
+        k_means_clusters = mini_batch_kMeans.fit(X=features)
+        self._codebook = k_means_clusters.cluster_centers_
 
     def encode(self, spatial_pyramid, pooling='max', normalization='eucl'):
         """
