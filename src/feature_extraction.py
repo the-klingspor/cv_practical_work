@@ -22,12 +22,14 @@ class FeatureExtraction:
         """
         self._feature_extractor = feature_extractor
 
-    def get_features(self, images, step_size=16):
+    def get_dense_features(self, images, step_size=16):
         """
         Compute a dense set of features for the given step size for all images.
         :author: Joschka Strüber
         :param images: A list of images as numpy arrays. They have to be single
         channel,  grayscale images.
+        :param step_size: int (default = 16)
+        The step size between the features in x and y directions.
         :return: ndarray
         A 2d array of features where every row is a feature.
         """
@@ -43,5 +45,5 @@ class FeatureExtraction:
         features = np.concatenate(feature_list)
         return features
 
-    def get_spatial_pyramid(self, image, stepsize=16):
+    def get_spatial_pyramid(self, image, step_size=16):
         return
