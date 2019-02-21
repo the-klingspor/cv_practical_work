@@ -183,8 +183,13 @@ class LlcSpatialPyramidEncoder:
             self._get_distance_vector(feature))
         covariance_regularized = covariance + regularization_matrix
 
-        llc_code_not_norm = np.linalg.solve(covariance_regularized,
+        # check is the regularized covariance matrix is singular
+        if self._is_invertible(covariance_regularized):
+            llc_code_not_norm = np.linalg.solve(covariance_regularized,
                                                 np.ones(self._size))
+        else:
+            llc_code_not_norm = np.linalg.lstsq(covariance_regularized,
+                                             np.ones(self._size), rcond=None)[0]
         sum = np.sum(llc_code_not_norm)
         if sum != 0:
             llc_code = llc_code_not_norm / sum
@@ -212,5 +217,16 @@ class LlcSpatialPyramidEncoder:
         distances = distances / self._sigma
 
         return np.exp(distances)
+
+    def _is_invertible(self, matrix):
+        """
+        Checks if a matrix is invertible and can be used for solving linear
+        equations
+        """
+        square = (matrix.shape[0] == matrix.shape[1])
+        full_rank = False
+        if square:
+            full_rank = (np.linalg.matrix_rank(matrix) == matrix.shape[0])
+        return square and full_rank
 
 

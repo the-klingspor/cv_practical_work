@@ -20,8 +20,6 @@ class LlcSpatialPyramidEncoderTest(unittest.TestCase):
                              [1, -1]])
         self.encoder.train_codebook(features, 2)
 
-        print(self.encoder._codebook)
-
         expected_codebook_1 = np.array([[1, 0], [4, 4]])
         expected_codebook_2 = np.array([[4, 4], [1, 0]])
 

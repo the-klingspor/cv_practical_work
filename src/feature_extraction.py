@@ -4,6 +4,7 @@ import time
 
 from src.llc_spatial_pyramid_encoding import LlcSpatialPyramidEncoder
 
+
 class FeatureExtraction:
     """
     Class which can be used to extract features as dense grids or spatial
@@ -41,7 +42,7 @@ class FeatureExtraction:
         A 2d array of features where every row is a feature.
         """
         feature_list = []
-        # collect dense keypoints for every image and compute features
+        # collect dense key points for every image and compute features
         for im in images:
             resized = self._resize_fixed_aspect_ratio(im)
             key_points = [cv2.KeyPoint(x, y, step_size)
@@ -55,19 +56,63 @@ class FeatureExtraction:
 
     def get_spatial_pyramid(self, image, step_size=16):
         """
+        Computes dense features of an image and returns them in a spatial
+        pyramid. The spatial pyramid has a size of three layers. That means the
+        image will be divided into 16 parts where every one of these holds the
+        feature of a level 2 bin. The four level 2 bins at the top left compose
+        the first level 1 bin, the next four level 2 bins at the top right the
+        second level 1 bin and so forth. All four level 1 bins together yield
+        the level 0 bin.
 
-        :param image:
-        :param step_size:
-        :return:
+        :author: Joschka Strüber
+        :param image: The image as numpy array, which features will be computed
+        as a spatial pyramid.
+        :param step_size: The step size between the dense features.
+        :return: [[array, array, array, array], [...], [...], [...]]
+        A list that contains four list, that contain four numpy arrays of
+        features each.
         """
-        height, width = image.shape[:2]
+        resized = self._resize_fixed_aspect_ratio(image)
 
-        return
+        l1_bin_top_left = []
+        l1_bin_top_right = []
+        l1_bin_bottom_left = []
+        l1_bin_bottom_right = []
+
+        height, width = resized.shape[:2]
+        bin_size_horizontal = int(width / 4)
+        bin_size_vertical= int(height / 4)
+
+        for row in range(4):
+            for column in range(4):
+                row_start = row * bin_size_vertical
+                row_end = row_start + bin_size_vertical
+                col_start = column * bin_size_horizontal
+                col_end = col_start + bin_size_horizontal
+                key_points = [cv2.KeyPoint(x, y, step_size)
+                              for y in range(row_start, row_end, step_size)
+                              for x in range(col_start, col_end, step_size)]
+                desc, bin_features = self._feature_extractor.compute(resized,
+                                                                     key_points)
+                if row < 2:
+                    if column < 2:
+                        l1_bin_top_left.append(bin_features)
+                    else:
+                        l1_bin_top_right.append(bin_features)
+                else:
+                    if column < 2:
+                        l1_bin_bottom_left.append(bin_features)
+                    else:
+                        l1_bin_bottom_right.append(bin_features)
+        spatial_pyramid = [l1_bin_top_left, l1_bin_top_right,
+                           l1_bin_bottom_left, l1_bin_bottom_right]
+        return spatial_pyramid
 
     def _resize_fixed_aspect_ratio(self, image):
         """
         Resize the image to the maximum size allowed, while keeping the aspect
         ratio fixed.
+        :author: Joschka Strüber
         :param image: The image that is to be resized.
         :return: The resized image.
         """
@@ -95,11 +140,22 @@ if __name__ == '__main__':
     feature_extraction = FeatureExtraction(cv2.xfeatures2d.SIFT_create())
 
     dense_features = feature_extraction.get_dense_features(image_list)
-    print(dense_features.shape[0])
+
+    start = time.clock()
+    spatial_pyramid = feature_extraction.get_spatial_pyramid(gray2)
+    end = time.clock()
+    print(end - start)
 
     encoder = LlcSpatialPyramidEncoder()
     start = time.clock()
     encoder.train_codebook(dense_features)
     end = time.clock()
-    print (end - start)
+    print(end - start)
+
+    print(spatial_pyramid)
+
+    start = time.clock()
+    encoder.encode(spatial_pyramid)
+    end = time.clock()
+    print(end - start)
 
