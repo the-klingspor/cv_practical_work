@@ -1,0 +1,66 @@
+% Abkürzungen
+% ===========================================================
+	\newcommand{\BB}{\mathbb{B}}
+	\newcommand{\CC}{\mathbb{C}}
+	\newcommand{\EE}{\mathbb{E}}
+	\newcommand{\FF}{\mathbb{F}}
+	\newcommand{\HH}{\mathcal{H}}
+	\newcommand{\KK}{\mathbb{K}}
+	\newcommand{\LL}{\mathbb{L}}
+	\newcommand{\NN}{\mathbb{N}}
+	\newcommand{\QQ}{\mathbb{Q}}
+	\newcommand{\RR}{\mathbb{R}}
+	\newcommand{\ZZ}{\mathbb{Z}}
+	\newcommand{\oh}{\mathcal{O}}				% Landau-O
+	\newcommand{\ind}{1\hspace{-0,8ex}1} 		% Indikatorfunktion (Doppeleins)
+	\newcommand{\bewrueck}{\enquote{$\Leftarrow$}:} 	% Beweis Rückrichtung
+	\newcommand{\bewhin}{\enquote{$\Rightarrow$}:}		% Beweis Hinrichtung
+	\newcommand{\ol}[1]{\overline{#1}}
+	\newcommand{\wt}[1]{\widetilde{#1}}
+	\newcommand{\wh}[1]{\widehat{#1}}
+% ===========================================================
+
+% Operatoren
+% ===========================================================
+	\DeclareMathOperator{\id}{id} 				% Identität
+	\DeclareMathOperator{\im}{im} 				% image
+	\DeclareMathOperator{\pot}{\mathcal{P}}		% Potenzmenge
+	\DeclareMathOperator{\sgn}{sgn} 			% Signum
+	\DeclareMathOperator{\Sym}{Sym} 			% Symmetrische Gruppe
+% ===========================================================
+
+% Klammerungen und ähnliches
+% ===========================================================
+	\DeclarePairedDelimiter{\absolut}{\lvert}{\rvert}		% Betrag
+	\DeclarePairedDelimiter{\ceiling}{\lceil}{\rceil}		% aufrunden
+	\DeclarePairedDelimiter{\Floor}{\lfloor}{\rfloor}		% aufrunden
+	\DeclarePairedDelimiter{\Norm}{\lVert}{\rVert}			% Norm
+	\DeclarePairedDelimiter{\sprod}{\langle}{\rangle}		% spitze Klammern
+	\DeclarePairedDelimiter{\enbrace}{(}{)}					% runde Klammern
+	\DeclarePairedDelimiter{\benbrace}{\lbrack}{\rbrack}	% eckige Klammern
+	\DeclarePairedDelimiter{\penbrace}{\{}{\}}				% geschweifte Klammern
+	\newcommand{\Underbrace}[2]{{\underbrace{#1}_{#2}}} 	% bessere Unterklammerungen
+	% Kurzschreibweisen für Faule und Code-Vervollständigung
+	\newcommand{\abs}[1]{\absolut*{#1}}
+	\newcommand{\ceil}[1]{\ceiling*{#1}}
+	\newcommand{\flo}[1]{\Floor*{#1}}
+	\newcommand{\no}[1]{\Norm*{#1}}
+	\newcommand{\sk}[1]{\sprod*{#1}}
+	\newcommand{\enb}[1]{\enbrace*{#1}}
+	\newcommand{\penb}[1]{\penbrace*{#1}}
+	\newcommand{\benb}[1]{\benbrace*{#1}}
+	\newcommand{\stack}[2]{\makebox[1cm][c]{$\stackrel{#1}{#2}$}}
+% ===========================================================
+
+% Monotypes
+% ===========================================================
+	\newcommand{\Band}{\mathtt{AND}}
+	\newcommand{\Bor}{\mathtt{OR}}
+	\newcommand{\zero}{\mathtt{0}}
+	\newcommand{\one}{\mathtt{1}}
+	\newcommand{\Bnot}{\mathtt{NOT}}
+	\newcommand{\Bnand}{\mathtt{NAND}}
+	\newcommand{\Bnor}{\mathtt{NOR}}
+	\newcommand{\Bxor}{\mathtt{XOR}}
+	\DeclareMathOperator{\DNF}{DNF}
+	\DeclareMathOperator{\KNF}{KNF}

@@ -1,0 +1,31 @@
+%!TEX TS-program = pdflatex
+\documentclass[10pt,%
+	wide,%
+	xcolor={x11names},%
+	hyperref={colorlinks},%
+	pantone312,%
+	handout,%
+	]{beamer}
+\input{configBeamer.tex}
+\author{Phil Steinhorst (\texttt{p.st@wwu.de})}
+\title{Auswertungs- und Umgebungsmodelle}
+\subtitle{Seminar Programmiersprachen}
+\date{06. September 2018}
+
+\begin{document}
+\setbeamertemplate{section in toc}[sections numbered]
+
+\begin{frame}[plain]
+  \maketitle
+\end{frame}
+
+\begin{frame}[t]{Aufbau}
+\tableofcontents[hidesubsections, hideothersubsections]
+\end{frame}
+
+\input{content/funktional.tex}
+\input{content/substitution.tex}
+\input{content/lokal.tex}
+\input{content/umgebung.tex}
+\input{content/final.tex}
+\end{document}

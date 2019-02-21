@@ -1,0 +1,135 @@
+%!TEX root = vortrag.tex
+% Basics und Codierung
+% ===========================================================
+\usepackage{wwustyle2}
+\usepackage[ngerman]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[german=quotes]{csquotes}
+\usepackage{scrtime}
+\usepackage{etex}
+\usepackage{shellesc}
+% ===========================================================
+
+% Fonts und Typographie
+% ===========================================================
+\usepackage{sourcecodepro}
+\usepackage[default]{sourcesanspro}
+\usepackage{nimbusmononarrow}
+\usepackage{ellipsis}
+\newcommand{\bet}[1]{\textbf{\color{maincolor}#1}}
+\newcommand{\minor}[1]{\textcolor{black!50}{#1}}
+\newcommand{\minoritem}{\item[{\footnotesize \textcolor{black!50}{$\blacktriangleright$}}]}
+\newcommand{\code}[1]{\texttt{#1}}
+\usepackage{xspace}
+\makeatletter 
+\xspaceaddexceptions{\grqq \grq \csq@qclose@i \} } 
+\makeatother
+\usefonttheme[onlymath]{serif}
+\usepackage{multicol}
+\newcommand{\hyper}[1]{\bet{\underline{\smash{#1}}}}
+% ===========================================================
+
+% Farben	
+% ===========================================================
+	\usepackage{xcolor}
+	\definecolor{fbblau}{HTML}{3078AB}
+	\definecolor{mediumgray}{gray}{.65}
+	\definecolor{blackberry}{rgb}{0.53, 0.0, 0.25}
+% ===========================================================
+
+% Mathe-Pakete
+% ===========================================================
+	\usepackage{mathtools}
+	\usepackage{amssymb}
+	\usepackage[bigdelims]{newtxmath}
+
+	\input{MathCmds.tex}
+	\usepackage{wasysym}
+	
+\newcommand{\zerodisplayskips}{%
+%\setlength{\abovedisplayskip}{0pt}%
+%\setlength{\belowdisplayskip}{0pt}%
+%\setlength{\abovedisplayshortskip}{0pt}%
+%\setlength{\belowdisplayshortskip}{0pt}
+%\setlength{\multicolsep}{0pt}
+}
+\appto{\normalsize}{\zerodisplayskips}
+\appto{\small}{\zerodisplayskips}
+\appto{\footnotesize}{\zerodisplayskips}
+% ===========================================================
+
+% TikZ
+% ===========================================================
+	\usepackage{tikz}
+	\usepackage{tikz-cd}					% kommutative Diagramme
+	\usetikzlibrary{arrows.meta}			% mehr Pfeile!
+	\usetikzlibrary{shadows}
+	\usetikzlibrary{calc}
+	\tikzset{>=Latex}						% Standard-Pfeilspitze
+	\usetikzlibrary{automata,positioning}
+	\usetikzlibrary{matrix}
+	\usetikzlibrary{circuits.logic.IEC}
+% ===========================================================
+
+% minted
+% ===========================================================
+\usepackage{minted}
+\setminted{%
+	style=default,
+	fontsize=\footnotesize,
+	breaklines,
+	breakanywhere=false,
+	breakbytoken=false,
+	breakbytokenanywhere=false,
+	breakafter={.,},
+	autogobble,
+%	numbers=left,
+%	numbersep=3mm,
+	tabsize=4,
+	frame=lines
+}
+\setmintedinline{%
+	fontsize=\normalsize,
+	numbers=none,
+	numbersep=12pt,
+	tabsize=4,
+	%bgcolor=gray!15,
+}
+% ===========================================================
+
+\usepackage{todonotes}
+\usepackage[tikz]{mdframed}
+
+\usepackage[%
+	backend=biber,
+	sortlocale=auto,
+	natbib,
+	hyperref,
+	backref=false,
+	style=numeric,
+]%
+{biblatex}
+\addbibresource{bibliography.bib}
+\setbeamertemplate{bibliography item}[text]
+\renewcommand*{\bibfont}{\footnotesize}
+\hypersetup{colorlinks=false,citecolor=maincolor,linkcolor=maincolor,urlcolor=black!50}
+\newcommand{\ccite}[2]{\textcolor{black!50}{\cite[#2]{#1}}}
+
+\AtBeginSection[]
+{
+	\begin{frame}[t]
+		\tableofcontents[currentsection, hidesubsections, hideothersubsections,sectionstyle=show/shaded]
+	\end{frame}
+}
+
+\newmdenv[%
+	linewidth=1.5,
+	linecolor=maincolor,
+	roundcorner=5pt,
+	%leftmargin=40,
+	%rightmargin=40
+	]{mybox}
+	
+\newcommand{\slot}[1]{{\small\ensuremath{\sprod{\mathit{#1}}}}}
+\newcommand{\fslot}[1]{{\footnotesize\ensuremath{\sprod{\mathit{#1}}}}}
