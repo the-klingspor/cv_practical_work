@@ -1,8 +1,6 @@
 import cv2
 import numpy as np
 import random
-import HirschData
-import DachsData
 import os
 from matplotlib import pyplot as plt
 import matplotlib.patches as patches
@@ -134,12 +132,12 @@ def shuffle_list(*ls):
 if __name__ == '__main__':
     print('Training SVM model ...')
     hog = get_hog()
-    badger = np.load(os.path.dirname(os.path.realpath(__file__)) + '\\badger.npy').item()
-    deer = np.load(os.path.dirname(os.path.realpath(__file__)) + '\deer.npy').item()
+    badger = np.load(os.path.dirname(os.path.realpath(__file__)) + os.sep + 'badger.npy').item()
+    deer = np.load(os.path.dirname(os.path.realpath(__file__)) + os.sep + 'deer.npy').item()
     badger_data = list(badger.keys())
     badger_roi = list(badger.values())
-    deer_data = list(deer.keys())  # HirschData.data#[:int(len(badger_data)+100)]
-    deer_roi = list(deer.values())  # HirschData.rois#[:int(len(badger_data)+100)]
+    deer_data = list(deer.keys())
+    deer_roi = list(deer.values())
 
     if SHUFFLE_TRAINING_DATA:
         deer_data, deer_roi = shuffle_list(deer_data, deer_roi)
