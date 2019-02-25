@@ -9,8 +9,8 @@ from skimage import exposure as eq
 from skimage.feature import local_binary_pattern
 from skimage.segmentation import active_contour
 
-from background_separation import pca
-from background_separation import rpca
+from src.background_separation import pca
+from src.background_separation import rpca
 
 
 def segment(path, label):
@@ -57,7 +57,7 @@ def segment(path, label):
             print("done!")
     ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
     np.save(ROOT_DIR + os.sep + label, data)
-    print(f"Data writen to file!")
+    print(f"Data written to file!")
 
 
 def bwareafilt(mask):

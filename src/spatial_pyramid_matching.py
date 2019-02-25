@@ -7,7 +7,7 @@ from src.segment import segment
 
 
 if __name__ == '__main__':
-    # load data, assign labels and split into test and trainings data
+    # load data, assign labels and split into test and training data
 
     # segment the images to get only the regions of interest with animals
 
@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     # extract dense features from every image for encoding
 
-    # encode all trainings and test images
+    # encode all training and test images
 
     # save LLC codes and labels in arrays for training and prediction
     training_codes = None
@@ -34,5 +34,4 @@ if __name__ == '__main__':
     result = classifier.score(testing_codes, testing_labels)
     print("The mean accuracy of the classification was: {}".format(result))
 
-    pass
 
