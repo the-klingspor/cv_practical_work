@@ -65,8 +65,9 @@ def order_by_sequences(images, path_to):
     :return: None
     """
     if not os.path.exists(path_to):
-        print("Output directory '{}' does not exist.".format(path_to))
-        return
+        print("Output directory '{}' does not exist and will be created automatically.".format(path_to))
+        os.makedirs(path_to)
+        # return
 
     images.sort(key=itemgetter(0, 1))
     # split them into sequences based on their time and copy them into path_to
@@ -117,15 +118,15 @@ def copy_sequence(seq_number, path_to, images, start, end):
         path_to_image = os.path.join(path_to_seq, filename)
         shutil.copyfile(path_from_image, path_to_image)
 
+if __name__ == '__main__':
+    damhirsch_images = read_images("/home/tp/Downloads/CVSequences/CVSequences/damhirsch/dayvision")
+    damhirsch_empty = read_images("/home/tp/Downloads/CVSequences/CVSequences/damhirsch/empty/day")
+    damhirsch_images.extend(damhirsch_empty)
+    order_by_sequences(damhirsch_images,
+                       "/home/tp/Downloads/CVSequences/CVSequences/damhirsch/dayvision")
 
-# damhirsch_images = read_images("/home/tp/Downloads/CVSequences/CVSequences/damhirsch/dayvision")
-# damhirsch_empty = read_images("/home/tp/Downloads/CVSequences/CVSequences/damhirsch/empty/day")
-# damhirsch_images.extend(damhirsch_empty)
-# order_by_sequences(damhirsch_images,
-#                    "/home/tp/Downloads/CVSequences/CVSequences/damhirsch/dayvision")
-
-badger_images = read_images("/home/tp/Downloads/CVSequences/CVSequences/badger/dayvision")
-badger_empty = read_images("/home/tp/Downloads/CVSequences/CVSequences/badger/empty/day")
-badger_images.extend(badger_empty)
-order_by_sequences(badger_images,
-                   "/home/tp/Downloads/CVSequences/CVSequences/badger/dayvision")
+    badger_images = read_images("/home/tp/Downloads/CVSequences/CVSequences/badger/dayvision")
+    badger_empty = read_images("/home/tp/Downloads/CVSequences/CVSequences/badger/empty/day")
+    badger_images.extend(badger_empty)
+    order_by_sequences(badger_images,
+                       "/home/tp/Downloads/CVSequences/CVSequences/badger/dayvision")
