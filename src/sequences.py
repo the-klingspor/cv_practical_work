@@ -119,9 +119,3 @@ def copy_sequence(seq_number, path_to, images, start, end):
         path_to_image = os.path.join(path_to_seq, filename)
         shutil.copyfile(path_from_image, path_to_image)
 
-
-damhirsch_images = read_images("/home/joschi/Documents/testDDD/dama_dama_damhirsch/dayvision")
-damhirsch_empty = read_images("/home/joschi/Documents/testDDD/dama_dama_damhirsch/empty/day")
-damhirsch_images.extend(damhirsch_empty)
-order_by_sequences(damhirsch_images,
-                   "/home/joschi/Documents/testDDD_seq/dama_dama_damhirsch/dayvision")
