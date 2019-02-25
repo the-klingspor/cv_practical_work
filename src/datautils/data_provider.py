@@ -23,6 +23,7 @@ class DataProvider:
     image_data_dir = ""
     sequences_data_dir = ""
     images_with_roi_dir = ""
+    show_images_with_roi = False
     labeled_images_with_roi_dir = ""
     segments_dir = ""
     folder_names_to_process = {}
@@ -34,9 +35,10 @@ class DataProvider:
     data_keys = dict()
 
     def sequence(self):
-        """This function provides convenient access for the sequence.py
+        """This function provides convenient access for sequence.py
 
-        In order to use this function create a DataProvider object using the XXXXXXX and then call the function. After
+        In order to use this function create a DataProvider object using the XXXXXXX, set the 'image_data_dir', the
+        'sequences_data_dir' and the 'folder_names_to_progress' and then call the function. After
         calling this function every and subfolder of the 'image_data_dir' will be progressed. The 'image_data_dir'
         should contain seperate folders for each animal that is provided. Than each of the animal subfolder names will
         be tested if present in the 'folder_names_to_progress' list. If it is present all containing images will be
@@ -65,6 +67,15 @@ class DataProvider:
             sequences.order_by_sequences(data, os.path.join(self.sequences_data_dir, animal_folder_name))
 
     def segment(self):
+        """This function provides convenient access for segment.py
+
+        In order to use this function create a DataProvider object using the XXXXXXX, set the 'sequences_data_dir',
+        'images_with_roi_dir', 'show_images_with_roi' and 'segments_dir'. Finally call the function. After
+        calling this function every subfolder of the 'sequences_data_dir' will treated as label for a animal. Than each
+        of the animal subfolders, which should contain the sequences, will processed using the segment.py code.
+        As output numpy arrays will be written to the 'segments_dir' folder and contain the image pathes and the
+        ROIS detected in segment.py. The file name is the label of the animal.
+        """
         for animal_folder_name in os.listdir(self.sequences_data_dir):
             path = os.path.join(self.sequences_data_dir, animal_folder_name)
             if os.path.isdir(path):

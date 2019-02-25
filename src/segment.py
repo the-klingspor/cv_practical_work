@@ -13,7 +13,8 @@ from background_separation import pca
 from background_separation import rpca
 
 
-def segment(path, label, root_out_path = '/home/tp/Downloads/CVSequences/CVSequences/damhirsch/out/'):
+def segment(path, label, root_out_path = '/home/tp/Downloads/CVSequences/CVSequences/damhirsch/out/',
+            write_images_with_roi = False):
     data = dict()
     print(f"Segmenting {label}")
     for folder in os.listdir(path):
@@ -43,21 +44,24 @@ def segment(path, label, root_out_path = '/home/tp/Downloads/CVSequences/CVSeque
             for ii in range(p):
                 bw = O[:, :, ii]
                 bw = post_processing_method_2(bw)
-                # fig, ax = plt.subplots(1)
-                # ax.imshow(c[:, :, :, ii].astype(np.uint8))
                 box = boundingBox(bw)
-                # box = show_localisation(bw, ax)
+                if write_images_with_roi: # added in order control if images should be written to hd {Thomas}
+                    fig, ax = plt.subplots(1)
+                    ax.imshow(c[:, :, :, ii].astype(np.uint8))
+                    box = show_localisation(bw, ax)
                 # Only ROIs with a minimum size are allowed. This is done to prevent the results from containing empty
                 # ROIs and to force a minimum size of at least 64 pixel width and 48 height to reduce the number of
-                # artifacts.
+                # artifacts. {Thomas}
                 if box[2] > 64 and box[3] > 48:
                     data[seqPath + os.sep + imageList[ii]] = box
-                    # show_segmentation(bw, ax)
-                    # outPath = os.path.join(root_out_path, label)
-                    # outPath = os.path.join(outPath, folder)
-                    # if not os.path.exists(outPath): os.makedirs(outPath)
-                    # fig.savefig(outPath + os.sep + 'seg_' + str(ii) + '.png', format='png')
-                # plt.close(fig)
+                    if write_images_with_roi:
+                        show_segmentation(bw, ax)
+                        outPath = os.path.join(root_out_path, label)
+                        outPath = os.path.join(outPath, folder)
+                        if not os.path.exists(outPath): os.makedirs(outPath)
+                        fig.savefig(outPath + os.sep + 'seg_' + str(ii) + '.png', format='png')
+                if write_images_with_roi:
+                    plt.close(fig)
             print("done!")
     if not os.path.exists(root_out_path): os.makedirs(root_out_path)
     np.save(os.path.join(root_out_path, label), data)
