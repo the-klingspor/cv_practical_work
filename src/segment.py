@@ -15,12 +15,13 @@ from background_separation import rpca
 
 def segment(path, label):
     data = dict()
+    print(f"Segmenting {label}")
     for folder in os.listdir(path):
         if folder:
-            print('Processing sequence ' + folder)
             seqPath = os.path.join(path, folder)
             imageList = os.listdir(seqPath)
             p = len(imageList)
+            print(f'Processing sequence {folder} with {p} images')
             x, y, z = plt.imread(os.path.join(seqPath, imageList[0])).shape
             x -= (x - 1504) + 33
             seq = np.zeros((x, y, p))
@@ -36,30 +37,41 @@ def segment(path, label):
             # L1, S1 = rpca(m)
             L, S = reshape(L1, S1, x)
             O = hard_threshold(S)
-            print('Finished')
+            print('Finished pca - start finding ROIs')
             for ii in range(p):
                 bw = O[:, :, ii].copy()
                 bw = post_processing_method_2(bw)
                 fig, ax = plt.subplots(1)
                 ax.imshow(c[:, :, :, ii].astype(np.uint8))
                 box = show_localisation(bw, ax)
-                data[seqPath + '\\' + imageList[ii]] = box
-                # show_segmentation(bw, ax)
-                outPath = 'C:\\Users\Sufian\Downloads\data\DDD\segmented\\' + folder
-                if not os.path.exists(outPath): os.makedirs(outPath)
-                fig.savefig(outPath + '\seg_' + str(ii) + '.png', format='png')
+                # Only ROIs with a minimum size are allowed. This is done to prevent the results from containing empty
+                # ROIs and to force a minimum size of at least 64 pixel width and 48 height to reduce the number of
+                # artifacts.
+                if box[2] > 64 and box[3] > 48:
+                    data[seqPath + os.sep + imageList[ii]] = box
+                    # show_segmentation(bw, ax)
+                    outPath = '/home/tp/Downloads/CVSequences/CVSequences/damhirsch/out/' + folder
+                    if not os.path.exists(outPath): os.makedirs(outPath)
+                    fig.savefig(outPath + os.sep + 'seg_' + str(ii) + '.png', format='png')
                 plt.close(fig)
+            print("done!")
     ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-    np.save(ROOT_DIR + '\\' + label, data)
+    np.save(ROOT_DIR + os.sep + label, data)
+    print(f"Data writen to file!")
 
 
 def bwareafilt(mask):
     image = mask.copy()
     image, contours, hierarchy = cv2.findContours(image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     contour_sizes = [(cv2.contourArea(contour), contour) for contour in contours]
-    biggest_contour = max(contour_sizes, key=lambda x: x[0])[1]
     res = np.zeros(image.shape, np.uint8)
-    cv2.drawContours(res, [biggest_contour], -1, 255, -1)
+    try:
+        biggest_contour = max(contour_sizes, key=lambda x: x[0])[1]
+        cv2.drawContours(res, [biggest_contour], -1, 255, -1)
+    except ValueError as err:
+        print("ValueError: {0}. Most likely no movement was detected in bwareafilt()".format(err))
+        biggest_contour = 0
+
     return biggest_contour, res
 
 
@@ -157,5 +169,5 @@ def show_segmentation(mask, ax):
 
 
 if __name__ == '__main__':
-    segment("C:\\Users\Sufian\Downloads\data\DDD\orderedSeqD", 'deer')
-    segment("C:\\Users\Sufian\Downloads\data\DDD\orderedSeqB", 'badger')
+    segment("/home/tp/Downloads/CVSequences/CVSequences/damhirsch/dayvision", 'deer')
+    segment("/home/tp/Downloads/CVSequences/CVSequences/badger/dayvision", 'badger')

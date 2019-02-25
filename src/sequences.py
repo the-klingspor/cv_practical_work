@@ -119,3 +119,15 @@ def copy_sequence(seq_number, path_to, images, start, end):
         path_to_image = os.path.join(path_to_seq, filename)
         shutil.copyfile(path_from_image, path_to_image)
 
+
+# damhirsch_images = read_images("/home/tp/Downloads/CVSequences/CVSequences/damhirsch/dayvision")
+# damhirsch_empty = read_images("/home/tp/Downloads/CVSequences/CVSequences/damhirsch/empty/day")
+# damhirsch_images.extend(damhirsch_empty)
+# order_by_sequences(damhirsch_images,
+#                    "/home/tp/Downloads/CVSequences/CVSequences/damhirsch/dayvision")
+
+badger_images = read_images("/home/tp/Downloads/CVSequences/CVSequences/badger/dayvision")
+badger_empty = read_images("/home/tp/Downloads/CVSequences/CVSequences/badger/empty/day")
+badger_images.extend(badger_empty)
+order_by_sequences(badger_images,
+                   "/home/tp/Downloads/CVSequences/CVSequences/badger/dayvision")
