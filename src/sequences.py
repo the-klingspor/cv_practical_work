@@ -20,6 +20,14 @@ CREATION = 1
 PATH = 2
 EMPTY = 3
 
+# Digital image file types
+TYPES = ('.jpg',
+         '.JPG',
+         '.png',
+         '.PNG',
+         '.tif',
+         '.TIF')
+
 def read_images(path, empty=False):
     """
     Loads the relevant EXIF metadata for all image files in the given directory.
@@ -43,7 +51,7 @@ def read_images(path, empty=False):
     et.start()
     images = []     # list of tuples [(string, datetime, string, boolean), ...]
     for image_path in os.listdir(path):
-        if image_path.endswith(('.jpg', '.JPG')):
+        if image_path.endswith(TYPES):
             metadata = et.get_metadata(os.path.join(path, image_path))
             images.append((metadata['MakerNotes:SerialNumber'],
                            datetime.strptime(metadata['EXIF:CreateDate'],
@@ -52,6 +60,60 @@ def read_images(path, empty=False):
                            empty))
     et.terminate()
     return images
+
+def order_db_by_sequences(path_from, path_to, copy=True, empty=True):
+    """
+    Orders a database of image files into sequences based on the serial number
+    of the camera, the creation date and the animal directory. Images from the
+    "mismatch" directory will be ignored. The user can choose if the sequences
+    should be copied or moved. Additionally, a text file with the information
+    whether or not an image is from the "empty" directory of a species and
+    contains no animal can be written to every sequence.
+
+    :param path_from: Path with directories of all camera trap images.
+        Example:
+        .../CVSequences:
+            /meles_meles_dachs:
+                /dayvision
+                /empty:
+                    /day
+                    /night
+                /mismatch
+                /nightvision
+            /dama_dama_damhirsch:
+                /dayvision
+                /empty:
+                    /day
+                    /night
+                /nightvision
+
+    :param path_to: Path where the sequences of all species will be moved to.
+        Example:
+        .../DDD:
+            /meles_meles_dachs:
+                /seq_0:
+                    /empty.txt
+                    /IMG0001.JPG
+                    ...
+                /seq_1:
+                    /empty.txt
+                    /IMG0010.JPG
+                    ...
+                ...
+            /dama_dama_damhirsch:
+                /seq_0:
+                    /empty.txt
+                    /IMG0020.JPG
+                    ...
+                ...
+    :param copy: Boolean (default = True)
+        If the image files should be copied or moved to their sequence
+         directories.
+    :param empty: Boolean (default = True)
+        Whether or not the empty information of images will be saved in a text
+    :return: None
+    """
+
 
 
 def order_by_sequences(images, path_to, copy=True, empty=True):
@@ -99,7 +161,7 @@ def order_by_sequences(images, path_to, copy=True, empty=True):
             seq_number += 1
     # copy last sequence as well
     create_sequence(seq_number, path_to, images, seq_start, len(images), copy,
-                  empty)
+                    empty)
 
 
 def create_sequence(seq_number, path_to, images, start, end, copy=True,
