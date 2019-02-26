@@ -6,7 +6,6 @@ from datetime import datetime, timedelta
 
 from src.exiftool import ExifTool
 
-
 """
 @author: Joschka Strüber
 
@@ -14,6 +13,11 @@ This script orders camera trap images into consecutive sequences by using the
 images' EXIF tags.
 """
 
+# Constants for access of elements in an image list
+SN = 0
+CREATION = 1
+PATH = 2
+EMPTY = 3
 
 def read_images(path, empty=False):
     """
@@ -24,8 +28,9 @@ def read_images(path, empty=False):
     :author: Joschka Strüber
     :param path: Path of the directory with image files, which EXIF tags will
     be read and returned.
-    :param empty: Information, if this image is empty or contains a relevant
-    subject (e.g. an animal in camera trap images).
+    :param empty: Boolean (default = False)
+        Information if this image is empty or contains a relevant subject (e.g.
+        an animal in camera trap images).
     :return: List of tuples with a serial number, date of creation, filename and
     the empty information of all image files in the given path.
     """
@@ -70,33 +75,35 @@ def order_by_sequences(images, path_to):
         print("Output directory '{}' does not exist.".format(path_to))
         return
 
-    images.sort(key=itemgetter(0, 1))
+    images.sort(key=itemgetter(SN, CREATION))
     # split them into sequences based on their time and copy them into path_to
     seq_start = 0
-    seq_serial_number = images[0][0]
+    seq_serial_number = images[0][SN]
     seq_number = 0
     for counter, image in enumerate(images):
         if counter == 0:
             continue
-        timediff = images[counter-1][1] - image[1]
-        # copy sequence if serial number changes or diff >10min
-        if image[0] != seq_serial_number or \
-                not(timedelta(minutes=-10) < timediff < timedelta(minutes=10)):
+        time_diff = images[counter-1][CREATION] - image[CREATION]
+        # copy sequence if serial number changes or diff > 10min
+        if image[SN] != seq_serial_number or \
+                not(timedelta(minutes=-10) < time_diff < timedelta(minutes=10)):
             copy_sequence(seq_number, path_to, images, seq_start,
                           counter)
             seq_start = counter
-            seq_serial_number = image[0]
+            seq_serial_number = image[SN]
             seq_number += 1
     # copy last sequence as well
     copy_sequence(seq_number, path_to, images, seq_start,
                   len(images))
 
 
-def copy_sequence(seq_number, path_to, images, start, end):
+def create_sequence(seq_number, path_to, images, start, end, copy=True,
+                    empty=True):
     """
-    Copies all images that belong to the same sequence into a new directory
-    named after their sequence number. Additionally, a file will be written to
-    the directory with all empty images of the sequence.
+    Arrange all images that belong to the same sequence into a new directory
+    named after their sequence number. The files can be moved or copied.
+    Additionally, a file with information of all empty images of the sequence
+    can be written to the output path.
 
     :author; Joschka Strüber
     :param seq_number: The sequence number which the new directory will be named
@@ -106,6 +113,11 @@ def copy_sequence(seq_number, path_to, images, start, end):
         date, path and whether or not the image is empty and shows no animal).
     :param start: Start index of the sequence.
     :param end: Index behind the last image of the sequence.
+    :param copy: Boolean (default = True)
+        Whether the image files of the sequence should be copied or moved.
+    :param empty: Boolean (default = True)
+        Whether or not the empty information of images will be saved in a text
+        file.
     :return: None
     """
     if not os.path.exists(path_to):
@@ -114,10 +126,19 @@ def copy_sequence(seq_number, path_to, images, start, end):
     path_to_seq = os.path.join(path_to, "seq_" + str(seq_number))
     os.mkdir(path_to_seq)
     for i in range(start, end):
-        path_from_image = images[i][2]
+        path_from_image = images[i][PATH]
         filename = os.path.basename(path_from_image)
         path_to_image = os.path.join(path_to_seq, filename)
-        shutil.copyfile(path_from_image, path_to_image)
+        if copy:
+            shutil.copyfile(path_from_image, path_to_image)
+        else:
+            shutil.move(path_from_image, path_to_image)
+    if empty:
+        empty_path = os.path.join(path_to_seq, "empty.txt")
+        with open(empty_path, "w") as file:
+            for i in range(start, end):
+                empty_image = images[i][PATH]
+
 
 
 # damhirsch_images = read_images("/home/tp/Downloads/CVSequences/CVSequences/damhirsch/dayvision")
