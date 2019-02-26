@@ -3,6 +3,7 @@ import shutil
 
 from operator import itemgetter
 from datetime import datetime, timedelta
+from pathlib import Path
 
 from src.exiftool import ExifTool
 
@@ -137,8 +138,10 @@ def create_sequence(seq_number, path_to, images, start, end, copy=True,
         empty_path = os.path.join(path_to_seq, "empty.txt")
         with open(empty_path, "w") as file:
             for i in range(start, end):
-                empty_image = images[i][PATH]
-
+                image = images[i]
+                if image[EMPTY]:
+                    file_name = os.path.basename(image[PATH])
+                    file.write(file_name)
 
 
 # damhirsch_images = read_images("/home/tp/Downloads/CVSequences/CVSequences/damhirsch/dayvision")
