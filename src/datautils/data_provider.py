@@ -1,11 +1,3 @@
-# class
-# gets a folder that contains *.npy
-# file contains pathes to image files and ROIS. The file name is the label
-# the user can select the max percentage of the images are used
-# he can also select if the same amount of images per class should be used
-# he than has a next function, that provides the possibility of iterate over every image that should be analyzed
-# in addtion ther should be a function that grants them all at once
-# maybe provide a evaluate  function
 import os
 import numpy as np
 import random
@@ -14,11 +6,12 @@ import sequences
 
 
 class DataProvider:
+    """A class to handle all data related processes.
+
+    This class provides easy to use access to segment.py, sequences.py and selects the amount of images that should be
+    used for training and testing purposes of a classifier.
     """
-    The root working directory. As default this folder should be the root folder for the unprocessed data, the separated
-    sequences, the numpy files with the rois as well as the output images visualizing rois and showing labels. However,
-    it is possible to separate these folders and locate them on independent directories.
-    """
+
     working_dir = ""
     image_data_dir = ""
     sequences_data_dir = ""
@@ -34,7 +27,7 @@ class DataProvider:
     data = dict()
     data_keys = dict()
 
-    def sequence(self):
+    def generate_sequences(self):
         """This function provides convenient access for sequence.py
 
         In order to use this function create a DataProvider object using the XXXXXXX, set the 'image_data_dir', the
@@ -66,29 +59,95 @@ class DataProvider:
                     data.extend(sequences.read_images(os.path.join(animal_folder_path, last_folder_name)))
             sequences.order_by_sequences(data, os.path.join(self.sequences_data_dir, animal_folder_name))
 
-    def segment(self):
+    def segment_sequences(self):
         """This function provides convenient access for segment.py
 
         In order to use this function create a DataProvider object using the XXXXXXX, set the 'sequences_data_dir',
         'images_with_roi_dir', 'show_images_with_roi' and 'segments_dir'. Finally call the function. After
         calling this function every subfolder of the 'sequences_data_dir' will treated as label for a animal. Than each
         of the animal subfolders, which should contain the sequences, will processed using the segment.py code.
-        As output numpy arrays will be written to the 'segments_dir' folder and contain the image pathes and the
+        As output numpy arrays will be written to the 'segments_dir' folder and contain the image paths and the
         ROIS detected in segment.py. The file name is the label of the animal.
         """
         for animal_folder_name in os.listdir(self.sequences_data_dir):
             path = os.path.join(self.sequences_data_dir, animal_folder_name)
             if os.path.isdir(path):
                 print(f"Processing folder {path}")
-                segment.segment(path, animal_folder_name, self.segments_dir)
+                segment.segment(path, animal_folder_name, self.segments_dir, self.show_images_with_roi)
 
     def get_training_data(self):
-        pass
+        """Provides the training data fraction of the entire data available
+
+        This method returns the training data fraction of the entire data available as a list of tuples. Each tuple
+        consist out of the entries (<File Name>, <ROI>, <label>). <File Name> represents the file location; <ROI> is
+        a tuple (x, y, width, height); And <label> is the animal name.
+        The data size depends on the 'max_training_data_percentage' value. Using this value the fraction of all
+        available images of one animal type is calculated and added to the training data list. If equal training size is
+        required the boolean 'train_with_equal_image_amount' can be set to true. In this case smallest training data
+        length is calculated and for each animal type this value is used to generate the test data.
+        Fürthermore the test data can be shuffled. If 'shuffle_data' is set to True the data is shuffled. In order to
+        create reproducible shuffled experiments the seed for the random generator can be set with the 'seed' attribute.
+
+        :return A list of tuples containing (<File Name>, <ROI>, <label>). Depending on the settings for each
+        the same amount of images can be added or a fraction of all available image of a animal are returned.
+        """
+        training_data = []
+        if self.train_with_equal_image_amount:
+            min_number = self._get_min_test_data_length()
+            for animal_dict in self.data_keys.items():
+                label = animal_dict[0]
+                image_names = animal_dict[1]
+                image_names = image_names[: min_number]
+                for image_name in image_names:
+                    training_data.append((image_name, self.data[label][image_name], label))
+        else:
+            for animal_dict in self.data_keys.items():
+                label = animal_dict[0]
+                image_names = animal_dict[1]
+                image_names = image_names[: int(len(image_names) * self.max_training_data_percentage)]
+                for image_name in image_names:
+                    training_data.append((image_name, self.data[label][image_name], label))
+        return training_data
 
     def get_test_data(self):
-        pass
+        """Provides a list of tuples containing all data not used for training
+
+        :return A list of tuples containing (<File Name>, <ROI>, <label>). For each animal all remaining images not
+        used tor training are returned.
+        """
+        test_data = []
+        if self.train_with_equal_image_amount:
+            min_number = self._get_min_test_data_length()
+            for animal_dict in self.data_keys.items():
+                label = animal_dict[0]
+                image_names = animal_dict[1]
+                image_names = image_names[min_number + 1:]
+                for image_name in image_names:
+                    test_data.append((image_name, self.data[label][image_name], label))
+        else:
+            for animal_dict in self.data_keys.items():
+                label = animal_dict[0]
+                image_names = animal_dict[1]
+                image_names = image_names[int(len(image_names) * self.max_training_data_percentage) + 1:]
+                for image_name in image_names:
+                    test_data.append((image_name, self.data[label][image_name], label))
+        return test_data
+
+    def _get_min_test_data_length(self):
+        """Private function to calculate the amount of images that are selected for the animal with the lowest image amount.
+        """
+        min_number = float('inf')
+        for animal_dict in self.data_keys.items():
+            image_names = animal_dict[1]
+            temp_min_number = int(len(image_names) * self.max_training_data_percentage)
+            if min_number > temp_min_number:
+                min_number = temp_min_number
+        return min_number
 
     def _shuffle_data(self):
+        """Private function to shuffle the data.
+
+        This function is called if the boolean 'shuffle_data' is set"""
         if self.seed != 0:
             random.seed(self.seed)
         for dictionary in self.data_keys.items():
@@ -96,11 +155,11 @@ class DataProvider:
             keys = dictionary[1]
             random.shuffle(keys)
 
-    def __init__(self, npy_folder_path, max_percentage=0.5, train_with_equal_amount=True, shuffle_data=True,
+    def __init__(self, npy_folder_path, max_percentage=0.5, train_with_equal_amount=True, shuffle_data=False,
                  random_Seed=0):
         self.npy_folder_path = npy_folder_path
-        self._max_percentage = max_percentage
-        self._train_with_equal_amount = train_with_equal_amount
+        self.max_training_data_percentage = max_percentage
+        self.train_with_equal_amount = train_with_equal_amount
         self.shuffle_data = shuffle_data
         self.seed = random_Seed
 
@@ -117,3 +176,7 @@ class DataProvider:
 
 if __name__ == '__main__':
     provider = DataProvider("/home/tp/Downloads/CVSequences/out")
+    # provider.train_with_equal_image_amount = False
+    training_data = provider.get_training_data()
+    test_data = provider.get_test_data()
+    pass
