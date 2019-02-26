@@ -111,8 +111,21 @@ def order_db_by_sequences(path_from, path_to, copy=True, empty=True):
          directories.
     :param empty: Boolean (default = True)
         Whether or not the empty information of images will be saved in a text
+        file for every sequence. If "False" is selected, the empty images will
+        not be read.
     :return: None
     """
+    if not os.path.exists(path_from):
+        print("Input directory '{}' does not exist".format(path_from))
+        return
+    if not os.path.exists(path_to):
+        print("Output directory '{}' does not exist".format(path_to))
+
+    # for every animal species 
+
+    # read all images that are relevant
+
+    # order them into sequences
 
 
 
