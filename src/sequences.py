@@ -54,22 +54,26 @@ def read_images(path, empty=False):
     return images
 
 
-def order_by_sequences(images, path_to):
+def order_by_sequences(images, path_to, copy=True, empty=True):
     """
     Orders tuples of image data into consecutive sequences based on the serial
     number of the camera and the creation date. Images from different cameras
     or with a too large time difference cannot be from the same camera trap
-    sequence. Pictures of the same sequence will be copied into the same
-    directory, which is a subdirectory of path_to.
-
-    :todo: write empty information into text file
-    :todo: option to not only copy, but also relocate image files
+    sequence. Pictures of the same sequence will be copied or moved into the
+    same directory, which is a subdirectory of path_to. If wanted, a text file
+    with the information of every image of a sequence whether or not it is
+    empty, can be written to the sequence directories.
 
     :author: Joschka Strüber
     :param images: List of tuples of image data: [(serial number, create date,
-    file name, empty information), ...]
+        file name, empty information), ...]
     :param path_to: The directory where the sequence directories will be written
-    to.
+        to.
+    :param copy: Boolean (default = True)
+        Whether the image files of the sequence should be copied or moved.
+    :param empty: Boolean (default = True)
+        Whether or not the empty information of images will be saved in a text
+        file for every sequence.
     :return: None
     """
     if not os.path.exists(path_to):
@@ -88,14 +92,14 @@ def order_by_sequences(images, path_to):
         # copy sequence if serial number changes or diff > 10min
         if image[SN] != seq_serial_number or \
                 not(timedelta(minutes=-10) < time_diff < timedelta(minutes=10)):
-            copy_sequence(seq_number, path_to, images, seq_start,
-                          counter)
+            create_sequence(seq_number, path_to, images, seq_start, counter,
+                            copy, empty)
             seq_start = counter
             seq_serial_number = image[SN]
             seq_number += 1
     # copy last sequence as well
-    copy_sequence(seq_number, path_to, images, seq_start,
-                  len(images))
+    create_sequence(seq_number, path_to, images, seq_start, len(images), copy,
+                  empty)
 
 
 def create_sequence(seq_number, path_to, images, start, end, copy=True,
