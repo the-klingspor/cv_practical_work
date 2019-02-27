@@ -142,8 +142,10 @@ def order_db_by_sequences(path_from, path_to, copy=True, empty=True):
             if os.path.isdir(empty_night_subdir):
                 images.extend(read_images(empty_night_subdir, empty=True))
 
-        # order them into sequences
-        order_by_sequences(images, path_to, copy, empty)
+        species_name = os.path.dirname(species)
+        path_to_species = os.path.join(path_to, species_name)
+        os.mkdir(path_to_species)
+        order_by_sequences(images, path_to_species, copy, empty)
 
 
 def order_by_sequences(images, path_to, copy=True, empty=True):
