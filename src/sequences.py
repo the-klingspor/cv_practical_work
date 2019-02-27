@@ -144,6 +144,9 @@ def order_db_by_sequences(path_from, path_to, copy=True, empty=True):
 
         species_name = os.path.dirname(species)
         path_to_species = os.path.join(path_to, species_name)
+
+        # todo: make exception safe if directory already exists
+
         os.mkdir(path_to_species)
         order_by_sequences(images, path_to_species, copy, empty)
 
@@ -223,6 +226,9 @@ def create_sequence(seq_number, path_to, images, start, end, copy=True,
         print("Output directory '{}' does not exist.".format(path_to))
         return
     path_to_seq = os.path.join(path_to, "seq_" + str(seq_number))
+
+    # todo: make exception safe if directory already exists
+
     os.mkdir(path_to_seq)
     for i in range(start, end):
         path_from_image = images[i][PATH]
