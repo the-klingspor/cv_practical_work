@@ -3,7 +3,6 @@ import shutil
 
 from operator import itemgetter
 from datetime import datetime, timedelta
-from pathlib import Path
 
 from src.exiftool import ExifTool
 
