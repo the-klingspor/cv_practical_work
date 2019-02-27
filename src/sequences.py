@@ -121,12 +121,29 @@ def order_db_by_sequences(path_from, path_to, copy=True, empty=True):
     if not os.path.exists(path_to):
         print("Output directory '{}' does not exist".format(path_to))
 
-    # for every animal species 
+    # for every animal species
+    species_subdirs = [f.path for f in os.scandir(path_from) if f.is_dir()]
+    for species in species_subdirs:
+        # read all images that are relevant
+        images = []
+        dayvision_subdir = os.path.join(species, 'dayvision')
+        if os.path.isdir(dayvision_subdir):
+            images.extend(read_images(dayvision_subdir))
 
-    # read all images that are relevant
+        nightvision_subdir = os.path.join(species, 'nightvision')
+        if os.path.isdir(nightvision_subdir):
+            images.extend(read_images(nightvision_subdir))
 
-    # order them into sequences
+        if empty:
+            empty_day_subdir = os.path.join(species, 'empty', 'day')
+            if os.path.isdir(empty_day_subdir):
+                images.extend(read_images(empty_day_subdir, empty=True))
+            empty_night_subdir = os.path.join(species, 'empty', 'night')
+            if os.path.isdir(empty_night_subdir):
+                images.extend(read_images(empty_night_subdir, empty=True))
 
+        # order them into sequences
+        order_by_sequences(images, path_to, copy, empty)
 
 
 def order_by_sequences(images, path_to, copy=True, empty=True):
