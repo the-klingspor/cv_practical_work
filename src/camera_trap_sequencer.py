@@ -27,6 +27,7 @@ class CameraTrapSequencer(QtWidgets.QWidget):
         self.directory_type = QtWidgets.QComboBox()
         self.directory_type.addItem("Database")
         self.directory_type.addItem("Directory")
+        self.directory_type.currentIndexChanged.connect(self._directory_type_change)
 
         self.move_method_label = QtWidgets.QLabel("Move method: ")
 
@@ -95,15 +96,17 @@ class CameraTrapSequencer(QtWidgets.QWidget):
             self.dirs_changed = False
             copy = True if self.move_method.currentText() == "Copy" else False
             empty = self.empty_info.isChecked()
-            if self.directory_type_label.currentText() == "Database":
+            if self.directory_type.currentText() == "Database":
                 order_db_by_sequences(self.input_dir,
                                       self.output_dir,
                                       empty,
                                       copy)
-            else:
+            elif self.directory_type.currentText() == "Directory":
                 order_dir_by_sequences(self.input_dir,
                                        self.output_dir,
                                        copy)
+            else:
+                assert False
 
     def get_input_dir(self):
         self.input_dir = self._get_dir("Choose Input Directory")
@@ -126,6 +129,14 @@ class CameraTrapSequencer(QtWidgets.QWidget):
         parent_dir = os.path.basename(parent_dirs)
         short_path = os.path.join("...", parent_dir, dir_name)
         return short_path
+
+    def _directory_type_change(self):
+        if self.directory_type.currentText() == "Database":
+            self.empty_info.setEnabled(True)
+        elif self.directory_type.currentText() == "Directory":
+            self.empty_info.setEnabled(False)
+        else:
+            assert False
 
 
 if __name__ == '__main__':
