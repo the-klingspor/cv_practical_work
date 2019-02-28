@@ -60,6 +60,31 @@ def read_images(path, empty=False):
     et.terminate()
     return images
 
+
+def order_dir_by_sequences(path_from, path_to, copy=True):
+    """
+    Orders a directory of image files into sequences based on the serial number
+    of the camera and the creation date. The user can choose if the sequences
+    should be copied or moved.
+
+    :author: Joschka Strüber
+    :param path_from: Path of a directory with camera trap images.
+    :param path_to: Path where the sequences of images will be moved to.
+    :param copy: Boolean (default = True)
+        If the image files should be copied or moved to their sequence
+        directories.
+    :return: None
+    """
+    if not os.path.exists(path_from):
+        print("Input directory '{}' does not exist".format(path_from))
+        return
+    elif not os.path.exists(path_to):
+        print("Output directory '{}' does not exist".format(path_to))
+        return
+    images = read_images(path_from, empty=False)
+    order_by_sequences(images, path_to, copy=copy, empty=False)
+
+
 def order_db_by_sequences(path_from, path_to, copy=True, empty=True):
     """
     Orders a database of image files into sequences based on the serial number
@@ -118,8 +143,9 @@ def order_db_by_sequences(path_from, path_to, copy=True, empty=True):
     if not os.path.exists(path_from):
         print("Input directory '{}' does not exist".format(path_from))
         return
-    if not os.path.exists(path_to):
+    elif not os.path.exists(path_to):
         print("Output directory '{}' does not exist".format(path_to))
+        return
 
     # for every animal species:
     species_subdirs = [f.path for f in os.scandir(path_from) if f.is_dir()]
@@ -142,7 +168,7 @@ def order_db_by_sequences(path_from, path_to, copy=True, empty=True):
             if os.path.isdir(empty_night_subdir):
                 images.extend(read_images(empty_night_subdir, empty=True))
 
-        species_name = os.path.dirname(species)
+        species_name = os.path.basename(species)
         path_to_species = os.path.join(path_to, species_name)
 
         # todo: make exception safe if directory already exists
@@ -174,7 +200,8 @@ def order_by_sequences(images, path_to, copy=True, empty=True):
     :return: None
     """
     if not os.path.exists(path_to):
-        print("Output directory '{}' does not exist and will be created automatically.".format(path_to))
+        print("Output directory '{}' does not exist and will be created "
+              "automatically.".format(path_to))
         os.makedirs(path_to)
         # return
 
@@ -241,12 +268,17 @@ def create_sequence(seq_number, path_to, images, start, end, copy=True,
             shutil.move(path_from_image, path_to_image)
     if empty:
         empty_path = os.path.join(path_to_seq, "empty.txt")
+        empty_exists = False
         with open(empty_path, "w") as file:
             for i in range(start, end):
                 image = images[i]
                 if image[EMPTY]:
+                    empty_exists = True
                     file_name = os.path.basename(image[PATH])
-                    file.write(file_name)
+                    file.write(file_name + '\n')
+        if not empty_exists:
+            os.remove(empty_path)
+
 
 if __name__ == '__main__':
     damhirsch_images = read_images("/home/tp/Downloads/CVSequences/CVSequences/damhirsch/dayvision")
