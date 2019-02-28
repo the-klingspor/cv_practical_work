@@ -15,6 +15,10 @@ class CameraTrapSequencer(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
 
+        self.input_dir = None
+        self.output_dir = None
+        self.dirs_changed = False
+
         # create all widgets
         self.input_type_label = QtWidgets.QLabel("Input type: ")
 
@@ -33,16 +37,16 @@ class CameraTrapSequencer(QtWidgets.QWidget):
         self.empty_info = QtWidgets.QCheckBox("Empty Images")
         self.empty_info.setChecked(True)
 
-        self.input_dir = QtWidgets.QLineEdit("Choose input directory")
-        self.input_dir.setReadOnly(True)
-        self.input_dir.setFixedWidth(200)
+        self.input_dir_label = QtWidgets.QLineEdit("Choose input directory")
+        self.input_dir_label.setReadOnly(True)
+        self.input_dir_label.setFixedWidth(200)
 
         self.input_button = QtWidgets.QPushButton("Input Directory")
         self.input_button.clicked.connect(self.get_input_dir)
 
-        self.output_dir = QtWidgets.QLineEdit("Choose output directory")
-        self.output_dir.setReadOnly(True)
-        self.output_dir.setFixedWidth(200)
+        self.output_dir_label = QtWidgets.QLineEdit("Choose output directory")
+        self.output_dir_label.setReadOnly(True)
+        self.output_dir_label.setFixedWidth(200)
 
         self.output_button = QtWidgets.QPushButton("Output Directory")
         self.output_button.clicked.connect(self.get_output_dir)
@@ -64,8 +68,8 @@ class CameraTrapSequencer(QtWidgets.QWidget):
         self.inner_layout.addRow(self.input_type_label, self.directory_type)
         self.inner_layout.addRow(self.move_method_label, self.move_method)
         self.inner_layout.addRow(self.empty_info_label, self.empty_info)
-        self.inner_layout.addRow(self.input_dir, self.input_button)
-        self.inner_layout.addRow(self.output_dir, self.output_button)
+        self.inner_layout.addRow(self.input_dir_label, self.input_button)
+        self.inner_layout.addRow(self.output_dir_label, self.output_button)
         self.layout.addLayout(self.inner_layout)
         self.layout.addWidget(VerticalSeparator())
         self.layout.addWidget(self.order_button)
@@ -74,19 +78,35 @@ class CameraTrapSequencer(QtWidgets.QWidget):
         self.setWindowTitle("Camera Trap Sequencer")
 
     def order_sequences(self):
-        pass
+        if self.input_dir is None:
+
+        elif self.output_dir is None:
+
+        elif not self.dirs_changed:
+            
+        else:
 
     def get_input_dir(self):
-        input_dir = self.get_dir("Choose Input Directory")
+        self.input_dir = self._get_dir("Choose Input Directory")
+        self.dirs_changed = True
+        self.input_dir_label.setText(self._shorten_dir(self.input_dir))
 
     def get_output_dir(self):
-        output_dir = self.get_dir("Choose Output Directory")
+        self.output_dir = self._get_dir("Choose Output Directory")
+        self.dirs_changed = True
+        self.output_dir_label.setText(self._shorten_dir(self.output_dir))
 
-    def get_dir(self, caption):
+    def _get_dir(self, caption):
         dir_name = QtWidgets.QFileDialog.getExistingDirectory(self, caption,
                                                               os.path.expanduser("~"),
                                                               option=QtWidgets.QFileDialog.ShowDirsOnly)
         return dir_name
+
+    def _shorten_dir(self, path):
+        parent_dirs, dir = os.path.split(path)
+        parent_dir = os.path.basename(parent_dirs)
+        short_path = os.path.join("...", parent_dir, dir)
+        return short_path
 
 
 if __name__ == '__main__':
