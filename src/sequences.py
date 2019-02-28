@@ -3,7 +3,6 @@ import shutil
 
 from operator import itemgetter
 from datetime import datetime, timedelta
-from pathlib import Path
 
 from src.exiftool import ExifTool
 
@@ -70,6 +69,7 @@ def order_db_by_sequences(path_from, path_to, copy=True, empty=True):
     whether or not an image is from the "empty" directory of a species and
     contains no animal can be written to every sequence.
 
+    :author: Joschka Strüber
     :param path_from: Path with directories of all camera trap images.
         Example:
         .../CVSequences:
@@ -121,7 +121,7 @@ def order_db_by_sequences(path_from, path_to, copy=True, empty=True):
     if not os.path.exists(path_to):
         print("Output directory '{}' does not exist".format(path_to))
 
-    # for every animal species
+    # for every animal species:
     species_subdirs = [f.path for f in os.scandir(path_from) if f.is_dir()]
     for species in species_subdirs:
         # read all images that are relevant
