@@ -20,7 +20,7 @@ class CameraTrapSequencer(QtWidgets.QWidget):
         # todo: add busy indicator after button was clicked
         # todo: add confirmation sign after button was clicked
         # todo: check for exceptions (exiftool missing)
-        # todo: more error handling in case
+        # todo: more error handling in case of bad input directories
         # todo: save dirs in case of cancellation
         # todo: set start directory to last selected
 

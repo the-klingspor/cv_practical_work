@@ -268,12 +268,16 @@ def create_sequence(seq_number, path_to, images, start, end, copy=True,
             shutil.move(path_from_image, path_to_image)
     if empty:
         empty_path = os.path.join(path_to_seq, "empty.txt")
+        empty_exists = False
         with open(empty_path, "w") as file:
             for i in range(start, end):
                 image = images[i]
                 if image[EMPTY]:
+                    empty_exists = True
                     file_name = os.path.basename(image[PATH])
                     file.write(file_name + '\n')
+        if not empty_exists:
+            os.remove(empty_path)
 
 
 if __name__ == '__main__':
