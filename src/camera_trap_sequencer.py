@@ -1,7 +1,7 @@
 import sys
 import os
 
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide2 import QtWidgets
 
 from src.sequences import order_db_by_sequences, order_dir_by_sequences
 
@@ -16,6 +16,13 @@ class CameraTrapSequencer(QtWidgets.QWidget):
     """
     def __init__(self):
         super().__init__()
+
+        # todo: add busy indicator after button was clicked
+        # todo: add confirmation sign after button was clicked
+        # todo: check for exceptions (exiftool missing)
+        # todo: more error handling in case
+        # todo: save dirs in case of cancellation
+        # todo: set start directory to last selected
 
         self.input_dir = None
         self.output_dir = None
@@ -90,21 +97,20 @@ class CameraTrapSequencer(QtWidgets.QWidget):
         elif not self.dirs_changed:
             no_dirs_changed_dialog = QtWidgets.QErrorMessage(self)
             no_dirs_changed_dialog.showMessage("The directories were not changed"
-                                               " after the last ordering of"
-                                               " sequences.")
+                                               " after the last ordering of sequences.")
         else:
             self.dirs_changed = False
             copy = True if self.move_method.currentText() == "Copy" else False
-            empty = self.empty_info.isChecked()
             if self.directory_type.currentText() == "Database":
+                empty = self.empty_info.isChecked()
                 order_db_by_sequences(self.input_dir,
                                       self.output_dir,
-                                      empty,
-                                      copy)
+                                      copy=copy,
+                                      empty=empty)
             elif self.directory_type.currentText() == "Directory":
                 order_dir_by_sequences(self.input_dir,
                                        self.output_dir,
-                                       copy)
+                                       copy=copy)
             else:
                 assert False
 

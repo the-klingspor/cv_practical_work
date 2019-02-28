@@ -84,6 +84,7 @@ def order_dir_by_sequences(path_from, path_to, copy=True):
     images = read_images(path_from, empty=False)
     order_by_sequences(images, path_to, copy=copy, empty=False)
 
+
 def order_db_by_sequences(path_from, path_to, copy=True, empty=True):
     """
     Orders a database of image files into sequences based on the serial number
@@ -167,7 +168,7 @@ def order_db_by_sequences(path_from, path_to, copy=True, empty=True):
             if os.path.isdir(empty_night_subdir):
                 images.extend(read_images(empty_night_subdir, empty=True))
 
-        species_name = os.path.dirname(species)
+        species_name = os.path.basename(species)
         path_to_species = os.path.join(path_to, species_name)
 
         # todo: make exception safe if directory already exists
@@ -199,7 +200,8 @@ def order_by_sequences(images, path_to, copy=True, empty=True):
     :return: None
     """
     if not os.path.exists(path_to):
-        print("Output directory '{}' does not exist and will be created automatically.".format(path_to))
+        print("Output directory '{}' does not exist and will be created "
+              "automatically.".format(path_to))
         os.makedirs(path_to)
         # return
 
@@ -271,7 +273,8 @@ def create_sequence(seq_number, path_to, images, start, end, copy=True,
                 image = images[i]
                 if image[EMPTY]:
                     file_name = os.path.basename(image[PATH])
-                    file.write(file_name)
+                    file.write(file_name + '\n')
+
 
 if __name__ == '__main__':
     damhirsch_images = read_images("/home/tp/Downloads/CVSequences/CVSequences/damhirsch/dayvision")
