@@ -79,12 +79,18 @@ class CameraTrapSequencer(QtWidgets.QWidget):
 
     def order_sequences(self):
         if self.input_dir is None:
-
+            no_input_dialog = QtWidgets.QErrorMessage(self)
+            no_input_dialog.showMessage("No input directory was chosen.")
         elif self.output_dir is None:
-
+            no_output_dialog = QtWidgets.QErrorMessage(self)
+            no_output_dialog.showMessage("No output directory was chosen.")
         elif not self.dirs_changed:
-            
+            no_dirs_changed_dialog = QtWidgets.QErrorMessage(self)
+            no_dirs_changed_dialog.showMessage("The directories were not changed"
+                                               " after the last ordering of"
+                                               " sequences.")
         else:
+            self.dirs_changed = False
 
     def get_input_dir(self):
         self.input_dir = self._get_dir("Choose Input Directory")
@@ -103,9 +109,9 @@ class CameraTrapSequencer(QtWidgets.QWidget):
         return dir_name
 
     def _shorten_dir(self, path):
-        parent_dirs, dir = os.path.split(path)
+        parent_dirs, dir_name = os.path.split(path)
         parent_dir = os.path.basename(parent_dirs)
-        short_path = os.path.join("...", parent_dir, dir)
+        short_path = os.path.join("...", parent_dir, dir_name)
         return short_path
 
 
