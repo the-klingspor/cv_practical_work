@@ -60,6 +60,30 @@ def read_images(path, empty=False):
     et.terminate()
     return images
 
+
+def order_dir_by_sequences(path_from, path_to, copy=True):
+    """
+    Orders a directory of image files into sequences based on the serial number
+    of the camera and the creation date. The user can choose if the sequences
+    should be copied or moved.
+
+    :author: Joschka Strüber
+    :param path_from: Path of a directory with camera trap images.
+    :param path_to: Path where the sequences of images will be moved to.
+    :param copy: Boolean (default = True)
+        If the image files should be copied or moved to their sequence
+        directories.
+    :return: None
+    """
+    if not os.path.exists(path_from):
+        print("Input directory '{}' does not exist".format(path_from))
+        return
+    elif not os.path.exists(path_to):
+        print("Output directory '{}' does not exist".format(path_to))
+        return
+    images = read_images(path_from, empty=False)
+    order_by_sequences(images, path_to, copy=copy, empty=False)
+
 def order_db_by_sequences(path_from, path_to, copy=True, empty=True):
     """
     Orders a database of image files into sequences based on the serial number
@@ -118,8 +142,9 @@ def order_db_by_sequences(path_from, path_to, copy=True, empty=True):
     if not os.path.exists(path_from):
         print("Input directory '{}' does not exist".format(path_from))
         return
-    if not os.path.exists(path_to):
+    elif not os.path.exists(path_to):
         print("Output directory '{}' does not exist".format(path_to))
+        return
 
     # for every animal species:
     species_subdirs = [f.path for f in os.scandir(path_from) if f.is_dir()]
