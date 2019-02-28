@@ -1,7 +1,7 @@
 import sys
 import os
 
-from PySide2 import QtWidgets
+from PySide2 import QtWidgets, QtGui
 
 from src.sequences import order_db_by_sequences, order_dir_by_sequences
 
@@ -14,15 +14,16 @@ class CameraTrapSequencer(QtWidgets.QWidget):
 
     :author: Joschka Strüber
     """
+
+    # todo: add busy indicator after button was clicked: ordering into own thread with taskfinished signal
+    # todo: add confirmation sign after button was clicked
+    # todo: check for exceptions (exiftool missing)
+    # todo: more error handling in case of bad input directories
+    # todo: save dirs in case of cancellation
+    # todo: set start directory to last selected
+
     def __init__(self):
         super().__init__()
-
-        # todo: add busy indicator after button was clicked
-        # todo: add confirmation sign after button was clicked
-        # todo: check for exceptions (exiftool missing)
-        # todo: more error handling in case of bad input directories
-        # todo: save dirs in case of cancellation
-        # todo: set start directory to last selected
 
         self.input_dir = None
         self.output_dir = None
@@ -64,6 +65,9 @@ class CameraTrapSequencer(QtWidgets.QWidget):
         self.order_button = QtWidgets.QPushButton("Order Sequences")
         self.order_button.clicked.connect(self.order_sequences)
 
+        self.progress_bar = QtWidgets.QProgressBar(self)
+        self.progress_bar.setRange(0, 1)
+
         # inner class for horizontal lines that can be used for separation
         class VerticalSeparator(QtWidgets.QFrame):
             def __init__(self):
@@ -83,11 +87,13 @@ class CameraTrapSequencer(QtWidgets.QWidget):
         self.layout.addLayout(self.inner_layout)
         self.layout.addWidget(VerticalSeparator())
         self.layout.addWidget(self.order_button)
+        self.layout.addWidget(self.progress_bar)
 
         self.setLayout(self.layout)
         self.setWindowTitle("Camera Trap Sequencer")
 
     def order_sequences(self):
+        self.progress_bar.setRange(0, 0)
         if self.input_dir is None:
             no_input_dialog = QtWidgets.QErrorMessage(self)
             no_input_dialog.showMessage("No input directory was chosen.")
@@ -113,6 +119,7 @@ class CameraTrapSequencer(QtWidgets.QWidget):
                                        copy=copy)
             else:
                 assert False
+        self.progress_bar.setRange(0, 1)
 
     def get_input_dir(self):
         self.input_dir = self._get_dir("Choose Input Directory")
