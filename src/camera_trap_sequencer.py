@@ -3,6 +3,8 @@ import os
 
 from PySide2 import QtCore, QtWidgets, QtGui
 
+from src.sequences import order_db_by_sequences, order_dir_by_sequences
+
 
 class CameraTrapSequencer(QtWidgets.QWidget):
     """
@@ -20,7 +22,7 @@ class CameraTrapSequencer(QtWidgets.QWidget):
         self.dirs_changed = False
 
         # create all widgets
-        self.input_type_label = QtWidgets.QLabel("Input type: ")
+        self.directory_type_label = QtWidgets.QLabel("Input type: ")
 
         self.directory_type = QtWidgets.QComboBox()
         self.directory_type.addItem("Database")
@@ -65,7 +67,7 @@ class CameraTrapSequencer(QtWidgets.QWidget):
 
         # create inner layout and add widgets
         self.inner_layout = QtWidgets.QFormLayout()
-        self.inner_layout.addRow(self.input_type_label, self.directory_type)
+        self.inner_layout.addRow(self.directory_type_label, self.directory_type)
         self.inner_layout.addRow(self.move_method_label, self.move_method)
         self.inner_layout.addRow(self.empty_info_label, self.empty_info)
         self.inner_layout.addRow(self.input_dir_label, self.input_button)
@@ -91,6 +93,17 @@ class CameraTrapSequencer(QtWidgets.QWidget):
                                                " sequences.")
         else:
             self.dirs_changed = False
+            copy = True if self.move_method.currentText() == "Copy" else False
+            empty = self.empty_info.isChecked()
+            if self.directory_type_label.currentText() == "Database":
+                order_db_by_sequences(self.input_dir,
+                                      self.output_dir,
+                                      empty,
+                                      copy)
+            else:
+                order_dir_by_sequences(self.input_dir,
+                                       self.output_dir,
+                                       copy)
 
     def get_input_dir(self):
         self.input_dir = self._get_dir("Choose Input Directory")
