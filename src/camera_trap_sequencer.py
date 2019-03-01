@@ -15,8 +15,6 @@ class CameraTrapSequencer(QtWidgets.QWidget):
     :author: Joschka Strüber
     """
 
-    # todo: add busy indicator after button was clicked: ordering into own thread with taskfinished signal
-    # todo: add confirmation sign after button was clicked
     # todo: check for exceptions (exiftool missing)
     # todo: more error handling in case of bad input directories
     # todo: save dirs in case of cancellation
