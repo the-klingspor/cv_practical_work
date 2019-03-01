@@ -1,7 +1,7 @@
 import sys
 import os
 
-from PySide2 import QtWidgets, QtGui
+from PyQt5 import QtWidgets, QtCore
 
 from src.sequences import order_db_by_sequences, order_dir_by_sequences
 
@@ -63,10 +63,12 @@ class CameraTrapSequencer(QtWidgets.QWidget):
         self.output_button.clicked.connect(self.get_output_dir)
 
         self.order_button = QtWidgets.QPushButton("Order Sequences")
-        self.order_button.clicked.connect(self.order_sequences)
+        self.order_button.clicked.connect(self.on_start)
 
         self.progress_bar = QtWidgets.QProgressBar(self)
         self.progress_bar.setRange(0, 1)
+
+        self.sequence_thread = None
 
         # inner class for horizontal lines that can be used for separation
         class VerticalSeparator(QtWidgets.QFrame):
@@ -92,8 +94,7 @@ class CameraTrapSequencer(QtWidgets.QWidget):
         self.setLayout(self.layout)
         self.setWindowTitle("Camera Trap Sequencer")
 
-    def order_sequences(self):
-        self.progress_bar.setRange(0, 0)
+    def on_start(self):
         if self.input_dir is None:
             no_input_dialog = QtWidgets.QErrorMessage(self)
             no_input_dialog.showMessage("No input directory was chosen.")
@@ -105,20 +106,21 @@ class CameraTrapSequencer(QtWidgets.QWidget):
             no_dirs_changed_dialog.showMessage("The directories were not changed"
                                                " after the last ordering of sequences.")
         else:
+            self.progress_bar.setRange(0, 0)
             self.dirs_changed = False
+            move_type = self.directory_type.currentText()
             copy = True if self.move_method.currentText() == "Copy" else False
-            if self.directory_type.currentText() == "Database":
-                empty = self.empty_info.isChecked()
-                order_db_by_sequences(self.input_dir,
-                                      self.output_dir,
-                                      copy=copy,
-                                      empty=empty)
-            elif self.directory_type.currentText() == "Directory":
-                order_dir_by_sequences(self.input_dir,
-                                       self.output_dir,
-                                       copy=copy)
-            else:
-                assert False
+            empty = self.empty_info.isChecked()
+            self.sequence_thread = SequencesThread(move_type=move_type,
+                                                   path_from=self.input_dir,
+                                                   path_to=self.output_dir,
+                                                   copy=copy,
+                                                   empty=empty)
+            self.sequence_thread.task_finished.connect(self.on_finished)
+            self.sequence_thread.start()
+
+    def on_finished(self):
+        # Stop the pulsation
         self.progress_bar.setRange(0, 1)
 
     def get_input_dir(self):
@@ -134,7 +136,7 @@ class CameraTrapSequencer(QtWidgets.QWidget):
     def _get_dir(self, caption):
         dir_name = QtWidgets.QFileDialog.getExistingDirectory(self, caption,
                                                               os.path.expanduser("~"),
-                                                              option=QtWidgets.QFileDialog.ShowDirsOnly)
+                                                              options=QtWidgets.QFileDialog.ShowDirsOnly)
         return dir_name
 
     def _shorten_dir(self, path):
@@ -148,6 +150,37 @@ class CameraTrapSequencer(QtWidgets.QWidget):
             self.empty_info.setEnabled(True)
         elif self.directory_type.currentText() == "Directory":
             self.empty_info.setEnabled(False)
+        else:
+            assert False
+
+
+class SequencesThread(QtCore.QThread):
+
+    def __init__(self, move_type, path_from, path_to, copy, empty, parent=None):
+        QtCore.QThread.__init__(self, parent)
+
+        self.move_type = move_type
+        self.path_from = path_from
+        self.path_to = path_to
+        self.copy = copy
+        self.empty = empty
+
+    task_finished = QtCore.pyqtSignal()
+
+    def run(self):
+        self._order_sequences()
+        self.task_finished.emit()
+
+    def _order_sequences(self):
+        if self.move_type == "Database":
+            order_db_by_sequences(self.path_from,
+                                  self.path_to,
+                                  self.copy,
+                                  self.empty)
+        elif self.move_type == "Directory":
+            order_dir_by_sequences(self.path_from,
+                                   self.path_to,
+                                   self.copy)
         else:
             assert False
 
