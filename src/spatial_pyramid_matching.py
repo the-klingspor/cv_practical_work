@@ -7,7 +7,7 @@ from src.segment import segment
 
 
 if __name__ == '__main__':
-    # load data, assign labels and split into test and training data
+    # load data, assign labels and split into predict and training data
 
     # segment the images to get only the regions of interest with animals
 
@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     # extract dense features from every image for encoding
 
-    # encode all training and test images
+    # encode all training and predict images
 
     # save LLC codes and labels in arrays for training and prediction
     training_codes = None
@@ -30,7 +30,7 @@ if __name__ == '__main__':
     classifier = LinearSVC()
     classifier.fit(training_codes, training_labels)
 
-    # use test images for verification
+    # use predict images for verification
     result = classifier.score(testing_codes, testing_labels)
     print("The mean accuracy of the classification was: {}".format(result))
 
