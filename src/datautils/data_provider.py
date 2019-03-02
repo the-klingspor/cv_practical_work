@@ -1,4 +1,5 @@
 import os
+import sys
 import numpy as np
 import random
 import segment
@@ -152,8 +153,14 @@ class DataProvider:
 
         This function is called if the boolean 'shuffle_data' is set"""
         if self.seed != 0 and not self._seed_is_set:
-            random.seed(self.seed)
             self._seed_is_set = True
+            random.seed(self.seed)
+        elif not self._seed_is_set:
+            self._seed_is_set = True
+            # use a random but KNOWN seed!
+            self.seed = random.randrange(sys.maxsize)
+            random.seed(self.seed)
+            print("Seed was:", self.seed)
         for dictionary in self._data_keys.items():
             label = dictionary[0]
             keys = dictionary[1]

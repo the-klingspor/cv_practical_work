@@ -72,15 +72,7 @@ class HogClassifier:
     def _svm_predict(self, model, samples):
         return model.predict(samples)[1].ravel()
 
-    def _get_descriptor(self, hog, img, roi):
-        t_roi = roi
-        if self.MANUAL_TRAINING_ROI:
-            window_name = "Select ROI to learn ..."
-            cv2.namedWindow(window_name, cv2.WND_PROP_FULLSCREEN)
-            cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-            t_roi = cv2.selectROI(window_name, img, showCrosshair=True)
-
-        img = self._get_roi(img, t_roi)
+    def _get_descriptor(self, hog, img):
         img = self._rescale(img)
         img = cv2.equalizeHist(img)
 
@@ -92,19 +84,24 @@ class HogClassifier:
             # cv2.destroyAllWindows()
         return hog.compute(img)
 
-    def _get_descriptors_and_labels(self, hog, training_data):
+    def _get_descriptors_and_labels(self, hog, training_data, calc_additional_data):
         descriptors = []
         label = []
         for data_3_tuple in training_data:
             img = self._read_image(data_3_tuple[0])
-            descriptors.append(self._get_descriptor(hog, img, data_3_tuple[1]))
+            img = self._get_roi(img, data_3_tuple[1])
+            descriptors.append(self._get_descriptor(hog, img))
             label.append(data_3_tuple[2])
+            if calc_additional_data:
+                img =  cv2.flip(img, 1);
+                descriptors.append(self._get_descriptor(hog, img))
+                label.append(data_3_tuple[2])
         return np.array(descriptors), np.array(label)
 
-    def train(self, training_data: TupleList):
+    def train(self, training_data: TupleList, calc_additional_data=True):
         print('Training started ...')
         hog = self._create_hog_descriptor()
-        descriptors, labels = self._get_descriptors_and_labels(hog, training_data)
+        descriptors, labels = self._get_descriptors_and_labels(hog, training_data, calc_additional_data)
         self._svm_init()
         self._svm_train(descriptors, labels)
         print('Training finished!')
@@ -126,7 +123,7 @@ class HogClassifier:
         if self._label_map:
             prediction = self._label_map[int(prediction)]
         if expected_label:
-            print(f"predicted: {prediction} expected {expected_label}")
+            # print(f"predicted: {prediction} expected {expected_label}")
             if prediction == expected_label:
                 predicted_correct = True
         else:
@@ -168,7 +165,7 @@ class HogClassifier:
         for label in labels:
             if label not in self._label_map:
                 self._label_map.append(label)
-                int_label = self._label_map.index(label)
+            int_label = self._label_map.index(label)
             int_labels.append(int_label)
         return np.array(int_labels)
 
@@ -185,12 +182,15 @@ if __name__ == '__main__':
                             0.7,  # the maximum % of images of a kind that are used as training data
                             True,  # If any animal should be trained with equal amount of images
                             True,  # if the images should be shuffled
-                            0)  # the random seed for shuffle. If 0 is choosen the seed is random too. Any other number can be choosen to increase the reproducibility of the experiment
+                            1001461683744044007)  # the random seed for shuffle. If 0 is choosen the seed is random too. Any other number can be choosen to increase the reproducibility of the experiment
     tr_data = provider.get_training_data()
     # provider.generate_sequences()
     # provider.segment_sequences()
     classifier = HogClassifier()
-    classifier.train(provider.get_training_data())
+    classifier.train(provider.get_training_data(), True)
     classifier.test(provider.get_test_data())
+    classifier2 = HogClassifier()
+    classifier2.train(provider.get_training_data(), False)
+    classifier2.test(provider.get_test_data())
 
 
