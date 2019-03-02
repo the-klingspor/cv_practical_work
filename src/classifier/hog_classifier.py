@@ -109,32 +109,59 @@ class HogClassifier:
         self._svm_train(descriptors, labels)
         print('Training finished!')
 
-    def predict(self, test_data: TupleList):
-        pass
+    def predict(self, img, roi=None, expected_label=None):
+        predicted_correct = False
+        if self._show_classified_img:
+            fig, ax = plt.subplots()
+            ax.imshow(img, cmap='gray')
+            x, y, w, h = roi
+            rect = patches.Rectangle((x, y), w, h, linewidth=1, edgecolor='r', facecolor='none')
+            ax.add_patch(rect)
+        if roi:
+            img = self._get_roi(img, roi)
+        img = self._rescale(img)
+        cv2.equalizeHist(img)
+        descriptor = self._hog_descriptor.compute(img)
+        prediction = self._svm.predict(np.array([descriptor]))[1].ravel()
+        if self._label_map:
+            prediction = self._label_map[int(prediction)]
+        if expected_label:
+            print(f"predicted: {prediction} expected {expected_label}")
+            if prediction == expected_label:
+                predicted_correct = True
+        else:
+            print(f"predicted: {prediction}")
+
+        if self._show_classified_img:
+            ax.set_title(prediction, fontsize=15)
+            ax.axis('off')
+            plt.show()
+        return prediction, predicted_correct
 
     def test(self,  test_data: TupleList):
+        evaluation_dict = dict()
         for data_3_tuple in test_data:
             img = self._read_image(data_3_tuple[0])
             roi = data_3_tuple[1]
-            if self._show_classified_img:
-                fig, ax = plt.subplots()
-                ax.imshow(img, cmap='gray')
-                x, y, w, h = roi
-                rect = patches.Rectangle((x, y), w, h, linewidth=1, edgecolor='r', facecolor='none')
-                ax.add_patch(rect)
-            img = self._get_roi(img, roi)
-            img = self._rescale(img)
-            cv2.equalizeHist(img)
-            descriptor = self._hog_descriptor.compute(img)
-            prediction = self._svm.predict(np.array([descriptor]))[1].ravel()
-            if self._label_map:
-                prediction = self._label_map[int(prediction)]
-            print(f"predicted: {prediction} expected {data_3_tuple[2]}")
-            if self._show_classified_img:
-                ax.set_title(prediction, fontsize=15)
-                ax.axis('off')
-                plt.show()
-        cv2.destroyAllWindows()
+            prediction, predicted_correct = self.predict(img, roi, data_3_tuple[2])
+            if data_3_tuple[2] in evaluation_dict.keys():
+                ok_count = evaluation_dict[data_3_tuple[2]][0]
+                total_count = evaluation_dict[data_3_tuple[2]][1] + 1
+                if predicted_correct:
+                    ok_count += 1
+                evaluation_dict[data_3_tuple[2]] = (ok_count, total_count)
+            else:
+                ok_count = 0
+                if predicted_correct:
+                    ok_count += 1
+                evaluation_dict[data_3_tuple[2]] = (ok_count, 1)
+        total_ok_sum = 0
+        total_count_sum = 0
+        for key, eval_tuple in evaluation_dict.items():
+            total_ok_sum += eval_tuple[0]
+            total_count_sum += eval_tuple[1]
+            print(f"{key}: {eval_tuple[0]}/{eval_tuple[1]}={eval_tuple[0]/eval_tuple[1]:1.3f}")
+        print(f"total: {total_ok_sum}/{total_count_sum}={total_ok_sum/total_count_sum:1.3f}")
 
     def _map_labels_to_int(self, labels):
         int_labels = []
