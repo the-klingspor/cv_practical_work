@@ -29,6 +29,7 @@ class HogClassifier:
     _show_classified_img = False
 
     def _read_image(self, file_path):
+        """Private helper function to unify image loading"""
         return cv2.imread(file_path, flags=cv2.IMREAD_GRAYSCALE)
 
     def _get_roi(self, img, roi):
@@ -39,9 +40,13 @@ class HogClassifier:
         return img[y:y + h, x:x + w]
 
     def _rescale(self, img, scale=PATCH_SIZE):
+        """Private helper function to unify and simplify image rescale operations"""
         return cv2.resize(img, scale, interpolation=cv2.INTER_CUBIC)
 
     def _create_hog_descriptor(self):
+        """Helper function to create a cv2.HOGDescriptor and set necessary parameters.
+
+          The parameter values can be seen in the openCV documentation"""
         winSize = self.PATCH_SIZE
         blockSize = (16, 16)
         blockStride = (8, 8)
@@ -60,6 +65,7 @@ class HogClassifier:
         return hog
 
     def _svm_init(self, C=12.5, gamma=0.50625):
+        """Private helper function to create a Support Vector Machine"""
         svm = cv2.ml.SVM_create()
         svm.setGamma(gamma)
         svm.setC(C)
@@ -68,13 +74,31 @@ class HogClassifier:
         self._svm = svm
 
     def _svm_train(self, training_data, labels):
+        """Private helper function to training a SVM
+
+        :param training_data: A list of features. E.g.: HOG
+        :param labels: The labels assigned to the 'training_data' features in the saem order. This can be a list of
+        strings or numerical values and will be mapped to integers. This maping needs to be undone in the detection
+        process
+        """
         labels = self._map_labels_to_int(labels)
         self._svm.train(training_data, cv2.ml.ROW_SAMPLE, labels)
 
-    def _svm_predict(self, model, samples):
-        return model.predict(samples)[1].ravel()
+    def _svm_predict(self, sample):
+        """Private helper function to simply the access to the SVM prediction function and perform prediction on a
+        singel descriptor
+
+        :param sample: A feature
+        """
+        return self._svm.predict([sample])[1].ravel()
 
     def _get_descriptor(self, hog, img):
+        """Private helper function to calculate a HOG feature for an image
+
+        :param hog: openCV HOGDescriptor used to calculate the feature
+        :param img: An openCV image. This image is rescaled and HOG is calculated
+        :return: A HOG feature
+        """
         img = self._rescale(img)
         img = cv2.equalizeHist(img)
 
@@ -83,24 +107,39 @@ class HogClassifier:
             cv2.namedWindow(window_name, cv2.WND_PROP_ASPECT_RATIO)
             cv2.imshow(window_name, img)
             cv2.waitKey(self.SHOW_TRAINING_TIME)
-            # cv2.destroyAllWindows()
+            cv2.destroyAllWindows()
         return hog.compute(img)
 
-    def _get_descriptors_and_labels(self, hog, training_data, calc_additional_data):
+    def _get_descriptors_and_labels(self, training_data, calc_additional_data):
+        """A private helper function to return a HOG feature and the label.
+
+        :param training_data: A list of tuples containing (<a image path>, <A ROI x, y, w, h>, <A label string>)
+        :param calc_additional_data: If True the vertical mirrored image with used to calculate a feature and to the
+        results
+        :return: A list of features and a list of labels
+        """
         descriptors = []
         label = []
         for data_3_tuple in training_data:
             img = self._read_image(data_3_tuple[0])
             img = self._get_roi(img, data_3_tuple[1])
-            descriptors.append(self._get_descriptor(hog, img))
+            descriptors.append(self._get_descriptor(self._hog_descriptor, img))
             label.append(data_3_tuple[2])
             if calc_additional_data:
                 img =  cv2.flip(img, 1);
-                descriptors.append(self._get_descriptor(hog, img))
+                descriptors.append(self._get_descriptor(self._hog_descriptor, img))
                 label.append(data_3_tuple[2])
         return np.array(descriptors), np.array(label)
 
     def train(self, training_data: TupleList, calc_additional_data=True):
+        """Used for training this classifier
+
+        This method manages the training of a SVM using HOG features.
+
+        :param training_data: A list of tuples containing (<a image path>, <A ROI x, y, w, h>, <A label string>)
+        :param calc_additional_data: If True the vertical mirrored image with used to calculate a feature and to the
+        results
+        """
         print('Training started ...')
         hog = self._create_hog_descriptor()
         descriptors, labels = self._get_descriptors_and_labels(hog, training_data, calc_additional_data)
@@ -108,8 +147,11 @@ class HogClassifier:
         self._svm_train(descriptors, labels)
         print('Training finished!')
 
-    def predict(self, img, roi=None, expected_label=None):
+    def train_auto(self):
+        # ToDo: use the the available auto_train function
+        pass
 
+    def predict(self, img, roi=None, expected_label=None):
         predicted_correct = False
         if self._show_classified_img:
             fig, ax = plt.subplots()
@@ -122,11 +164,11 @@ class HogClassifier:
         img = self._rescale(img)
         cv2.equalizeHist(img)
         descriptor = self._hog_descriptor.compute(img)
-        prediction = self._svm.predict(np.array([descriptor]))[1].ravel()
+        prediction = self._svm_predict([descriptor])
         if self._label_map:
             prediction = self._label_map[int(prediction)]
         if expected_label:
-            # print(f"predicted: {prediction} expected {expected_label}")
+            print(f"predicted: {prediction} expected {expected_label}")
             if prediction == expected_label:
                 predicted_correct = True
         else:
@@ -201,6 +243,13 @@ class HogClassifier:
         else:
             print('.', end='', flush=True)
 
+    def my_detect(self, img):
+        # iterate over image
+            # calculate descriptor with 128 x 64 roi
+            # calculate descriptor with 64 x 128 roi
+            # ca
+        pass
+
     def _map_labels_to_int(self, labels):
         int_labels = []
         for label in labels:
@@ -230,11 +279,12 @@ if __name__ == '__main__':
     # provider.segment_sequences()
     classifier = HogClassifier()
     classifier.train(provider.get_training_data(), True)
-    classifier.test(provider.get_test_data())
+    classifier.batch_predict(provider.get_test_data())
+    # classifier.test(provider.get_test_data())
 
-    classifier2 = HogClassifier()
-    classifier2.train(provider.get_training_data(), False)
-    classifier2.test(provider.get_test_data())
+    # classifier2 = HogClassifier()
+    # classifier2.train(provider.get_training_data(), False)
+    # classifier2.test(provider.get_test_data())
 
     # test_data = provider.get_test_data()
     # for data_tuple in test_data:
