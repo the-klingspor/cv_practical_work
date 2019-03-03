@@ -1,4 +1,6 @@
 import numpy as np
+import multiprocessing as mp
+
 from sklearn.cluster import MiniBatchKMeans
 
 
@@ -97,13 +99,20 @@ class LlcSpatialPyramidEncoder:
 
         # index 0: level 0 bin; 1-4: level 1 bins; 5-20: level 2 bins
         spm_code = np.zeros((21, self._size))
+
         # encode all features of all level 2 bins
+        feature_list = []
         for l1_bin in range(4):
             for l2_bin in range(4):
-                # skip the l0 and the four l1 codes
-                l2_index = 5 + 4 * l1_bin + l2_bin
-                spm_code[l2_index] = self._encode_spatial_bin(
-                    spatial_pyramid[l1_bin][l2_bin], pooling=pooling)
+                feature_list.append(spatial_pyramid[l1_bin][l2_bin])
+        pool = mp.Pool(processes=16)
+        l2_codes = [pool.apply(self._encode_spatial_bin,
+                               args=(features, pooling)) for features
+                    in feature_list]
+        # skip the l0 and the four l1 codes
+        start_index = 5
+        for l2_index in range(16):
+            spm_code[l2_index + start_index] = l2_codes[l2_index]
 
         # use associativity of pooling methods to compute pooled codes for l1
         # bins and l0 bin
@@ -153,7 +162,6 @@ class LlcSpatialPyramidEncoder:
         if num_features == 0:
             return np.zeros(self._size)
 
-        # todo: parallelization for call to _get_llc_code
         llc_code = self._get_llc_code(features[0])
         if pooling == 'max':
             for i in range(1, num_features):

@@ -95,7 +95,7 @@ class HogClassifier:
             descriptors.append(self._get_descriptor(hog, img))
             label.append(data_3_tuple[2])
             if calc_additional_data:
-                img =  cv2.flip(img, 1);
+                img = cv2.flip(img, 1);
                 descriptors.append(self._get_descriptor(hog, img))
                 label.append(data_3_tuple[2])
         return np.array(descriptors), np.array(label)

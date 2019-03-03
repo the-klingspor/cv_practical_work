@@ -18,7 +18,7 @@ if __name__ == '__main__':
                             shuffle_data=True,
                             seed=0)
 
-    provider.segment_sequences()
+    # provider.segment_sequences()
     training_images = provider.get_training_data()
     # select random images from every category to get features to train the
     # codebook
