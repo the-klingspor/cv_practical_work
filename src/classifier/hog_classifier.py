@@ -6,6 +6,9 @@ from matplotlib import pyplot as plt
 import matplotlib.patches as patches
 from datautils.data_provider import DataProvider
 from typing import List, Tuple
+import xml.etree.ElementTree as ET
+import pickle
+import re
 
 # For type hints
 TupleList = List[Tuple[str, Tuple[int, int, int, int], str]]
@@ -24,7 +27,6 @@ class HogClassifier:
     _svm = None
     _label_map = []
     _show_classified_img = False
-
 
     def _read_image(self, file_path):
         return cv2.imread(file_path, flags=cv2.IMREAD_GRAYSCALE)
@@ -107,6 +109,7 @@ class HogClassifier:
         print('Training finished!')
 
     def predict(self, img, roi=None, expected_label=None):
+
         predicted_correct = False
         if self._show_classified_img:
             fig, ax = plt.subplots()
@@ -160,6 +163,44 @@ class HogClassifier:
             print(f"{key}: {eval_tuple[0]}/{eval_tuple[1]}={eval_tuple[0]/eval_tuple[1]:1.3f}")
         print(f"total: {total_ok_sum}/{total_count_sum}={total_ok_sum/total_count_sum:1.3f}")
 
+    # ToDo: Dirty test hack from http://answers.opencv.org/question/56655/how-to-use-a-custom-svm-with-hogdescriptor-in-python/
+    def dirty_test(self):
+        self._svm.save("svm.xml")
+        tree = ET.parse('svm.xml')
+        root = tree.getroot()
+        # now this is really dirty, but after ~3h of fighting OpenCV its what happens :-)
+        SVs = root.getchildren()[0].getchildren()[-2].getchildren()[0]
+        rho = float(root.getchildren()[0].getchildren()[-1].getchildren()[0].getchildren()[1].text)
+        svmvec = [float(x) for x in re.sub('\s+', ' ', SVs.text).strip().split(' ')]
+        svmvec.append(-rho)
+        pickle.dump(svmvec, open("svm.pickle", 'wb'))
+        svm = pickle.load(open("svm.pickle", "rb"))
+        self._hog_descriptor.setSVMDetector(np.array(svm))
+        del svm
+
+    def detect(self, img):
+        # self.dirty_test()
+        ############## NOT REAL EXAMPLE
+        # tada = cv2.ml.SVM_load("svm.xml")
+        self._hog_descriptor.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
+        ###################################################
+        detected = False
+        (rois, weights) = self._hog_descriptor.detectMultiScale(img, 0, (256, 128), (4, 4), 1.1)
+        for (x, y, w, h) in rois:
+            if not detected:
+                detected = True
+            cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            roi = img[y:y + h, x:x + w]
+        if detected:
+            window_name = f'detected image'
+            cv2.namedWindow(window_name, cv2.WND_PROP_ASPECT_RATIO)
+            cv2.imshow(window_name, img)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+            print('|', end='', flush=True)
+        else:
+            print('.', end='', flush=True)
+
     def _map_labels_to_int(self, labels):
         int_labels = []
         for label in labels:
@@ -179,18 +220,25 @@ if __name__ == '__main__':
                             "/home/tp/Downloads/CVSequences/npy",
                             True,
                             {"dayvision", "day"},  # the subfoldernames that are used for sequence separations
-                            0.7,  # the maximum % of images of a kind that are used as training data
+                            0.6,  # the maximum % of images of a kind that are used as training data
                             True,  # If any animal should be trained with equal amount of images
                             True,  # if the images should be shuffled
-                            1001461683744044007)  # the random seed for shuffle. If 0 is choosen the seed is random too. Any other number can be choosen to increase the reproducibility of the experiment
+                            0)  # the random seed for shuffle. If 0 is choosen the seed is random too. Any other number can be choosen to increase the reproducibility of the experiment
+    #1001461683744044007
     tr_data = provider.get_training_data()
     # provider.generate_sequences()
     # provider.segment_sequences()
     classifier = HogClassifier()
     classifier.train(provider.get_training_data(), True)
     classifier.test(provider.get_test_data())
+
     classifier2 = HogClassifier()
     classifier2.train(provider.get_training_data(), False)
     classifier2.test(provider.get_test_data())
+
+    # test_data = provider.get_test_data()
+    # for data_tuple in test_data:
+    #     img = classifier._read_image(data_tuple[0])
+    #     classifier.detect(img)
 
 
