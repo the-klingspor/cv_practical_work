@@ -91,6 +91,10 @@ class LlcSpatialPyramidEncoder:
         1, followed by level 2. In case of an error, a ValueError will be
         raised.
         """
+        if self._codebook is None:
+            print("No code book was given or trained.")
+            return
+
         # index 0: level 0 bin; 1-4: level 1 bins; 5-20: level 2 bins
         spm_code = np.zeros((21, self._size))
         # encode all features of all level 2 bins
