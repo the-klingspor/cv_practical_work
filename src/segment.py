@@ -20,17 +20,17 @@ def segment(path, label, root_out_path='C:\\Users\Sufian\Downloads\data\DDD\out\
             print(f'Processing sequence {folder} with {p} images')
             x, y, _ = plt.imread(os.path.join(seqPath, imageList[0])).shape
             x -= (x - 1504) + 33
-            seq = np.zeros((x, y, p))
+            M = np.zeros((x, y, p))
             for i in range(p):
                 im = plt.imread(os.path.join(seqPath, imageList[i]))[33:1504, :, :]
-                seq[:, :, i] = pre_processing_method_1(cv2.cvtColor(im, cv2.COLOR_BGR2GRAY))
-            M = np.reshape(seq, (x * y, p))
+                M[:, :, i] = pre_processing_method_1(cv2.cvtColor(im, cv2.COLOR_BGR2GRAY))
+            M = np.reshape(M, (x * y, p)).copy()
             S = foreground(M, 1)
             S = np.reshape(S, (x, y, p)).copy()
             O = hard_threshold(S)
             S = None
             M = None
-            print('Finished pca - start finding ROIs')
+            print('Finished low-rank separation - start finding ROIs')
             for ii in range(p):
                 bw = O[:, :, ii]
                 bw = post_processing_method_2(bw)
