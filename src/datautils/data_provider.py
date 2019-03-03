@@ -64,8 +64,8 @@ class DataProvider:
 
         In order to use this function create a DataProvider object using the XXXXXXX, set the 'sequences_data_dir',
         'show_images_with_roi' and 'segments_dir'. Finally call the function. After
-        calling this function every subfolder of the 'sequences_data_dir' will treated as label for a animal. Than each
-        of the animal subfolders, which should contain the sequences, will processed using the segment.py code.
+        calling this function every subfolder of the 'sequences_data_dir' will be treated as label for a animal. Then each
+        of the animal subfolders, which should contain the sequences, will be processed using the segment.py code.
         As output numpy arrays will be written to the 'segments_dir' folder and contain the image paths and the
         ROIS detected in segment.py. The file name is the label of the animal.
         """
@@ -73,7 +73,7 @@ class DataProvider:
             path = os.path.join(self.sequences_data_dir, animal_folder_name)
             if os.path.isdir(path):
                 print(f"Processing folder {path}")
-                segment.segment(path, animal_folder_name, self.segments_dir, self.show_images_with_roi)
+                segment.segment(path, animal_folder_name, self.segments_dir)
 
     def get_training_data(self):
         """Provides the training data fraction of the entire data available

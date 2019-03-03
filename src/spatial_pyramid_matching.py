@@ -1,4 +1,5 @@
 import cv2
+import time
 from sklearn.svm import LinearSVC
 
 from src.feature_extraction import FeatureExtraction
@@ -17,8 +18,10 @@ if __name__ == '__main__':
                             train_with_equal_image_amount=True,
                             shuffle_data=True,
                             seed=0)
-
-    # provider.segment_sequences()
+    start = time.clock()
+    provider.segment_sequences()
+    segment_time = time.clock()
+    print(segment_time - start)
     training_images = provider.get_training_data()
     # select random images from every category to get features to train the
     # codebook
