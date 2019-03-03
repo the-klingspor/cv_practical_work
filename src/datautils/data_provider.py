@@ -1,4 +1,5 @@
 import os
+import sys
 import numpy as np
 import random
 import segment
@@ -24,6 +25,7 @@ class DataProvider:
     _data = dict()
     _data_keys = dict()
     _is_shuffled = False
+    _seed_is_set = False
 
     def generate_sequences(self):
         """This function provides convenient access for sequence.py
@@ -54,7 +56,7 @@ class DataProvider:
                 last_folder_name = path.split(os.sep)
                 last_folder_name = last_folder_name[len(last_folder_name)-1]
                 if last_folder_name in self.folder_names_to_process:
-                    data.extend(sequences.read_images(os.path.join(animal_folder_path, last_folder_name)))
+                    data.extend(sequences.read_images(path))
             sequences.order_by_sequences(data, os.path.join(self.sequences_data_dir, animal_folder_name))
 
     def segment_sequences(self):
@@ -82,8 +84,8 @@ class DataProvider:
         The data size depends on the 'max_training_data_percentage' value. Using this value the fraction of all
         available images of one animal type is calculated and added to the training data list. If equal training size is
         required the boolean 'train_with_equal_image_amount' can be set to true. In this case smallest training data
-        length is calculated and for each animal type this value is used to generate the test data.
-        Fürthermore the test data can be shuffled. If 'shuffle_data' is set to True the data is shuffled. In order to
+        length is calculated and for each animal type this value is used to generate the predict data.
+        Fürthermore the predict data can be shuffled. If 'shuffle_data' is set to True the data is shuffled. In order to
         create reproducible shuffled experiments the seed for the random generator can be set with the 'seed' attribute.
 
         :return A list of tuples containing (<File Name>, <ROI>, <label>). Depending on the settings for each
@@ -150,8 +152,15 @@ class DataProvider:
         """Private function to shuffle the data.
 
         This function is called if the boolean 'shuffle_data' is set"""
-        if self.seed != 0:
+        if self.seed != 0 and not self._seed_is_set:
+            self._seed_is_set = True
             random.seed(self.seed)
+        elif not self._seed_is_set:
+            self._seed_is_set = True
+            # use a random but KNOWN seed!
+            self.seed = random.randrange(sys.maxsize)
+            random.seed(self.seed)
+            print("Seed was:", self.seed)
         for dictionary in self._data_keys.items():
             label = dictionary[0]
             keys = dictionary[1]
@@ -200,12 +209,12 @@ class DataProvider:
             self._is_shuffled = True
 
 if __name__ == '__main__':
-    # This is an usage example and not supposed to be run as main. It just provides an easy manual test case
-    provider = DataProvider("/home/tp/Downloads/CVSequences/test/data", # image data / location of the animal folders that contains all unordered images
-        "/home/tp/Downloads/CVSequences/test/sequ", # The path were the images sorted into sequences should be stored
-        "/home/tp/Downloads/CVSequences/test/npy", # The path were the ROIs correlated to image file names are stored. (The *.npy files)
+    # This is an usage example and not supposed to be run as main. It just provides an easy manual predict case
+    provider = DataProvider("/home/tp/Downloads/CVSequences/data", # image data / location of the animal folders that contains all unordered images
+        "/home/tp/Downloads/CVSequences/sequ", # The path were the images sorted into sequences should be stored
+        "/home/tp/Downloads/CVSequences/npy", # The path were the ROIs correlated to image file names are stored. (The *.npy files)
         True, # If the ROIs should be printed to the output. They are stored were the *.npy files are generated
-        {"dayvision", "day"}, # the subfoldernames that are used for sequence separations
+        {"dayvision", "day"}, # the subfolder names that are used for sequence separations
         0.4, # the maximum % of images of a kind that are used as training data
         True, # If any animal should be trained with equal amount of images
         True, # if the images should be shuffled
@@ -217,7 +226,7 @@ if __name__ == '__main__':
     provider.segment_sequences()
     #get training tuples
     training_images = provider.get_training_data()
-    # get test tuples
+    # get predict tuples
     test_images = provider.get_test_data()
     pass
 
