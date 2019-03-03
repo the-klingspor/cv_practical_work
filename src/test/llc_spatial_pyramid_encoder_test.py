@@ -181,7 +181,7 @@ class LlcSpatialPyramidEncoderTest(unittest.TestCase):
                              0, 0, 0])
         self.assertArrayAlmostEqual(result, expected)
 
-    # todo: write predict for sum pooling
+    # todo: write test for sum pooling
 
     def assertArrayAlmostEqual(self, arr1, arr2):
         try:
