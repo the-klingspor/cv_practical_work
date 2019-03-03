@@ -16,10 +16,10 @@ def converged(Z, d_norm):
 def pcp(X):
     m, n = X.shape
     # Set params 
-    lamda = 1. / np.sqrt(m);
+    lamda = 1. / np.sqrt(m)
     # Initialize
-    Y = X;
-    u, s, v = randomized_svd(Y, 1);
+    Y = X
+    u, s, v = randomized_svd(Y, 1)
     norm_two = s[0]
     norm_inf = np.linalg.norm(Y[:], np.inf) / lamda
     dual_norm = max(norm_two, norm_inf)
@@ -79,9 +79,9 @@ def rpca(X):
     return L, S
 
 
-def pca(m):
-    U, S, Vh = randomized_svd(m, 1)
+def foreground(m, rank=1):
+    U, S, Vh = randomized_svd(m, rank)
     L = U * np.diag(S) * Vh
     S = m - L
-    return L, S
+    return S
 
