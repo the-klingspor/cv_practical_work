@@ -1,11 +1,8 @@
 import cv2
 import time
-from sklearn.svm import LinearSVC
 
-from src.feature_extraction import FeatureExtraction
 from src.datautils.data_provider import DataProvider
-from src.llc_spatial_pyramid_encoding import LlcSpatialPyramidEncoder
-from src.segment import segment
+from src.classifier.spm_classifier import SpmClassifier
 
 
 if __name__ == '__main__':
@@ -19,31 +16,27 @@ if __name__ == '__main__':
                             shuffle_data=True,
                             seed=0)
     start = time.clock()
+
     provider.segment_sequences()
+
     segment_time = time.clock()
     print(segment_time - start)
-    training_images = provider.get_training_data()
+
+    training_data = provider.get_training_data()
     # select random images from every category to get features to train the
-    # codebook
-    sift = cv2.xfeatures2d.SIFT_create()
-    extractor = FeatureExtraction(sift)
+    # codebook todo
+    codebook_imgs = None
 
-    # extract dense features from every image for encoding
+    classifier = SpmClassifier()
+    classifier.train_codebook(codebook_imgs)
 
-    # encode all training and test images
+    tr_features, tr_labels = classifier.get_descr_and_labels(training_data)
+    classifier.fit(tr_features, tr_labels)
 
-    # save LLC codes and labels in arrays for training and prediction
-    training_codes = None
-    testing_codes = None
-    training_labels = None
-    testing_labels = None
+    test_data = provider.get_test_data()
+    test_features, test_labels = classifier.get_descr_and_labels(test_data)
 
-    # train an SVM with linear kernel
-    classifier = LinearSVC()
-    classifier.fit(training_codes, training_labels)
-
-    # use test images for verification
-    result = classifier.score(testing_codes, testing_labels)
+    result = provider.score(test_features, test_labels)
     print("The mean accuracy of the classification was: {}".format(result))
 
 

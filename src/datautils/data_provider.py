@@ -197,7 +197,7 @@ class DataProvider:
     def _read_segmentation_data(self):
         """Private helper function to read data from *.npy files
 
-        This function is called if there is a attempt to retrive image data. This function also manages if the data
+        This function is called if there is a attempt to retrieve image data. This function also manages if the data
         still needs to be shuffled"""
         for npy_file in os.listdir(self.segments_dir):
             if npy_file.endswith(".npy"):
@@ -207,6 +207,7 @@ class DataProvider:
         if not self._is_shuffled and self.shuffle_data:
             self._shuffle_data()
             self._is_shuffled = True
+
 
 if __name__ == '__main__':
     # This is an usage example and not supposed to be run as main. It just provides an easy manual predict case
