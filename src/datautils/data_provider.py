@@ -85,7 +85,7 @@ class DataProvider:
         available images of one animal type is calculated and added to the training data list. If equal training size is
         required the boolean 'train_with_equal_image_amount' can be set to true. In this case smallest training data
         length is calculated and for each animal type this value is used to generate the predict data.
-        Fürthermore the predict data can be shuffled. If 'shuffle_data' is set to True the data is shuffled. In order to
+        Furthermore the predict data can be shuffled. If 'shuffle_data' is set to True the data is shuffled. In order to
         create reproducible shuffled experiments the seed for the random generator can be set with the 'seed' attribute.
 
         :return A list of tuples containing (<File Name>, <ROI>, <label>). Depending on the settings for each
@@ -180,7 +180,7 @@ class DataProvider:
         :param max_training_data_percentage: the maximum % of images of a kind that are used as training data
         :param train_with_equal_image_amount: If any animal should be trained with equal amount of images
         :param shuffle_data: if the images should be shuffled
-        :param seed: the random seed for shuffle. If 0 is choosen the seed is random too. Any other number can be choosen to increase the reproducibility of the experiment
+        :param seed: the random seed for shuffle. If 0 is chosen the seed is random too. Any other number can be chosen to increase the reproducibility of the experiment
         """
         self.image_data_dir = image_data_dir
         self.sequences_data_dir = sequences_data_dir
@@ -218,7 +218,7 @@ if __name__ == '__main__':
         0.4, # the maximum % of images of a kind that are used as training data
         True, # If any animal should be trained with equal amount of images
         True, # if the images should be shuffled
-        123) # the random seed for shuffle. If 0 is choosen the seed is random too. Any other number can be choosen to increase the reproducibility of the experiment
+        123) # the random seed for shuffle. If 0 is chosen the seed is random too. Any other number can be chosen to increase the reproducibility of the experiment
 
     # perform sequenc seperation
     provider.generate_sequences()

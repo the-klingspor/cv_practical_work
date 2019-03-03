@@ -21,6 +21,9 @@ def segment(path, label, root_out_path = '/home/tp/Downloads/CVSequences/CVSeque
         if folder:
             seqPath = os.path.join(path, folder)
             imageList = os.listdir(seqPath)
+            for file in imageList:
+                if os.path.basename(file) == "empty.txt":
+                    imageList.remove(file)
             p = len(imageList)
             print(f'Processing sequence {folder} with {p} images')
             x, y, z = plt.imread(os.path.join(seqPath, imageList[0])).shape
