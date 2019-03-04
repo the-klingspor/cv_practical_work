@@ -27,7 +27,7 @@
 \begin{table}
 \centering
         \begin{tabular}{c}
-        \includegraphics[width=11cm]{images/Segmentierung/PCA}\\
+        \includegraphics[width=11cm]{img/Segmentierung/PCA}\\
       \tiny{http://setosa.io/ev/principal-component-analysis/}
          \end{tabular}
         
@@ -42,24 +42,24 @@
  \item Berechnung vom Vordergrund:
  \begin{itemize}
   \item{PCA sucht die ersten k-Hauptkomponenten, die die Daten mit maximaler Varianz beschreiben.}
-  \item{Hierbei ist M das Eingabebild und L ist die redundante Bildinformation mit Rang-k.} 
+  \item{Hierbei ist M das Eingabebild und L ist die redundante Bildinformation mit Rang k.} 
  \end{itemize}
 \end{itemize}
   
 \end{frame}
 
 
-\begin{frame}[t,fragile]{Bewegungsdetektion mit  PCA}
+\begin{frame}[t,fragile]{Bewegungsdetektion mit PCA}
 	\begin{itemize}
     \item{Low-Rank Approximation}
 \begin{itemize}
     
- \item{Berechne Singulärwertzerlegung aller Bildern im Sequenz X}
+ \item{Berechne Singulärwertzerlegung aller Bilder von Sequenz X}
  \begin{equation}
 \text{SVD(X)}= C = U\Sigma V^T
 \end{equation}
  \item{Leite die Matrix ${\Sigma_k}$ von ${\Sigma}$, sodass die ${n - k}$ Werte entlang der Diagonale durch 0 ersetzt werden.}
- \item{Ergibt die Low-Rank Approximation}
+ \item{Dies ergibt die Low-Rank Approximation:}
 \begin{equation}
 C_k = U\Sigma_kV^T
 \end{equation}
@@ -69,7 +69,7 @@ C_k = U\Sigma_kV^T
 \end{frame}
 
 
-\begin{frame}[t,fragile]{Bewegungsdetektion mit  PCA}
+\begin{frame}[t,fragile]{Bewegungsdetektion mit PCA}
 	\begin{itemize}
  \item Vordergrund- und Hintergrunderkennung
  \begin{itemize}
@@ -91,9 +91,9 @@ C_k = U\Sigma_kV^T
 \centering
         \begin{tabular}{cc}
         Originalbild  & Hintergrund \\
-        \includegraphics[width=3cm]{images/Segmentierung/original-image}
+        \includegraphics[width=3cm]{img/Segmentierung/original-image}
          &
-         \includegraphics[width=3cm]{images/Segmentierung/background-image}\\
+         \includegraphics[width=3cm]{img/Segmentierung/background-image}\\
 M  & L \\
          \end{tabular}
         
@@ -101,7 +101,7 @@ M  & L \\
  }
 \end{frame}
 
-\begin{frame}[t,fragile]{Bewegungsdetektion mit  PCA}
+\begin{frame}[t,fragile]{Bewegungsdetektion mit PCA}
 	\begin{itemize}
  \item Vordergrund- und Hintergrunderkennung
  \begin{itemize}
@@ -114,19 +114,19 @@ M  & L \\
 \begin{table}
 \centering
         \begin{tabular}{c}
-        \includegraphics[width=10cm]{images/Segmentierung/foreground-image}
+        \includegraphics[width=10cm]{img/Segmentierung/foreground-image}
          \end{tabular}
         
 \end{table}
  }
 \end{frame}
 
-\begin{frame}[t,fragile]{Bewegungsdetektion mit  PCA}
+\begin{frame}[t,fragile]{Bewegungsdetektion mit PCA}
 	\begin{itemize}
- \item{Nachbearbeitung vom Vordergrund}
+ \item{Nachbearbeitung vom Vordergrund:}
  \begin{itemize}
-        \item{Hard- und  Soft Thresholding}
-		\item{Aktive Konturen}
+        \item{Hard- und  Soft-Thresholding}
+		\item{aktive Konturen}
 		\item{Median- und Gauß-Filterung}
  		\item{Morphologische Operationen}
       \end{itemize}
@@ -134,15 +134,14 @@ M  & L \\
 \end{frame}
 
 
-\begin{frame}[t,fragile]{Bewegungsdetektion mit  PCA}
+\begin{frame}[t,fragile]{Bewegungsdetektion mit PCA}
 	\begin{itemize}
  \item{Nachbearbeitung vom Vordergrund:}
   \end{itemize}
-        \includegraphics[width=14cm]{images/Segmentierung/pipeline-post2.pdf}
-
+        \includegraphics[width=14cm]{img/Segmentierung/pipeline-post2.pdf}
 \end{frame}
 
-\begin{frame}[t,fragile]{Objektdetektion mit  PCA}
+\begin{frame}[t,fragile]{Objektdetektion mit PCA}
 	\begin{itemize}
  \item{Vorbearbeitung der Daten:}
   \end{itemize}
@@ -152,16 +151,16 @@ M  & L \\
 \begin{table}
 \centering
         \begin{tabular}{c}
-     \includegraphics[width=6cm]{images/Segmentierung/data-PCA}
+     \includegraphics[width=6cm]{img/Segmentierung/data-PCA}
          \end{tabular}
         
 \end{table}
  }
 \end{frame}
 
-\begin{frame}[t,fragile]{Objektdetektion mit  PCA}
+\begin{frame}[t,fragile]{Objektdetektion mit PCA}
 	\begin{itemize}
- \item[1. ]{Daten Zentrieren}
+ \item[1. ]{Daten zentrieren}
   \end{itemize}
    
   \vspace{0.01em}
@@ -169,8 +168,8 @@ M  & L \\
 \begin{table}
 \centering
         \begin{tabular}{c}
-        \includegraphics[width=4cm]{images/Segmentierung/PCA-mean}\\
-        Mittelwert Bild 
+        \includegraphics[width=4cm]{img/Segmentierung/PCA-mean}\\
+        Mittelwertbild 
          \end{tabular}
         
 \end{table}
@@ -180,9 +179,9 @@ M  & L \\
 \end{equation}
 \end{frame}
 
-\begin{frame}[t,fragile]{Objektdetektion mit  PCA}
+\begin{frame}[t,fragile]{Objektdetektion mit PCA}
 \begin{itemize}
- \item[2. ]{Berechne die Eigenwerte und die Eigenvektoren für die Kovarianzmatrix ${CC^T}$:}
+ \item[2. ]{Berechne die Eigenwerte und Eigenvektoren für die Kovarianzmatrix ${CC^T}$:}
   \end{itemize}
 
    \begin{equation}
@@ -190,7 +189,7 @@ M  & L \\
 \end{equation}
 
 	\begin{itemize}
- \item[3. ]{Projektion der Datensatz X in den $r$-Unterraum:}
+ \item[3. ]{Projektion des Datensatzes X in den $r$-Unterraum:}
   \end{itemize}
    \begin{equation}
 \text{Y}=\text{U}^{T}_{r}(X-\bar{x})
@@ -199,13 +198,13 @@ M  & L \\
 \end{frame}
 
 
-\begin{frame}[t,fragile]{Objektdetektion mit  PCA}
+\begin{frame}[t,fragile]{Objektdetektion mit PCA}
   \vspace{0.01em}
   {
 \begin{table}
 \centering
         \begin{tabular}{c}
-        \includegraphics[width=8cm]{images/Segmentierung/pca_eigen}\\
+        \includegraphics[width=8cm]{img/Segmentierung/pca_eigen}\\
          \end{tabular}
         
 \end{table}
@@ -213,13 +212,13 @@ M  & L \\
 
 \end{frame}
 
-\begin{frame}[t,fragile]{Objektdetektion mit  PCA}
+\begin{frame}[t,fragile]{Objektdetektion mit PCA}
   \vspace{0.01em}
   {
 \begin{table}
 \centering
         \begin{tabular}{c}
-        \includegraphics[width=8cm]{images/Segmentierung/pca_test}\\
+        \includegraphics[width=8cm]{img/Segmentierung/pca_test}\\
          \end{tabular}
         \begin{tabular}{ccc}
      				&precision    & recall   \\
@@ -232,7 +231,7 @@ M  & L \\
 
 \end{frame}
 
-\begin{frame}[t,fragile]{Objektdetektion mit  PCA}
+\begin{frame}[t,fragile]{Objektdetektion mit PCA}
 
 	\begin{itemize}
  \item{Sliding Window}
@@ -242,7 +241,76 @@ M  & L \\
 \begin{table}
 \centering
         \begin{tabular}{c}
-        \includegraphics[width=8cm]{images/Segmentierung/sliding.png}\\
+        \includegraphics[width=8cm]{img/Segmentierung/sliding.png}\\
+         \end{tabular}
+\end{table}
+ }
+
+\end{frame}
+
+
+\begin{frame}[t,fragile]{Objektdetektion mit PCA}
+  \vspace{0.01em}
+  {
+\begin{table}
+\centering
+        \begin{tabular}{c}
+        \includegraphics[width=8cm]{img/Segmentierung/seg(1).png}\\
+         \end{tabular}
+\end{table}
+ }
+
+\end{frame}
+
+\begin{frame}[t,fragile]{Objektdetektion mit PCA}
+  \vspace{0.01em}
+  {
+\begin{table}
+\centering
+        \begin{tabular}{c}
+        \includegraphics[width=8cm]{img/Segmentierung/seg(2).png}\\
+         \end{tabular}
+\end{table}
+ }
+
+\end{frame}
+
+
+\begin{frame}[t,fragile]{Objektdetektion mit PCA}
+  \vspace{0.01em}
+  {
+\begin{table}
+\centering
+        \begin{tabular}{c}
+        \includegraphics[width=8cm]{img/Segmentierung/seg(3).png}\\
+         \end{tabular}
+\end{table}
+ }
+
+\end{frame}
+
+
+\begin{frame}[t,fragile]{Objektdetektion mit PCA}
+  \vspace{0.01em}
+  {
+\begin{table}
+\centering
+        \begin{tabular}{c}
+        \includegraphics[width=8cm]{img/Segmentierung/seg(4).png}\\
+         \end{tabular}
+\end{table}
+ }
+
+\end{frame}
+
+
+\begin{frame}[t,fragile]{Objektdetektion mit PCA}
+  \vspace{0.01em}
+  {
+\begin{table}
+\centering
+        \begin{tabular}{c}
+        \includegraphics[width=8cm]{img/Segmentierung/seg(5).png}\\
          \end{tabular}
 \end{table}
  }
@@ -256,20 +324,7 @@ M  & L \\
 \begin{table}
 \centering
         \begin{tabular}{c}
-        \includegraphics[width=8cm]{images/Segmentierung/seg(1).png}\\
-         \end{tabular}
-\end{table}
- }
-
-\end{frame}
-
-\begin{frame}[t,fragile]{Objektdetektion mit  PCA}
-  \vspace{0.01em}
-  {
-\begin{table}
-\centering
-        \begin{tabular}{c}
-        \includegraphics[width=8cm]{images/Segmentierung/seg(2).png}\\
+        \includegraphics[width=8cm]{img/Segmentierung/seg(6).png}\\
          \end{tabular}
 \end{table}
  }
@@ -277,13 +332,13 @@ M  & L \\
 \end{frame}
 
 
-\begin{frame}[t,fragile]{Objektdetektion mit  PCA}
+\begin{frame}[t,fragile]{Objektdetektion mit PCA}
   \vspace{0.01em}
   {
 \begin{table}
 \centering
         \begin{tabular}{c}
-        \includegraphics[width=8cm]{images/Segmentierung/seg(3).png}\\
+        \includegraphics[width=8cm]{img/Segmentierung/seg(7).png}\\
          \end{tabular}
 \end{table}
  }
@@ -291,13 +346,13 @@ M  & L \\
 \end{frame}
 
 
-\begin{frame}[t,fragile]{Objektdetektion mit  PCA}
+\begin{frame}[t,fragile]{Objektdetektion mit PCA}
   \vspace{0.01em}
   {
 \begin{table}
 \centering
         \begin{tabular}{c}
-        \includegraphics[width=8cm]{images/Segmentierung/seg(4).png}\\
+        \includegraphics[width=8cm]{img/Segmentierung/seg(8).png}\\
          \end{tabular}
 \end{table}
  }
@@ -305,69 +360,13 @@ M  & L \\
 \end{frame}
 
 
-\begin{frame}[t,fragile]{Objektdetektion mit  PCA}
+\begin{frame}[t,fragile]{Objektdetektion mit PCA}
   \vspace{0.01em}
   {
 \begin{table}
 \centering
         \begin{tabular}{c}
-        \includegraphics[width=8cm]{images/Segmentierung/seg(5).png}\\
-         \end{tabular}
-\end{table}
- }
-
-\end{frame}
-
-
-\begin{frame}[t,fragile]{Objektdetektion mit  PCA}
-  \vspace{0.01em}
-  {
-\begin{table}
-\centering
-        \begin{tabular}{c}
-        \includegraphics[width=8cm]{images/Segmentierung/seg(6).png}\\
-         \end{tabular}
-\end{table}
- }
-
-\end{frame}
-
-
-\begin{frame}[t,fragile]{Objektdetektion mit  PCA}
-  \vspace{0.01em}
-  {
-\begin{table}
-\centering
-        \begin{tabular}{c}
-        \includegraphics[width=8cm]{images/Segmentierung/seg(7).png}\\
-         \end{tabular}
-\end{table}
- }
-
-\end{frame}
-
-
-\begin{frame}[t,fragile]{Objektdetektion mit  PCA}
-  \vspace{0.01em}
-  {
-\begin{table}
-\centering
-        \begin{tabular}{c}
-        \includegraphics[width=8cm]{images/Segmentierung/seg(8).png}\\
-         \end{tabular}
-\end{table}
- }
-
-\end{frame}
-
-
-\begin{frame}[t,fragile]{Objektdetektion mit  PCA}
-  \vspace{0.01em}
-  {
-\begin{table}
-\centering
-        \begin{tabular}{c}
-        \includegraphics[width=8cm]{images/Segmentierung/seg(9).png}
+        \includegraphics[width=8cm]{img/Segmentierung/seg(9).png}
          \end{tabular}
 \end{table}
  }
