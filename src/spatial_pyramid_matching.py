@@ -1,37 +1,62 @@
-import cv2
-from sklearn.svm import LinearSVC
+import time
+import random
 
-from src.feature_extraction import FeatureExtraction
-from src.llc_spatial_pyramid_encoding import LlcSpatialPyramidEncoder
-from src.segment import segment
+from src.datautils.data_provider import DataProvider
+from src.classifier.spm_classifier import SpmClassifier
 
+# number of random images used for training the code book of the encoder
+SUB_SAMPLING_SIZE = 100
+SEQ_DATA_DIR = "/home/joschi/Documents/testDDD_seq"
+SEGMENT_DATA_DIR = "/home/joschi/Documents/testDDD_segments"
 
 if __name__ == '__main__':
-    # load data, assign labels and split into test and training data
+    """
+    Main method that shows how to use the data provider for a set of sequences
+    to segment animals and classify them with a spatial pyramid classifier using
+    llc encoding and an svm with a linear kernel.
+    
+    The images are expected to be already ordered in sequences in the
+    SEQ_DATA_DIR. For this you can use the "Camera Trap Sequencer" for example.
+    
+    :author: Joschka Strüber
+    """
+    provider = DataProvider(image_data_dir=None,
+                            sequences_data_dir=SEQ_DATA_DIR,
+                            segments_dir=SEGMENT_DATA_DIR,
+                            show_images_with_roi=True,
+                            folder_names_to_process=None,
+                            max_training_data_percentage=0.6,
+                            train_with_equal_image_amount=True,
+                            shuffle_data=True,
+                            seed=0)
+    start = time.clock()
 
-    # segment the images to get only the regions of interest with animals
+    provider.segment_sequences()
 
-    # select random images from every category to get features to train the
-    # codebook
-    sift = cv2.xfeatures2d.SIFT_create()
-    extractor = FeatureExtraction(sift)
+    segment_time = time.clock()
+    print(segment_time - start)
 
-    # extract dense features from every image for encoding
+    training_data = provider.get_training_data()
+    # select random images from the training data for training the code book
+    code_book_data = []
+    n_training_data = len(training_data)
+    for i in range(SUB_SAMPLING_SIZE):
+        random_index = random.randint(0, n_training_data)
+        code_book_data.append(training_data[random_index])
 
-    # encode all training and test images
+    code_book_time = time.clock()
+    print(code_book_time - segment_time)
 
-    # save LLC codes and labels in arrays for training and prediction
-    training_codes = None
-    testing_codes = None
-    training_labels = None
-    testing_labels = None
+    classifier = SpmClassifier()
+    classifier.train_codebook(code_book_data)
 
-    # train an SVM with linear kernel
-    classifier = LinearSVC()
-    classifier.fit(training_codes, training_labels)
+    tr_features, tr_labels = classifier.get_descr_and_labels(training_data)
+    classifier.fit(tr_features, tr_labels)
 
-    # use test images for verification
-    result = classifier.score(testing_codes, testing_labels)
+    test_data = provider.get_test_data()
+    test_features, test_labels = classifier.get_descr_and_labels(test_data)
+
+    result = classifier.score(test_features, test_labels)
     print("The mean accuracy of the classification was: {}".format(result))
 
 

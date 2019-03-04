@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from src.llc_spatial_pyramid_encoding import LlcSpatialPyramidEncoder
+from src.classifier.llc_spatial_pyramid_encoding import LlcSpatialPyramidEncoder
 
 
 class LlcSpatialPyramidEncoderTest(unittest.TestCase):

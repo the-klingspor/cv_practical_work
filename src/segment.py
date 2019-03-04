@@ -16,13 +16,35 @@ def segment(path, label, root_out_path='C:\\Users\Sufian\Downloads\data\DDD\out\
         if folder:
             seqPath = os.path.join(path, folder)
             imageList = os.listdir(seqPath)
+            for file in imageList:
+                # ignore text file with empty information
+                if os.path.basename(file) == "empty.txt":
+                    imageList.remove(file)
             p = len(imageList)
             print(f'Processing sequence {folder} with {p} images')
+
+            # retrieve list of all empty images
+            empty_file_list = []
+            empty_path = os.path.join(seqPath, "empty.txt")
+            if os.path.exists(empty_path):
+                with open(empty_path, 'r') as empty_file:
+                    empty_file_list = empty_file.readlines()
+
             x, y, _ = plt.imread(os.path.join(seqPath, imageList[0])).shape
             x -= (x - 1504) + 33
             M = np.zeros((x, y, p))
+
+            empty_index = []
             for i in range(p):
-                im = plt.imread(os.path.join(seqPath, imageList[i]))[33:1504, :, :]
+                image_path = os.path.join(seqPath, imageList[i])
+
+                # save if i-th image is empty or not
+                if image_path in empty_file_list:
+                    empty_index.append(True)
+                else:
+                    empty_index.append(False)
+
+                im = plt.imread(image_path)[33:1504, :, :]
                 M[:, :, i] = pre_processing_method_1(cv2.cvtColor(im, cv2.COLOR_BGR2GRAY))
             M = np.reshape(M, (x * y, p)).copy()
             S = foreground(M, 1)
@@ -32,21 +54,24 @@ def segment(path, label, root_out_path='C:\\Users\Sufian\Downloads\data\DDD\out\
             M = None
             print('Finished low-rank separation - start finding ROIs')
             for ii in range(p):
-                bw = O[:, :, ii]
-                bw = post_processing_method_2(bw)
-                # fig, ax = plt.subplots(1)
-                # ax.imshow(bw, cmap='gray')
-                # show_localisation(bw, ax)
-                # show_segmentation(bw, ax)
-                # plt.show()
-                x, y, w, h = boundingBox(bw)
-                outPath = os.path.join(os.path.join(root_out_path, label), folder)
-                if not os.path.exists(outPath): os.makedirs(outPath)
-                # fig.savefig(outPath + os.sep + 'seg_' + str(ii) + '.jpg', format='jpg')
-                if w > 64 and h > 48:
-                    data[seqPath + os.sep + imageList[ii]] = x, y, w, h
-            print("done!")
-    if not os.path.exists(root_out_path): os.makedirs(root_out_path)
+                # append only non-empty images to file with regions of interest
+                if not empty_index[ii]:
+                    bw = O[:, :, ii]
+                    bw = post_processing_method_2(bw)
+                    # fig, ax = plt.subplots(1)
+                    # ax.imshow(bw, cmap='gray')
+                    # show_localisation(bw, ax)
+                    # show_segmentation(bw, ax)
+                    # plt.show()
+                    x, y, w, h = boundingBox(bw)
+                    # outPath = os.path.join(os.path.join(root_out_path, label), folder)
+                    # if not os.path.exists(outPath): os.makedirs(outPath)
+                    # fig.savefig(outPath + os.sep + 'seg_' + str(ii) + '.jpg', format='jpg')
+                    if w > 64 and h > 48:
+                        data[seqPath + os.sep + imageList[ii]] = x, y, w, h
+            print("Done!")
+    if not os.path.exists(root_out_path):
+        os.makedirs(root_out_path)
     np.save(os.path.join(root_out_path, label), data)
     print(f"Data written to file!")
 

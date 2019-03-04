@@ -4,7 +4,7 @@ import shutil
 from operator import itemgetter
 from datetime import datetime, timedelta
 
-from src.exiftool import ExifTool
+from src.sequences.exiftool import ExifTool
 
 """
 @author: Joschka Strüber
@@ -26,6 +26,7 @@ TYPES = ('.jpg',
          '.PNG',
          '.tif',
          '.TIF')
+
 
 def read_images(path, empty=False):
     """
