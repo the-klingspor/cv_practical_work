@@ -1,0 +1,28 @@
+%!TEX root = ../vortrag.tex
+\section{Ausblick}
+\begin{frame}[t,fragile]{Ausblick}
+	\begin{itemize}
+		\item PCA funktioniert nur auf Sequenzen von Bildern
+		\begin{itemize}
+			\item Idee: baue während PCA Index von Bildern aller Kameras (nach Seriennummer) auf
+			\item benutze diesen Index zur Segmentierung von Einzelbildern, indem diese zur Sequenz vervollständigt werden
+		\end{itemize}
+		\item Spatial Pyramid Matching ist momentan sehr langsam
+		\begin{itemize}
+			\item Bottleneck: die Berechnung der LLC-Codes, insbesondere die Lösung des linearen Gleichungssystems
+			\item optimiere Code mit \emph{numba} und parallelisiere weiter \cite{numba}
+		\end{itemize}
+		\item Kombiniere SPM mit LLC durch verschiedene Arten von Features, wie von \cite{ywkjwh13} vorgeschlagen
+		\begin{itemize}
+			\item berechne Textur- oder Farbfeatures, wie beispielsweise cLBP auf dichtem Gitter
+			\item Kombination mit SIFT-Features über \emph{Boosting} oder Scikit-learns \emph{Voting Classifier}
+		\end{itemize} 
+	\end{itemize}
+\end{frame}
+
+\nocite{*}
+\section*{Quellen}
+\begin{frame}[allowframebreaks,t]{\secname}
+	\printbibliography
+\end{frame}
+
