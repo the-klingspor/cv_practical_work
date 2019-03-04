@@ -161,18 +161,16 @@ class LlcSpatialPyramidEncoder:
 
         if num_features == 0:
             return np.zeros(self._size)
-
-        llc_code = self._get_llc_code(features[0])
+        llc_codes_iter = [self._get_llc_code(features[i])
+                          for i in range(num_features)]
+        llc_codes_unpooled = np.array(llc_codes_iter)
         if pooling == 'max':
-            for i in range(1, num_features):
-                llc_code = np.maximum(llc_code, self._get_llc_code(features[i]))
+            llc_code = np.amax(llc_codes_unpooled, axis=0)
         elif pooling == 'sum':
-            for i in range(1, num_features):
-                llc_code += self._get_llc_code(features[i])
+            llc_code = np.sum(llc_codes_unpooled, axis=0)
         else:
             raise ValueError("Invalid pooling method was chosen: {}".
                              format(pooling))
-
         return llc_code
 
     def _get_llc_code(self, feature):
