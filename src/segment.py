@@ -6,64 +6,72 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy import ndimage as sci
 from skimage import exposure as eq
-from skimage.feature import local_binary_pattern
-from skimage.segmentation import active_contour
-
-from background_separation import pca
-from background_separation import rpca
+from src.background_separation import foreground
 
 
-def segment(path, label, root_out_path = '/home/tp/Downloads/CVSequences/CVSequences/damhirsch/out/',
-            write_images_with_roi = False):
+def segment(path, label, root_out_path='C:\\Users\Sufian\Downloads\data\DDD\out\\'):
     data = dict()
     print(f"Segmenting {label}")
     for folder in os.listdir(path):
         if folder:
             seqPath = os.path.join(path, folder)
             imageList = os.listdir(seqPath)
+            for file in imageList:
+                # ignore text file with empty information
+                if os.path.basename(file) == "empty.txt":
+                    imageList.remove(file)
             p = len(imageList)
             print(f'Processing sequence {folder} with {p} images')
-            x, y, z = plt.imread(os.path.join(seqPath, imageList[0])).shape
+
+            # retrieve list of all empty images
+            empty_file_list = []
+            empty_path = os.path.join(seqPath, "empty.txt")
+            if os.path.exists(empty_path):
+                with open(empty_path, 'r') as empty_file:
+                    empty_file_list = empty_file.readlines()
+
+            x, y, _ = plt.imread(os.path.join(seqPath, imageList[0])).shape
             x -= (x - 1504) + 33
-            seq = np.zeros((x, y, p))
-            m = np.zeros((x * y, p))
-            c = np.zeros((x, y, z, p))
+            M = np.zeros((x, y, p))
+
+            empty_index = []
             for i in range(p):
-                im = plt.imread(os.path.join(seqPath, imageList[i]))[33:1504, :, :]
-                c[:, :, :, i] = im
-                seq[:, :, i] = (cv2.cvtColor(im, cv2.COLOR_BGR2GRAY))
-                seq[:, :, i] = pre_processing_method_1(seq[:, :, i])
-                m[:, i] = seq[:, :, i].reshape(x * y, order='F').copy()
-            L1, S1 = pca(m)
-            # L1, S1 = rpca(m)
-            L1, S1 = reshape(L1, S1, x)
-            O = hard_threshold(S1)
-            L1 = None
-            S1 = None
-            print('Finished pca - start finding ROIs')
+                image_path = os.path.join(seqPath, imageList[i])
+
+                # save if i-th image is empty or not
+                if image_path in empty_file_list:
+                    empty_index.append(True)
+                else:
+                    empty_index.append(False)
+
+                im = plt.imread(image_path)[33:1504, :, :]
+                M[:, :, i] = pre_processing_method_1(cv2.cvtColor(im, cv2.COLOR_BGR2GRAY))
+            M = np.reshape(M, (x * y, p)).copy()
+            S = foreground(M, 1)
+            S = np.reshape(S, (x, y, p)).copy()
+            O = hard_threshold(S)
+            S = None
+            M = None
+            print('Finished low-rank separation - start finding ROIs')
             for ii in range(p):
-                bw = O[:, :, ii]
-                bw = post_processing_method_2(bw)
-                box = boundingBox(bw)
-                if write_images_with_roi: # added in order control if images should be written to hd {Thomas}
-                    fig, ax = plt.subplots(1)
-                    ax.imshow(c[:, :, :, ii].astype(np.uint8))
-                    box = show_localisation(bw, ax)
-                # Only ROIs with a minimum size are allowed. This is done to prevent the results from containing empty
-                # ROIs and to force a minimum size of at least 64 pixel width and 48 height to reduce the number of
-                # artifacts. {Thomas}
-                if box[2] > 64 and box[3] > 48:
-                    data[seqPath + os.sep + imageList[ii]] = box
-                    if write_images_with_roi:
-                        show_segmentation(bw, ax)
-                        outPath = os.path.join(root_out_path, label)
-                        outPath = os.path.join(outPath, folder)
-                        if not os.path.exists(outPath): os.makedirs(outPath)
-                        fig.savefig(outPath + os.sep + 'seg_' + str(ii) + '.png', format='png')
-                if write_images_with_roi:
-                    plt.close(fig)
-            print("done!")
-    if not os.path.exists(root_out_path): os.makedirs(root_out_path)
+                # append only non-empty images to file with regions of interest
+                if not empty_index[ii]:
+                    bw = O[:, :, ii]
+                    bw = post_processing_method_2(bw)
+                    # fig, ax = plt.subplots(1)
+                    # ax.imshow(bw, cmap='gray')
+                    # show_localisation(bw, ax)
+                    # show_segmentation(bw, ax)
+                    # plt.show()
+                    x, y, w, h = boundingBox(bw)
+                    # outPath = os.path.join(os.path.join(root_out_path, label), folder)
+                    # if not os.path.exists(outPath): os.makedirs(outPath)
+                    # fig.savefig(outPath + os.sep + 'seg_' + str(ii) + '.jpg', format='jpg')
+                    if w > 64 and h > 48:
+                        data[seqPath + os.sep + imageList[ii]] = x, y, w, h
+            print("Done!")
+    if not os.path.exists(root_out_path):
+        os.makedirs(root_out_path)
     np.save(os.path.join(root_out_path, label), data)
     print(f"Data written to file!")
 
@@ -125,7 +133,6 @@ def hard_threshold(S):
 
 def post_processing_method_2(bw):
     kernel = cv2.getStructuringElement(cv2.MORPH_OPEN, (5, 5))
-
     bw = sci.binary_opening(bw, structure=np.ones((5, 5))).astype(float)
     bw = sci.gaussian_filter(bw.astype(float), sigma=7)
     bw[bw > 0.02] = 255
@@ -137,29 +144,29 @@ def post_processing_method_2(bw):
     return bw
 
 
-def post_processing_method_3(bw, im):
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-
-    bw = sci.median_filter(bw, size=2).astype(float)
-    bw = np.array(bw, dtype=np.uint8)
-    bw = cv2.morphologyEx(bw, cv2.MORPH_OPEN, kernel)
-    contour_points, biggest_mask = bwareafilt(bw)
-    bw = biggest_mask * bw
-    snakeInit = contour_points.reshape(contour_points.shape[0], 2, order='F')
-    snake = active_contour(im, snakeInit, alpha=0.01, beta=5, gamma=0.0001, w_edge=1)
-    ctr = np.array(snake).reshape((-1, 1, 2)).astype(np.int32)
-    snake2BW = np.zeros(bw.shape, np.uint8)
-    cv2.drawContours(snake2BW, [ctr], -1, 255, -1)
-    bw = cv2.morphologyEx(snake2BW, cv2.MORPH_CLOSE, kernel)
-    bw = cv2.morphologyEx(bw, cv2.MORPH_OPEN, kernel)
-    return bw
+# def post_processing_method_3(bw, im):
+#     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+#
+#     bw = sci.median_filter(bw, size=2).astype(float)
+#     bw = np.array(bw, dtype=np.uint8)
+#     bw = cv2.morphologyEx(bw, cv2.MORPH_OPEN, kernel)
+#     contour_points, biggest_mask = bwareafilt(bw)
+#     bw = biggest_mask * bw
+#     snakeInit = contour_points.reshape(contour_points.shape[0], 2, order='F')
+#     snake = active_contour(im, snakeInit, alpha=0.01, beta=5, gamma=0.0001, w_edge=1)
+#     ctr = np.array(snake).reshape((-1, 1, 2)).astype(np.int32)
+#     snake2BW = np.zeros(bw.shape, np.uint8)
+#     cv2.drawContours(snake2BW, [ctr], -1, 255, -1)
+#     bw = cv2.morphologyEx(snake2BW, cv2.MORPH_CLOSE, kernel)
+#     bw = cv2.morphologyEx(bw, cv2.MORPH_OPEN, kernel)
+#     return bw
 
 
 def pre_processing_method_1(im):
-    #lbp = local_binary_pattern(im, 24, 3)
+    # lbp = local_binary_pattern(im, 24, 3)
     color_feature = eq.equalize_hist(im)
-    #beta = 0.1
-    #res = beta * lbp + (1 - beta) * color_feature
+    # beta = 0.1
+    # res = beta * lbp + (1 - beta) * color_feature
     return color_feature
 
 
@@ -177,5 +184,5 @@ def show_segmentation(mask, ax):
 
 
 if __name__ == '__main__':
-    segment("/home/tp/Downloads/CVSequences/CVSequences/damhirsch/dayvision", 'deer')
-    segment("/home/tp/Downloads/CVSequences/CVSequences/badger/dayvision", 'badger')
+    segment("C:\\Users\Sufian\Downloads\data\DDD\ordered", 'deer')
+    # segment("/home/tp/Downloads/CVSequences/CVSequences/badger/dayvision", 'badger')

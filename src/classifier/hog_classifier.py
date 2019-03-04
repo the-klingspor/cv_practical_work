@@ -1,14 +1,15 @@
 import cv2
 import numpy as np
-import random
-import os
 from matplotlib import pyplot as plt
 import matplotlib.patches as patches
-from datautils.data_provider import DataProvider
 from typing import List, Tuple
 import xml.etree.ElementTree as ET
 import pickle
 import re
+
+from src.datautils.classify_util import get_roi, map_labels_to_int
+from datautils.data_provider import DataProvider
+
 
 # For type hints
 TupleList = List[Tuple[str, Tuple[int, int, int, int], str]]
@@ -25,19 +26,11 @@ class HogClassifier:
 
     _hog_descriptor = None
     _svm = None
-    _label_map = []
     _show_classified_img = False
 
     def _read_image(self, file_path):
         """Private helper function to unify image loading"""
         return cv2.imread(file_path, flags=cv2.IMREAD_GRAYSCALE)
-
-    def _get_roi(self, img, roi):
-        y = roi[1]
-        x = roi[0]
-        w = roi[2]
-        h = roi[3]
-        return img[y:y + h, x:x + w]
 
     def _rescale(self, img, scale=PATCH_SIZE):
         """Private helper function to unify and simplify image rescale operations"""
@@ -81,7 +74,7 @@ class HogClassifier:
         strings or numerical values and will be mapped to integers. This maping needs to be undone in the detection
         process
         """
-        labels = self._map_labels_to_int(labels)
+        labels = map_labels_to_int(labels)
         self._svm.train(training_data, cv2.ml.ROW_SAMPLE, labels)
 
     def _svm_predict(self, sample):
@@ -122,11 +115,11 @@ class HogClassifier:
         label = []
         for data_3_tuple in training_data:
             img = self._read_image(data_3_tuple[0])
-            img = self._get_roi(img, data_3_tuple[1])
+            img = get_roi(img, data_3_tuple[1])
             descriptors.append(self._get_descriptor(self._hog_descriptor, img))
             label.append(data_3_tuple[2])
             if calc_additional_data:
-                img =  cv2.flip(img, 1);
+                img = cv2.flip(img, 1);
                 descriptors.append(self._get_descriptor(self._hog_descriptor, img))
                 label.append(data_3_tuple[2])
         return np.array(descriptors), np.array(label)
@@ -152,6 +145,7 @@ class HogClassifier:
         pass
 
     def predict(self, img, roi=None, expected_label=None):
+
         predicted_correct = False
         if self._show_classified_img:
             fig, ax = plt.subplots()
@@ -160,7 +154,7 @@ class HogClassifier:
             rect = patches.Rectangle((x, y), w, h, linewidth=1, edgecolor='r', facecolor='none')
             ax.add_patch(rect)
         if roi:
-            img = self._get_roi(img, roi)
+            img = get_roi(img, roi)
         img = self._rescale(img)
         cv2.equalizeHist(img)
         descriptor = self._hog_descriptor.compute(img)
@@ -168,7 +162,7 @@ class HogClassifier:
         if self._label_map:
             prediction = self._label_map[int(prediction)]
         if expected_label:
-            print(f"predicted: {prediction} expected {expected_label}")
+            # print(f"predicted: {prediction} expected {expected_label}")
             if prediction == expected_label:
                 predicted_correct = True
         else:
@@ -249,15 +243,6 @@ class HogClassifier:
             # calculate descriptor with 64 x 128 roi
             # ca
         pass
-
-    def _map_labels_to_int(self, labels):
-        int_labels = []
-        for label in labels:
-            if label not in self._label_map:
-                self._label_map.append(label)
-            int_label = self._label_map.index(label)
-            int_labels.append(int_label)
-        return np.array(int_labels)
 
     def __init__(self, show_classified_image: bool = False):
         self._show_classified_img = show_classified_image

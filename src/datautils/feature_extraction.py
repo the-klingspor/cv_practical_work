@@ -120,5 +120,6 @@ class FeatureExtraction:
             larger_aspect = max(height, width)
             scaling_factor = self._max_size / float(larger_aspect)
             output = cv2.resize(output, None, fx=scaling_factor,
-                                fy=scaling_factor, interpolation=cv2.INTER_AREA)
+                                fy=scaling_factor,
+                                interpolation=cv2.INTER_AREA)
         return output
