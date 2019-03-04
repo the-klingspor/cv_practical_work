@@ -6,9 +6,9 @@
 
   \item{Vorgehen:}
       \begin{itemize}
-        \item{Datensatz als Sequenz von Bildern.}
-        \item{Redundante Information berechnen (Hintergrund).}
-        \item{Der Vordergrund wird von den Bildern erhalten, indem man den 	Low-Rank Bild vom Datensatz  subtrahiert.}
+        \item{betrachte Datensatz als Sequenz von Bildern}
+        \item{berechne redundante Informationen (Hintergrund)}
+        \item{Den Vordergrund erhält man, indem man das Low-Rank Hintergrundbild vom Datensatz subtrahiert.}
       \end{itemize}
 
   \end{itemize}
@@ -16,11 +16,10 @@
 
 \begin{frame}[t,fragile]{Principal Component Analysis (PCA) }
       \begin{itemize}
-        \item{Lineare Transformation der Variablen.}
-        \item{Projizierung in einem neuen Unterraum.}
-        \item{Dimensionen reduzieren.}
-  
-    
+        \item{lineare Transformation der Variablen}
+        \item{Projizierung in einen neuen Unterraum}
+        \item{Dimensionen reduzieren}
+      
       \end{itemize}
        
   \vspace{0.01em}
@@ -37,16 +36,15 @@
 \end{frame}
 
 
-\begin{frame}[t,fragile]{Bewegungsdetektion mit  PCA}
+\begin{frame}[t,fragile]{Bewegungsdetektion mit PCA}
 	\begin{itemize}
  \item Vordergrund- und Hintergrunderkennung
+ \item Berechnung vom Vordergrund:
  \begin{itemize}
-        \item{Berechnung vom Vordergrund:}
-  \item{PCA sucht die ersten k-Hauptkomponenten, die die Daten mit einem maximalen Varianz beschreiben.}
-      \end{itemize}
-
- \item{wobei M das Inputbild und L ist redundante Bildinformation mit Rang-k}
-  \end{itemize}
+  \item{PCA sucht die ersten k-Hauptkomponenten, die die Daten mit maximaler Varianz beschreiben.}
+  \item{Hierbei ist M das Eingabebild und L ist die redundante Bildinformation mit Rang-k.} 
+ \end{itemize}
+\end{itemize}
   
 \end{frame}
 
