@@ -122,7 +122,7 @@ class HogClassifier:
         label = []
         for data_3_tuple in training_data:
             img = self._read_image(data_3_tuple[0])
-            img = get_roi_with_aspect_ratio(img, data_3_tuple[1], self.PATCH_SIZE[0], self.PATCH_SIZE[1])
+            img = get_roi_with_aspect_ratio(img, data_3_tuple[1], self.PATCH_SIZE[0]/self.PATCH_SIZE[1])
             descriptors.append(self._get_descriptor(self._hog_descriptor, img))
             label.append(data_3_tuple[2])
             if calc_additional_data:
@@ -285,7 +285,7 @@ def test_multiple_times(number_of_runns):
                                 "/home/tp/Downloads/CVSequences/sequ",
                                 "/home/tp/Downloads/CVSequences/CVSequences",
                                 True,
-                                {"dayvision", "day"},  # the subfoldernames that are used for sequence separations
+                                {"dayvision", "day", "nightvision", "night"},  # the subfoldernames that are used for sequence separations
                                 0.66,  # the maximum % of images of a kind that are used as training data
                                 True,  # If any animal should be trained with equal amount of images
                                 True,  # if the images should be shuffled
@@ -335,22 +335,22 @@ if __name__ == '__main__':
                             # "/home/tp/Downloads/CVSequences/CVSequences",
                             "/home/tp/Downloads/CVSequences/npy",
                             True,
-                            {"dayvision", "day"},  # the subfoldernames that are used for sequence separations
+                            {"dayvision", "day", "nightvision", "night"},  # the subfoldernames that are used for sequence separations
                             0.66,  # the maximum % of images of a kind that are used as training data
                             True,  # If any animal should be trained with equal amount of images
                             True,  # if the images should be shuffled
-                            0)  # the random seed for shuffle. If 0 is choosen the seed is random too. Any other number can be choosen to increase the reproducibility of the experiment
-    #6075211826731808081
+                            0, # the random seed for shuffle. If 0 is choosen the seed is random too. Any other number can be choosen to increase the reproducibility of the experiment
+                            2)  # overtrain factor
 
     # good seeds: 8034652065224866011
 
     # test_multiple_times(50)
     #
-    tr_data = provider.get_training_data()
+    # tr_data = provider.get_training_data()
     # provider.generate_sequences()
     # provider.segment_sequences()
     classifier = HogClassifier()
-    classifier.train(provider.get_training_data(2), False, True)
+    classifier.train(provider.get_training_data(), False, True)
     classifier.test(provider.get_test_data())
 
     # classifier2 = HogClassifier()
