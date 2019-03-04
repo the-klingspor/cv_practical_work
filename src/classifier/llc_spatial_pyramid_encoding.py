@@ -200,7 +200,8 @@ class LlcSpatialPyramidEncoder:
                                                 np.ones(self._size))
         except np.linalg.LinAlgError:
             llc_code_not_norm = np.linalg.lstsq(covariance_regularized,
-                                                np.ones(self._size), rcond=None)[0]
+                                                np.ones(self._size),
+                                                rcond=None)[0]
         sum = np.sum(llc_code_not_norm)
         if sum != 0:
             llc_code = llc_code_not_norm / sum
