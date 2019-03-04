@@ -5,7 +5,8 @@ from sklearn.svm import LinearSVC
 
 from src.classifier.llc_spatial_pyramid_encoding import LlcSpatialPyramidEncoder
 from src.datautils.feature_extraction import FeatureExtraction
-from src.datautils.classify_util import get_roi, map_labels_to_int
+from src.datautils.classify_util import get_roi, map_labels_to_int, \
+    print_progress_bar
 
 
 class SpmClassifier:
@@ -38,14 +39,14 @@ class SpmClassifier:
         for clustering.
 
         :author: Joschka Strüber
-        :param training_data: List of tupels : [(path, roi, label), ...,
+        :param training_data: List of tuples : [(path, roi, label), ...,
                                                 (path, roi, label)]
             Image data as paths to image files and regions of interest as
-            tupels. The labels are not needed, but part of the given data.
+            tuples. The labels are not needed, but part of the given data.
         :return: None
         """
         imgs = []
-        for path, roi_coordinates, in training_data:
+        for path, roi_coordinates, label in training_data:
             img = cv2.imread(path, flags=cv2.IMREAD_GRAYSCALE)
             roi = get_roi(img, roi_coordinates)
             imgs.append(roi)
@@ -54,20 +55,24 @@ class SpmClassifier:
 
     def get_descr_and_labels(self, training_data):
         """
-        Given a set of trainings data as tupels of the image path, the region of
+        Given a set of trainings data as tuples of the image path, the region of
         interest inside this image and the label as string, get the descriptors
         as numpy array of llc features and labels as ints.
 
         :author: Joschka Strüber
-        :param training_data: List of tupels : [(path, roi, label), ...,
+        :param training_data: List of tuples : [(path, roi, label), ...,
                                                 (path, roi, label)]
         :return: descriptors: 2d numpy array of llc codes
                  labels: the labels for all encoded features
         """
         descriptors = []
         str_labels = []
+        n_training_data = len(training_data)
 
-        for path, roi_coordinates, label in training_data:
+        print_progress_bar(0, n_training_data)
+        for index, (path, roi_coordinates, label) in enumerate(training_data):
+            if index % 10 == 0 or index + 1 == n_training_data:
+                print_progress_bar(index + 1, n_training_data)
             img = cv2.imread(path, flags=cv2.IMREAD_GRAYSCALE)
             roi = get_roi(img, roi_coordinates)
             spatial_pyramid = self.feature_extractor.get_spatial_pyramid(roi)
@@ -77,7 +82,7 @@ class SpmClassifier:
             descriptors.append(llc_code)
             str_labels.append(label)
         descriptors = np.array(descriptors)
-        labels = map_labels_to_int(self, str_labels)
+        labels = map_labels_to_int(str_labels)
         return descriptors, labels
 
     def fit(self, X, y):
