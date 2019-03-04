@@ -3,7 +3,7 @@ import sys
 import numpy as np
 import random
 import segment
-import sequences
+import sequences.sequences as sequences
 
 
 class DataProvider:
@@ -75,7 +75,7 @@ class DataProvider:
                 print(f"Processing folder {path}")
                 segment.segment(path, animal_folder_name, self.segments_dir)
 
-    def get_training_data(self):
+    def get_training_data(self, over_train_factor = 1):
         """Provides the training data fraction of the entire data available
 
         This method returns the training data fraction of the entire data available as a list of tuples. Each tuple
@@ -88,6 +88,8 @@ class DataProvider:
         Furthermore the predict data can be shuffled. If 'shuffle_data' is set to True the data is shuffled. In order to
         create reproducible shuffled experiments the seed for the random generator can be set with the 'seed' attribute.
 
+        :param over_train_factor: A factor that allows for increasing the trainin image amount by this factor, eaven if
+        equal training size was chosen
         :return A list of tuples containing (<File Name>, <ROI>, <label>). Depending on the settings for each
         the same amount of images can be added or a fraction of all available image of a animal are returned.
         """
@@ -99,7 +101,8 @@ class DataProvider:
             for animal_dict in self._data_keys.items():
                 label = animal_dict[0]
                 image_names = animal_dict[1]
-                image_names = image_names[: min_number]
+                image_names = image_names[: min(min_number * over_train_factor,
+                                                int(len(image_names) * self.max_training_data_percentage))]
                 for image_name in image_names:
                     training_data.append((image_name, self._data[label][image_name], label))
         else:
@@ -192,6 +195,11 @@ class DataProvider:
         self.shuffle_data = shuffle_data
         self.seed = seed
 
+        self._data = dict()
+        self._data_keys = dict()
+        self._is_shuffled = False
+        self._seed_is_set = False
+
         print("Done")
 
     def _read_segmentation_data(self):
@@ -222,13 +230,13 @@ if __name__ == '__main__':
         123) # the random seed for shuffle. If 0 is chosen the seed is random too. Any other number can be chosen to increase the reproducibility of the experiment
 
     # perform sequenc seperation
-    provider.generate_sequences()
+    # provider.generate_sequences()
     # perform segmentation
-    provider.segment_sequences()
+    # provider.segment_sequences()
     #get training tuples
-    training_images = provider.get_training_data()
+    # training_images = provider.get_training_data()
     # get predict tuples
-    test_images = provider.get_test_data()
+    # test_images = provider.get_test_data()
     pass
 
 
