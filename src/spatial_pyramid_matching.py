@@ -6,7 +6,7 @@ from src.classifier.spm_classifier import SpmClassifier
 from src.datautils.classify_util import print_h_m_s
 
 # number of random images used for training the code book of the encoder
-SUB_SAMPLING_SIZE = 100
+SUB_SAMPLING_SIZE = 200
 SEQ_DATA_DIR = "/home/joschi/Documents/testDDD_seq"
 SEGMENT_DATA_DIR = "/home/joschi/Documents/testDDD_segments"
 
@@ -26,8 +26,8 @@ if __name__ == '__main__':
                             segments_dir=SEGMENT_DATA_DIR,
                             show_images_with_roi=True,
                             folder_names_to_process=None,
-                            max_training_data_percentage=0.6,
-                            train_with_equal_image_amount=True,
+                            max_training_data_percentage=0.7,
+                            train_with_equal_image_amount=False,
                             shuffle_data=True,
                             seed=0)
     start = time.time()
@@ -45,7 +45,9 @@ if __name__ == '__main__':
         random_index = random.randint(1, n_training_data) - 1
         code_book_data.append(training_data[random_index])
 
-    classifier = SpmClassifier()
+    classifier = SpmClassifier(codebook_size=512,
+                               alpha=500,
+                               sigma=10)
     classifier.train_codebook(code_book_data)
 
     code_book_time = time.time()

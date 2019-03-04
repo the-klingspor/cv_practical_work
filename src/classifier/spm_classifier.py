@@ -19,14 +19,14 @@ class SpmClassifier:
 
     def __init__(self,
                  extractor=cv2.xfeatures2d.SIFT_create(),
-                 code_book_size=256,
-                 alpha=500,
+                 codebook_size=256,
+                 alpha=100,
                  sigma=100,
                  pooling='max',
                  normalization='eucl',
                  C=1):
         self.feature_extractor = FeatureExtraction(extractor)
-        self.code_book_size = code_book_size
+        self.codebook_size = codebook_size
         self.pooling = pooling
         self.normalization = normalization
         self.encoder = LlcSpatialPyramidEncoder(alpha=alpha, sigma=sigma)
@@ -51,7 +51,7 @@ class SpmClassifier:
             roi = get_roi(img, roi_coordinates)
             imgs.append(roi)
         feature_subset = self.feature_extractor.get_dense_features(imgs)
-        self.encoder.train_codebook(feature_subset, self.code_book_size)
+        self.encoder.train_codebook(feature_subset, self.codebook_size)
 
     def get_descr_and_labels(self, training_data):
         """
@@ -71,7 +71,7 @@ class SpmClassifier:
 
         print_progress_bar(0, n_training_data)
         for index, (path, roi_coordinates, label) in enumerate(training_data):
-            if index % 10 == 0 or index + 1 == n_training_data:
+            if index % 5 == 0 or index + 1 == n_training_data:
                 print_progress_bar(index + 1, n_training_data)
             img = cv2.imread(path, flags=cv2.IMREAD_GRAYSCALE)
             roi = get_roi(img, roi_coordinates)

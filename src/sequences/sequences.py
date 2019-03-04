@@ -157,6 +157,7 @@ def order_db_by_sequences(path_from, path_to, copy=True, empty=True):
         if os.path.isdir(dayvision_subdir):
             images.extend(read_images(dayvision_subdir))
 
+        nightvision = False
         nightvision_subdir = os.path.join(species, 'nightvision')
         if os.path.isdir(nightvision_subdir):
             nightvision = True
