@@ -3,7 +3,7 @@ import os
 
 from PyQt5 import QtWidgets, QtCore
 
-from src.sequences import order_db_by_sequences, order_dir_by_sequences
+from src.sequences.sequences import order_db_by_sequences, order_dir_by_sequences
 
 
 class CameraTrapSequencer(QtWidgets.QWidget):
