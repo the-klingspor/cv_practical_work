@@ -1,5 +1,31 @@
 %!TEX root = ../vortrag.tex
 \section{Evaluierung}
-\begin{frame}[t,fragile]{???}
-	bla
+\begin{frame}[t,fragile]{DDD nur Tagbilder}
+\begin{itemize}
+	\item 70\% aller Bilder zum Trainieren, 30\% zum Testen
+\end{itemize}
+	\begin{table}
+		\begin{tabular}{|c||c|c|c|c|}
+			\hline
+			Mean Accuracy & $\alpha$ = 500 & $\alpha$ = 100 & $\alpha$ = 10 & $\alpha$ = 1 \\
+			\hline
+			$\sigma$ = 100 & 94,3\% & 90.5\% & 93,3\% & 87,6\% \\ 
+			\hline
+			$\sigma$ = 10 & 87,6\% & - & - & 87,6\% \\
+			\hline
+		\end{tabular}
+	\caption{Größe des Codebooks: 256 Features}
+	\end{table}
+		\begin{table}
+		\begin{tabular}{|c||c|c|c|c|}
+			\hline
+			Mean Accuracy & $\alpha$ = 500 & $\alpha$ = 100 & $\alpha$ = 10 & $\alpha$ = 1 \\
+			\hline
+			$\sigma$ = 100 & 93,3\% & 95,7\% & 87,6\% & 87,6\% \\ 
+			\hline
+			$\sigma$ = 10 & 87,6\% & - & - & 87,6\% \\
+			\hline
+		\end{tabular}
+		\caption{Größe des Codebooks: 512 Features}
+	\end{table}
 \end{frame}
