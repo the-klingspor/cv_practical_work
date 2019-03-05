@@ -283,6 +283,7 @@ def test_multiple_times(number_of_runns):
         print(f"RUN {i} STARTED: ")
         provider = DataProvider("/home/tp/Downloads/CVSequences/data",
                                 "/home/tp/Downloads/CVSequences/sequ",
+                                # "/home/tp/Downloads/CVSequences/npy",
                                 "/home/tp/Downloads/CVSequences/CVSequences",
                                 True,
                                 {"dayvision", "day", "nightvision", "night"},  # the subfoldernames that are used for sequence separations
@@ -291,7 +292,7 @@ def test_multiple_times(number_of_runns):
                                 True,  # if the images should be shuffled
                                 0)  # the random seed for shuffle. If 0 is choosen the seed is random too. Any other number can be choosen to increase the reproducibility of the experiment
         classifier = HogClassifier()
-        classifier.train(provider.get_training_data(), False, False)
+        classifier.train(provider.get_training_data(), True, False)
         eval = classifier.test(provider.get_test_data())
         evals.append(eval)
         del provider
@@ -326,32 +327,33 @@ def test_multiple_times(number_of_runns):
             print(f"{key}: {percent:1.3f}")
     for key, my_list in avg.items():
         summe = sum(my_list)
-        print(f"{key} avg: {summe/len(my_list):1.3f}, min: {min_v[key]}, max: {max_v[key]}")
+        my_std = np.std(np.array(my_list), dtype=np.float64)
+        print(f"{key} avg: {summe/len(my_list):1.3f}, min: {min_v[key]:1.3f}, max: {max_v[key]:1.3f}, std: {my_std:1.3f}")
 
 
 if __name__ == '__main__':
-    provider = DataProvider("/home/tp/Downloads/CVSequences/data",
-                            "/home/tp/Downloads/CVSequences/sequ",
-                            # "/home/tp/Downloads/CVSequences/CVSequences",
-                            "/home/tp/Downloads/CVSequences/npy",
-                            True,
-                            {"dayvision", "day", "nightvision", "night"},  # the subfoldernames that are used for sequence separations
-                            0.66,  # the maximum % of images of a kind that are used as training data
-                            True,  # If any animal should be trained with equal amount of images
-                            True,  # if the images should be shuffled
-                            0, # the random seed for shuffle. If 0 is choosen the seed is random too. Any other number can be choosen to increase the reproducibility of the experiment
-                            2)  # overtrain factor
+    # provider = DataProvider("/home/tp/Downloads/CVSequences/data",
+    #                         "/home/tp/Downloads/CVSequences/sequ",
+    #                         "/home/tp/Downloads/CVSequences/CVSequences",
+    #                         # "/home/tp/Downloads/CVSequences/npy",
+    #                         True,
+    #                         {"dayvision", "day", "nightvision", "night"},  # the subfoldernames that are used for sequence separations
+    #                         0.66,  # the maximum % of images of a kind that are used as training data
+    #                         True,  # If any animal should be trained with equal amount of images
+    #                         True,  # if the images should be shuffled
+    #                         0, # the random seed for shuffle. If 0 is choosen the seed is random too. Any other number can be choosen to increase the reproducibility of the experiment
+    #                         1)  # overtrain factor
 
     # good seeds: 8034652065224866011
 
-    # test_multiple_times(50)
+    test_multiple_times(50)
     #
     # tr_data = provider.get_training_data()
     # provider.generate_sequences()
     # provider.segment_sequences()
-    classifier = HogClassifier()
-    classifier.train(provider.get_training_data(), False, True)
-    classifier.test(provider.get_test_data())
+    # classifier = HogClassifier()
+    # classifier.train(provider.get_training_data(), False, True)
+    # classifier.test(provider.get_test_data())
 
     # classifier2 = HogClassifier()
     # classifier2.train(provider.get_training_data(), False, False)
