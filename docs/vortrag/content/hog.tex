@@ -20,13 +20,18 @@
 	\begin{enumerate}
  		\item Vorverarbeitung (optional)
 		\item Gradienten Berechnung (Sobel)
-
 	\begin{figure}
 		\centering
 		\includegraphics[scale=0.12]{img/sobel.png}
 		\caption{Visualisierung der Gradientenberechnung }
 	\end{figure}
   \end{enumerate}
+	\begin{equation}
+	Magnitude: |G| = \sqrt{G_x^2 + G_y^2}
+	\end{equation}
+\begin{equation}
+    Orientierung: \Theta = \arctan({G_x, G_y})
+\end{equation}
 \end{frame}
 
 \begin{frame}[t,fragile]{Berechnung des HOGs}
@@ -40,7 +45,7 @@
 		\centering
 		\includegraphics[scale=0.12]{img/sobel2hog.png}
 		\caption{Berechnung eines Histogramms}
-	\end{figure}
+	\end{figure}	
   \end{enumerate}
 \end{frame}
 
