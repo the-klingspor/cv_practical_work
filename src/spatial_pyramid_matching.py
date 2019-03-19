@@ -1,14 +1,16 @@
 import time
 import random
 
+from sklearn.metrics import confusion_matrix
+
 from src.datautils.data_provider import DataProvider
 from src.classifier.spm_classifier import SpmClassifier
 from src.datautils.classify_util import print_h_m_s
 
 # number of random images used for training the code book of the encoder
-SUB_SAMPLING_SIZE = 200
-SEQ_DATA_DIR = "/home/joschi/Documents/testDDD_seq"
-SEGMENT_DATA_DIR = "/home/joschi/Documents/testDDD_segments"
+SUB_SAMPLING_SIZE = 300
+SEQ_DATA_DIR = "/home/joschi/Documents/DDD+_seq"
+SEGMENT_DATA_DIR = "/home/joschi/Documents/DDD+_segs"
 
 if __name__ == '__main__':
     """
@@ -45,9 +47,9 @@ if __name__ == '__main__':
         random_index = random.randint(1, n_training_data) - 1
         code_book_data.append(training_data[random_index])
 
-    classifier = SpmClassifier(codebook_size=512,
+    classifier = SpmClassifier(codebook_size=1024,
                                alpha=500,
-                               sigma=10)
+                               sigma=100)
     classifier.train_codebook(code_book_data)
 
     code_book_time = time.time()
@@ -62,9 +64,16 @@ if __name__ == '__main__':
     test_data = provider.get_test_data()
     test_features, test_labels = classifier.get_descr_and_labels(test_data)
 
+    prediction = classifier.predict(test_features)
+
     result = classifier.score(test_features, test_labels)
+    print("The mean accuracy of the classification was: {}".format(result))
+
+    conf = confusion_matrix(test_labels, prediction)
+    print(conf)
+    conf_norm = conf / conf.sum(axis=0)
+    print(conf_norm)
     score_time = time.time()
     print_h_m_s(score_time - fit_time, "Score time: ")
-    print("The mean accuracy of the classification was: {}".format(result))
 
 

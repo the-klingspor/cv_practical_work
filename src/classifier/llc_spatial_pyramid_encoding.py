@@ -1,6 +1,7 @@
 import numpy as np
 import multiprocessing as mp
 
+from numba import njit
 from sklearn.cluster import MiniBatchKMeans
 
 
@@ -32,7 +33,10 @@ class LlcSpatialPyramidEncoder:
         weight decay speed of the locality adaptor.
         """
         self._size = size
-        self._codebook = codebook
+        if codebook is not None:
+            self._codebook = codebook.astype(np.float64)
+        else:
+            self._codebook = None
         self._alpha = alpha
         self._sigma = sigma
 
@@ -55,7 +59,7 @@ class LlcSpatialPyramidEncoder:
 
         mini_batch_kMeans = MiniBatchKMeans(n_clusters=self._size)
         k_means_clusters = mini_batch_kMeans.fit(X=features)
-        self._codebook = k_means_clusters.cluster_centers_
+        self._codebook = k_means_clusters.cluster_centers_.astype(np.float64)
 
     def encode(self, spatial_pyramid, pooling='max', normalization='eucl'):
         """
@@ -104,6 +108,11 @@ class LlcSpatialPyramidEncoder:
         feature_list = []
         for l1_bin in range(4):
             for l2_bin in range(4):
+                # skip the l0 and the four l1 codes
+                l2_index = 5 + 4 * l1_bin + l2_bin
+                spm_code[l2_index] = self._encode_spatial_bin(
+                    spatial_pyramid[l1_bin][l2_bin], pooling=pooling)
+        """
                 feature_list.append(spatial_pyramid[l1_bin][l2_bin])
         pool = mp.Pool(processes=16)
         l2_codes = [pool.apply(self._encode_spatial_bin,
@@ -113,6 +122,7 @@ class LlcSpatialPyramidEncoder:
         start_index = 5
         for l2_index in range(16):
             spm_code[l2_index + start_index] = l2_codes[l2_index]
+        """
 
         # use associativity of pooling methods to compute pooled codes for l1
         # bins and l0 bin
@@ -187,48 +197,8 @@ class LlcSpatialPyramidEncoder:
          [1, 2]]
         Use this matrix to center the codebook around the input feature vector.
         """
-        centered = self._codebook - np.broadcast_to(feature, (self._size,
-                                                              feature.shape[0]))
-        covariance = np.dot(centered, centered.T)
-        regularization_matrix = self._alpha * np.diag(
-            self._get_distance_vector(feature))
-        covariance_regularized = covariance + regularization_matrix
-
-        # check if the regularized covariance matrix is singular
-        try:
-            llc_code_not_norm = np.linalg.solve(covariance_regularized,
-                                                np.ones(self._size))
-        except np.linalg.LinAlgError:
-            llc_code_not_norm = np.linalg.lstsq(covariance_regularized,
-                                                np.ones(self._size),
-                                                rcond=None)[0]
-        sum = np.sum(llc_code_not_norm)
-        if sum != 0:
-            llc_code = llc_code_not_norm / sum
-        else:
-            llc_code = np.zeros(self._size)
-            # todo: error handling for llc_code with sum of zero
-        return llc_code
-
-    def _get_distance_vector(self, feature):
-        """
-        Computes a normalized distance vector from a feature to every visual
-        word of the codebook.
-        """
-        distances = np.zeros(self._size)
-        max_distance = 0
-        # get euclidean distance from feature to every visual word of the
-        # codebook, save maximum distance for normalization
-        for i in range(self._size):
-            distance = np.linalg.norm(feature - self._codebook[i])
-            max_distance = max(max_distance, distance)
-            distances[i] = distance
-
-        # normalize every vector with maximum distance and hyperparameter sigma
-        distances = distances - max_distance
-        distances = distances / self._sigma
-
-        return np.exp(distances)
+        return get_llc_code(self._codebook, feature, self._size, self._alpha,
+                            self._sigma)
 
     def _is_invertible(self, matrix):
         """
@@ -242,3 +212,44 @@ class LlcSpatialPyramidEncoder:
         return square and full_rank
 
 
+@njit(parallel=True)
+def get_llc_code(codebook, feature, size, alpha, sigma):
+    centered = codebook - feature
+    covariance = np.dot(centered, centered.T)
+    distance_vector = get_distances(codebook, feature, size, sigma)
+    regularization_matrix = alpha * np.diag(distance_vector)
+    covariance_regularized = covariance + regularization_matrix
+
+    # check if the regularized covariance matrix is singular
+    #try:
+    llc_code_not_norm = np.linalg.solve(covariance_regularized,
+                                            np.ones(size))
+    #except np.linalg.LinAlgError:
+    #    llc_code_not_norm = np.linalg.lstsq(covariance_regularized,
+    #                                        np.ones(size),
+    #                                        rcond=None)[0]
+    sum = np.sum(llc_code_not_norm)
+    if sum != 0:
+        llc_code = llc_code_not_norm / sum
+    else:
+        llc_code = np.zeros(size)
+        # todo: error handling for llc_code with sum of zero
+    return llc_code
+
+
+@njit(parallel=True)
+def get_distances(codebook, feature, size, sigma):
+    distances = np.zeros(size)
+    max_distance = 0
+    # get euclidean distance from feature to every visual word of the
+    # codebook, save maximum distance for normalization
+    for i in range(size):
+        distance = np.linalg.norm(feature - codebook[i])
+        max_distance = max(max_distance, distance)
+        distances[i] = distance
+
+    # normalize every vector with maximum distance and hyper parameter sigma
+    distances = distances - max_distance
+    distances = distances / sigma
+
+    return np.exp(distances)

@@ -47,7 +47,7 @@ class FeatureExtraction:
                           for x in range(0, resized.shape[1], step_size)]
             desc, dense_features = self._feature_extractor.compute(resized,
                                                                    key_points)
-            feature_list.append(dense_features)
+            feature_list.append(dense_features.astype(np.float64))
         features = np.concatenate(feature_list)
         return features
 
@@ -91,6 +91,7 @@ class FeatureExtraction:
                               for x in range(col_start, col_end, step_size)]
                 desc, bin_features = self._feature_extractor.compute(resized,
                                                                      key_points)
+                bin_features = bin_features.astype(np.float64)
                 if row < 2:
                     if column < 2:
                         l1_bin_top_left.append(bin_features)
