@@ -20,7 +20,7 @@ class SpmClassifier:
     def __init__(self,
                  extractor=cv2.xfeatures2d.SIFT_create(),
                  codebook_size=256,
-                 alpha=100,
+                 alpha=500,
                  sigma=100,
                  pooling='max',
                  normalization='eucl',

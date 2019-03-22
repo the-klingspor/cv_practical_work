@@ -1,15 +1,22 @@
 import unittest
 import numpy as np
+
 from src.classifier.llc_spatial_pyramid_encoding import LlcSpatialPyramidEncoder
+import src.classifier.llc_optimization as llc_opt
 
 
 class LlcSpatialPyramidEncoderTest(unittest.TestCase):
     def setUp(self):
-        cb = np.array([[2, 1],
-                       [-1, 2],
-                       [0, -1]])
-        self.encoder = LlcSpatialPyramidEncoder(size=3, codebook=cb, alpha=2,
-                                                sigma=3)
+        self.codebook = np.array([[2.0, 1.0],
+                                  [-1.0, 2.0],
+                                  [0, -1.0]])
+        self.size = 3
+        self.alpha = 2
+        self.sigma = 3
+        self.encoder = LlcSpatialPyramidEncoder(size=self.size,
+                                                codebook=self.codebook,
+                                                alpha=self.alpha,
+                                                sigma=self.sigma)
 
     def test_train_codebook(self):
         features = np.array([[0, 0],
@@ -29,71 +36,87 @@ class LlcSpatialPyramidEncoderTest(unittest.TestCase):
                                     atol=1e-1)
         self.assertTrue(permutation_1 or permutation_2)
 
-    """
-    def test_get_distance_vector(self):
-        result = self.encoder._get_distance_vector(np.array([3, 0]))
+    def test_get_distances(self):
+        result = llc_opt.get_distances(self.codebook, np.array([3.0, 0]),
+                                       self.sigma)
         expected = np.array([0.36084, 1, 0.64622])
         self.assertArrayAlmostEqual(result, expected)
 
-        result = self.encoder._get_distance_vector(np.array([-1, -1]))
+        result = llc_opt.get_distances(self.codebook, np.array([-1.0, -1.0]),
+                                       self.sigma)
         expected = np.array([1, 0.81722, 0.41957])
         self.assertArrayAlmostEqual(result, expected)
 
-        result = self.encoder._get_distance_vector(np.array([1, -1]))
+        result = llc_opt.get_distances(self.codebook, np.array([1.0, -1.0]),
+                                       self.sigma)
         expected = np.array([0.63350, 1, 0.41957])
         self.assertArrayAlmostEqual(result, expected)
 
-        result = self.encoder._get_distance_vector(np.array([1, 2]))
+        result = llc_opt.get_distances(self.codebook, np.array([1.0, 2.0]),
+                                       self.sigma)
         expected = np.array([0.55840, 0.6788, 1])
         self.assertArrayAlmostEqual(result, expected)
-    """
 
     def test_get_llc_code(self):
-        result = self.encoder._get_llc_code(np.array([3, 0]))
+        result = llc_opt.get_llc_code(self.codebook, np.array([3, 0]),
+                                      self.size, self.alpha, self.sigma)
         expected = np.array([1.11015, -0.344779, 0.23463])
         self.assertArrayAlmostEqual(result, expected)
 
-        result = self.encoder._get_llc_code(np.array([-1, -1]))
+        result = llc_opt.get_llc_code(self.codebook, np.array([-1, -1]),
+                                      self.size, self.alpha, self.sigma)
         expected = np.array([-0.20915, 0.22858, 0.98056])
         self.assertArrayAlmostEqual(result, expected)
 
-        result = self.encoder._get_llc_code(np.array([1, -1]))
+        result = llc_opt.get_llc_code(self.codebook, np.array([1, -1]),
+                                      self.size, self.alpha, self.sigma)
         expected = np.array([0.35012, -0.14449, 0.79437])
         self.assertArrayAlmostEqual(result, expected)
 
-        result = self.encoder._get_llc_code(np.array([1, 2]))
+        result = llc_opt.get_llc_code(self.codebook, np.array([1, 2]),
+                                      self.size, self.alpha, self.sigma)
         expected = np.array([0.65405, 0.45485, -0.10890])
         self.assertArrayAlmostEqual(result, expected)
 
     def test_encode_spatial_bin_empty(self):
-        result = self.encoder._encode_spatial_bin(np.array([]))
+        result = llc_opt.encode_spatial_bin_numba(self.codebook, np.array([]),
+                                                  self.size, self.alpha,
+                                                  self.sigma)
         expected = np.zeros(self.encoder._size)
         self.assertTrue((result == expected).all())
 
     def test_encode_spatial_bin_l2_max(self):
-        result = self.encoder._encode_spatial_bin(np.array([[3, 0], [-1, -1]]),
-                                                  pooling='max')
+        result = llc_opt.encode_spatial_bin_numba(self.codebook,
+                                                  np.array([[3, 0], [-1, -1]]),
+                                                  self.size, self.alpha,
+                                                  self.sigma, pooling='max')
         expected = np.array([1.11015, 0.22858, 0.98056])
         self.assertArrayAlmostEqual(result, expected)
 
     def test_encode_spatial_bin_l1_sum(self):
-        result = self.encoder._encode_spatial_bin(np.array([[3, 0], [-1, -1],
+        result = llc_opt.encode_spatial_bin_numba(self.codebook,
+                                                  np.array([[3, 0], [-1, -1],
                                                             [1, -1]]),
-                                                  pooling='sum')
+                                                  self.size, self.alpha,
+                                                  self.sigma, pooling='sum')
         expected = np.array([1.25112, -0.260689, 2.00956])
         self.assertArrayAlmostEqual(result, expected)
 
     def test_encode_spatial_bin_l1_max(self):
-        result = self.encoder._encode_spatial_bin(np.array([[3, 0], [-1, -1],
+        result = llc_opt.encode_spatial_bin_numba(self.codebook,
+                                                  np.array([[3, 0], [-1, -1],
                                                             [1, -1]]),
-                                                  pooling='max')
+                                                  self.size, self.alpha,
+                                                  self.sigma, pooling='max')
         expected = np.array([1.11015, 0.22858, 0.98056])
         self.assertArrayAlmostEqual(result, expected)
 
     def test_encode_spatial_bin_l0_max(self):
-        result = self.encoder._encode_spatial_bin(np.array([[3, 0], [-1, -1],
+        result = llc_opt.encode_spatial_bin_numba(self.codebook,
+                                                  np.array([[3, 0], [-1, -1],
                                                             [1, -1], [1, 2]]),
-                                                  pooling='max')
+                                                  self.size, self.alpha,
+                                                  self.sigma, pooling='max')
         expected = np.array([1.11015, 0.45485, 0.98056])
         self.assertArrayAlmostEqual(result, expected)
 

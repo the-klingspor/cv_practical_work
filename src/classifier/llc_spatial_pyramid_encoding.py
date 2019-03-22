@@ -1,7 +1,8 @@
 import numpy as np
+import time
 
 from sklearn.cluster import MiniBatchKMeans
-from src.classifier.llc_optimization import get_llc_code
+from src.classifier.llc_optimization import encode_spatial_bin_numba
 
 
 class LlcSpatialPyramidEncoder:
@@ -43,6 +44,7 @@ class LlcSpatialPyramidEncoder:
         """
         Trains a codebook as the cluster centers for a larger set of features.
         k-means is the used clustering algorithm.
+
         :author: Joschka Strüber
         :param size: unsigned int (default 1024)
         Number of cluster centers for the codebook.
@@ -56,7 +58,8 @@ class LlcSpatialPyramidEncoder:
         else:
             self._size = features.shape[0]
 
-        mini_batch_kMeans = MiniBatchKMeans(n_clusters=self._size)
+        mini_batch_kMeans = MiniBatchKMeans(n_clusters=self._size,
+                                            init_size=3 * self._size)
         k_means_clusters = mini_batch_kMeans.fit(X=features)
         self._codebook = k_means_clusters.cluster_centers_.astype(np.float64)
 
@@ -96,6 +99,7 @@ class LlcSpatialPyramidEncoder:
         1, followed by level 2. In case of an error, a ValueError will be
         raised.
         """
+        start = time.time()
         if self._codebook is None:
             print("No code book was given or trained.")
             return
@@ -104,24 +108,12 @@ class LlcSpatialPyramidEncoder:
         spm_code = np.zeros((21, self._size))
 
         # encode all features of all level 2 bins
-        feature_list = []
         for l1_bin in range(4):
             for l2_bin in range(4):
                 # skip the l0 and the four l1 codes
                 l2_index = 5 + 4 * l1_bin + l2_bin
                 spm_code[l2_index] = self._encode_spatial_bin(
                     spatial_pyramid[l1_bin][l2_bin], pooling=pooling)
-        """
-                feature_list.append(spatial_pyramid[l1_bin][l2_bin])
-        pool = mp.Pool(processes=16)
-        l2_codes = [pool.apply(self._encode_spatial_bin,
-                               args=(features, pooling)) for features
-                    in feature_list]
-        # skip the l0 and the four l1 codes
-        start_index = 5
-        for l2_index in range(16):
-            spm_code[l2_index + start_index] = l2_codes[l2_index]
-        """
 
         # use associativity of pooling methods to compute pooled codes for l1
         # bins and l0 bin
@@ -157,7 +149,8 @@ class LlcSpatialPyramidEncoder:
         else:
             raise ValueError("Invalid normalization method was chosen: {}".
                              format(normalization))
-
+        end = time.time()
+        print("\nencoding_time: {:.3f}".format(end - start))
         return spm_code
 
     def _encode_spatial_bin(self, features, pooling='max'):
@@ -165,39 +158,7 @@ class LlcSpatialPyramidEncoder:
         Computes the LLC codes for a set of features and pools them with the
         specified pooling method. In case of an empty set, a zero vector will be
         returned.
+        :author: Joschka Strüber
         """
-        num_features = features.shape[0]
-
-        if num_features == 0:
-            return np.zeros(self._size)
-        llc_codes_iter = [self._get_llc_code(features[i])
-                          for i in range(num_features)]
-        llc_codes_unpooled = np.array(llc_codes_iter)
-        if pooling == 'max':
-            llc_code = np.amax(llc_codes_unpooled, axis=0)
-        elif pooling == 'sum':
-            llc_code = np.sum(llc_codes_unpooled, axis=0)
-        else:
-            raise ValueError("Invalid pooling method was chosen: {}".
-                             format(pooling))
-        return llc_code
-
-    def _get_llc_code(self, feature):
-        """
-        Computes an LLC code based on the feature vector and the codebook.
-        """
-
-
-        return get_llc_code(self._codebook, feature, self._size, self._alpha,
-                            self._sigma)
-
-    def _is_invertible(self, matrix):
-        """
-        Checks if a matrix is invertible and can be used for solving linear
-        equations
-        """
-        square = (matrix.shape[0] == matrix.shape[1])
-        full_rank = False
-        if square:
-            full_rank = (np.linalg.matrix_rank(matrix) == matrix.shape[0])
-        return square and full_rank
+        return encode_spatial_bin_numba(self._codebook, features, self._size,
+                                        self._alpha, self._sigma, pooling)

@@ -47,7 +47,7 @@ if __name__ == '__main__':
         random_index = random.randint(1, n_training_data) - 1
         code_book_data.append(training_data[random_index])
 
-    classifier = SpmClassifier(codebook_size=1024,
+    classifier = SpmClassifier(codebook_size=512,
                                alpha=500,
                                sigma=100)
     classifier.train_codebook(code_book_data)
