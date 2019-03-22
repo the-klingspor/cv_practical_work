@@ -157,8 +157,10 @@ def order_db_by_sequences(path_from, path_to, copy=True, empty=True):
         if os.path.isdir(dayvision_subdir):
             images.extend(read_images(dayvision_subdir))
 
+        nightvision = False
         nightvision_subdir = os.path.join(species, 'nightvision')
         if os.path.isdir(nightvision_subdir):
+            nightvision = True
             images.extend(read_images(nightvision_subdir))
 
         if empty:
@@ -166,7 +168,7 @@ def order_db_by_sequences(path_from, path_to, copy=True, empty=True):
             if os.path.isdir(empty_day_subdir):
                 images.extend(read_images(empty_day_subdir, empty=True))
             empty_night_subdir = os.path.join(species, 'empty', 'night')
-            if os.path.isdir(empty_night_subdir):
+            if nightvision and os.path.isdir(empty_night_subdir):
                 images.extend(read_images(empty_night_subdir, empty=True))
 
         species_name = os.path.basename(species)
@@ -279,17 +281,3 @@ def create_sequence(seq_number, path_to, images, start, end, copy=True,
                     file.write(file_name + '\n')
         if not empty_exists:
             os.remove(empty_path)
-
-
-if __name__ == '__main__':
-    damhirsch_images = read_images("/home/tp/Downloads/CVSequences/CVSequences/damhirsch/dayvision")
-    damhirsch_empty = read_images("/home/tp/Downloads/CVSequences/CVSequences/damhirsch/empty/day")
-    damhirsch_images.extend(damhirsch_empty)
-    order_by_sequences(damhirsch_images,
-                       "/home/tp/Downloads/CVSequences/CVSequences/damhirsch/dayvision")
-
-    badger_images = read_images("/home/tp/Downloads/CVSequences/CVSequences/badger/dayvision")
-    badger_empty = read_images("/home/tp/Downloads/CVSequences/CVSequences/badger/empty/day")
-    badger_images.extend(badger_empty)
-    order_by_sequences(badger_images,
-                       "/home/tp/Downloads/CVSequences/CVSequences/badger/dayvision")
