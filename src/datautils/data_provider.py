@@ -3,7 +3,7 @@ import sys
 import numpy as np
 import random
 import segment
-import sequences
+import sequences.sequences as sequences
 
 
 class DataProvider:
@@ -21,6 +21,8 @@ class DataProvider:
     train_with_equal_image_amount: bool
     shuffle_data: bool
     seed: int
+    over_train_factor: float
+
 
     _data = dict()
     _data_keys = dict()
@@ -88,6 +90,8 @@ class DataProvider:
         Furthermore the predict data can be shuffled. If 'shuffle_data' is set to True the data is shuffled. In order to
         create reproducible shuffled experiments the seed for the random generator can be set with the 'seed' attribute.
 
+        :param over_train_factor: A factor that allows for increasing the trainin image amount by this factor, eaven if
+        equal training size was chosen
         :return A list of tuples containing (<File Name>, <ROI>, <label>). Depending on the settings for each
         the same amount of images can be added or a fraction of all available image of a animal are returned.
         """
@@ -99,7 +103,8 @@ class DataProvider:
             for animal_dict in self._data_keys.items():
                 label = animal_dict[0]
                 image_names = animal_dict[1]
-                image_names = image_names[: min_number]
+                image_names = image_names[: min(min_number * self.over_train_factor,
+                                                int(len(image_names) * self.max_training_data_percentage))]
                 for image_name in image_names:
                     training_data.append((image_name, self._data[label][image_name], label))
         else:
@@ -111,7 +116,7 @@ class DataProvider:
                     training_data.append((image_name, self._data[label][image_name], label))
         return training_data
 
-    def get_test_data(self):
+    def get_test_data(self, max_length = 99999999999):
         """Provides a list of tuples containing all data not used for training
 
         :return A list of tuples containing (<File Name>, <ROI>, <label>). For each animal all remaining images not
@@ -125,14 +130,17 @@ class DataProvider:
             for animal_dict in self._data_keys.items():
                 label = animal_dict[0]
                 image_names = animal_dict[1]
-                image_names = image_names[min_number + 1:]
+                image_names = image_names[min(min_number * self.over_train_factor,
+                                                int(len(image_names) * self.max_training_data_percentage)) + 1:
+                              min(len(image_names), max_length)]
                 for image_name in image_names:
                     test_data.append((image_name, self._data[label][image_name], label))
         else:
             for animal_dict in self._data_keys.items():
                 label = animal_dict[0]
                 image_names = animal_dict[1]
-                image_names = image_names[int(len(image_names) * self.max_training_data_percentage) + 1:]
+                image_names = image_names[int(len(image_names) * self.max_training_data_percentage) + 1:
+                                          min(len(image_names), max_length)]
                 for image_name in image_names:
                     test_data.append((image_name, self._data[label][image_name], label))
         return test_data
@@ -169,7 +177,7 @@ class DataProvider:
     def __init__(self, image_data_dir: str, sequences_data_dir: str,
                  segments_dir: str, show_images_with_roi: bool,
                  folder_names_to_process, max_training_data_percentage: float,
-                 train_with_equal_image_amount: bool, shuffle_data: bool, seed: int):
+                 train_with_equal_image_amount: bool, shuffle_data: bool, seed: int, over_train_factor = 1):
         """Initialises an DataProvider object
 
         :param image_data_dir: image data / location of the animal folders that contains all unordered images
@@ -181,6 +189,8 @@ class DataProvider:
         :param train_with_equal_image_amount: If any animal should be trained with equal amount of images
         :param shuffle_data: if the images should be shuffled
         :param seed: the random seed for shuffle. If 0 is chosen the seed is random too. Any other number can be chosen to increase the reproducibility of the experiment
+        :param over_train_factor: Allows to increase the test data to a number wich is the factor multiplied by the
+        number of test images for the animal with the lowest sample size
         """
         self.image_data_dir = image_data_dir
         self.sequences_data_dir = sequences_data_dir
@@ -191,6 +201,12 @@ class DataProvider:
         self.train_with_equal_image_amount = train_with_equal_image_amount
         self.shuffle_data = shuffle_data
         self.seed = seed
+        self.over_train_factor = over_train_factor
+
+        self._data = dict()
+        self._data_keys = dict()
+        self._is_shuffled = False
+        self._seed_is_set = False
 
         print("Done")
 
@@ -222,13 +238,13 @@ if __name__ == '__main__':
         123) # the random seed for shuffle. If 0 is chosen the seed is random too. Any other number can be chosen to increase the reproducibility of the experiment
 
     # perform sequenc seperation
-    provider.generate_sequences()
+    # provider.generate_sequences()
     # perform segmentation
-    provider.segment_sequences()
+    # provider.segment_sequences()
     #get training tuples
-    training_images = provider.get_training_data()
+    # training_images = provider.get_training_data()
     # get predict tuples
-    test_images = provider.get_test_data()
+    # test_images = provider.get_test_data()
     pass
 
 

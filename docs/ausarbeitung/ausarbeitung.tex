@@ -1,0 +1,23 @@
+%!TEX TS-program = pdflatex
+% Author: Thomas Poschadel, Joschka Strüber, Sufian Zaabalawi
+\input{config.tex}
+\begin{document}
+
+\setcounter{page}{-1}
+\input{content/title.tex}
+\thispagestyle{empty}
+\tableofcontents
+\input{content/einleitung.tex}
+\input{content/sequenzen.tex}
+\input{content/pca.tex}
+\input{content/hog.tex}
+\input{content/spm.tex}
+\input{content/evaluierung.tex}
+\input{content/fazit.tex}
+\newpage		% ab hier Literaturverzeichnis
+\addcontentsline{toc}{section}{Literaturverzeichnis}
+\printbibliography
+\vfill
+\input{content/plagiat.tex}
+
+\end{document}

@@ -1,0 +1,179 @@
+%!TEX root = ausarbeitung.tex
+% Author: Phil Steinhorst, p.st@wwu.de
+\documentclass[%
+	paper=a4,
+	fontsize=11,
+	DIV=13,
+	BCOR=9mm,
+	chapterprefix=false,
+	headings=optiontohead,
+	ngerman,
+	final=true,
+	twoside,
+	cleardoublepage=empty
+]{scrartcl}
+
+% Basics für Codierung und Sprache
+% ===========================================================
+	\usepackage{scrtime}
+	\usepackage{etex}
+	\usepackage{shellesc}
+	\usepackage[final]{graphicx}
+	\usepackage[utf8]{inputenc}
+	\usepackage{babel}
+	\usepackage[german=quotes]{csquotes}
+	\usepackage{mathtools}
+% ===========================================================
+
+% Fonts und Typographie
+% ===========================================================
+	\usepackage{sourcecodepro}
+	\usepackage[default]{sourcesanspro}
+	\usepackage{nimbusmononarrow}
+
+\usepackage[babel=true,final,tracking=smallcaps]{microtype}
+\DisableLigatures{encoding = T1, family = tt* }
+\usepackage{ellipsis}
+% ===========================================================
+
+% Farben
+% ===========================================================
+	\usepackage[usenames,x11names,final,table]{xcolor}
+	\definecolor{fbblau}{HTML}{3078AB}
+	\definecolor{mediumgray}{gray}{.65}
+	\definecolor{blackberry}{rgb}{0.53, 0.0, 0.25}
+% ===========================================================
+
+% TikZ
+% ===========================================================
+	\usepackage{tikz}
+	\usepackage{tikz-cd}					% kommutative Diagramme
+	\usetikzlibrary{arrows.meta}			% mehr Pfeile!
+	\usetikzlibrary{shadows}
+	\usetikzlibrary{calc}
+	\tikzset{>=Latex}						% Standard-Pfeilspitze
+% ===========================================================
+
+% Seitenlayout, Kopf-/Fußzeile
+% ===========================================================
+	\usepackage{scrpage2}
+	\pagestyle{scrheadings}
+	\usepackage[top=3cm, bottom=3cm, left=3cm, right=3cm]{geometry}
+	\clearscrheadfoot 
+	\setheadsepline{1pt} 					% Linie in Kopfzeile
+	\automark[section]{section}				% Abschnittstitel in Kopfzeile
+	\lehead{Camera Trap Challenge}
+	\rohead{\rightmark}
+	\lefoot{\pagemark}
+	\rofoot{\pagemark}	% Seitenzahl in Fußzeile
+	
+	\raggedbottom
+	\usepackage{setspace}					% Zeilenabstand 1.5-fach
+	\setstretch{1.2}
+	\setlength{\parindent}{0cm}
+	\setlength{\parskip}{0.5\baselineskip}
+	\usepackage[tikz]{mdframed}
+	\usepackage[all]{nowidow}
+% ===========================================================
+
+% Hyperref
+% ===========================================================
+	\PassOptionsToPackage{hyphens}{url}
+	\usepackage[%
+		hidelinks,
+		pdfpagelabels,
+		bookmarksopen=true,
+		bookmarksnumbered=true,
+		linkcolor=black,
+		urlcolor=SkyBlue2,
+		plainpages=false,
+		pagebackref,
+		citecolor=black,
+		hypertexnames=true,
+		pdfauthor={Phil Steinhorst},
+		pdfborderstyle={/S/U},
+		linkbordercolor=SkyBlue2,
+		colorlinks=false,
+		backref=false]{hyperref}
+	\renewcommand{\UrlFont}{\ttfamily}
+	\urlstyle{tt}
+	\hypersetup{final}
+% ===========================================================
+
+% Marginnotes / ToDo-Notes
+% ===========================================================
+	\usepackage[fulladjust]{marginnote}
+	\renewcommand*{\marginfont}{\itshape\footnotesize}
+	\usepackage[textsize=small,color=Red1!80!OrangeRed1!80]{todonotes}
+% ===========================================================
+
+% Listen und Tabellen
+% ===========================================================
+	\usepackage{multicol}
+	\usepackage{multirow}
+	\usepackage[shortlabels]{enumitem}
+	\setlist{itemsep=0pt}
+	\setlist[enumerate]{font=\sffamily\bfseries}
+	\setlist[itemize]{label=$\triangleright$,font=\bfseries}
+	\usepackage{tabularx}
+% ===========================================================
+
+% Inhaltsverzeichnis und Querverweise
+% ===========================================================
+	\usepackage[tocindentauto]{tocstyle}
+	\usetocstyle{KOMAlike}	
+	\usepackage[nameinlink]{cleveref}
+	\usepackage{chngcntr}
+	\usepackage[font=footnotesize]{caption}
+% ===========================================================
+
+
+% Sonstiges / für Testzwecke
+% ===========================================================
+	\usepackage{lipsum}
+	\usepackage{pdfpages}
+	\usepackage{eurosym}
+% ===========================================================
+
+\usepackage[natbib,style=alphabetic,minnames=2,maxnames=2,uniquelist=false,backend=biber]{biblatex}
+\bibliography{bibliography}
+\setlength{\bibitemsep}{1.5em}  
+
+% minted
+% ===========================================================
+\usepackage{minted}
+\setminted{%
+	style=bw,
+	fontsize=\normalsize,
+	breaklines,
+	breakanywhere=false,
+	breakbytoken=false,
+	breakbytokenanywhere=false,
+	breakafter={.,},
+	autogobble,
+	numbersep=3mm,
+	tabsize=4,
+	frame=lines
+}
+\setmintedinline{%
+	fontsize=\normalsize,
+	numbers=none,
+	numbersep=12pt,
+	tabsize=4,
+}
+% ===========================================================
+
+
+% mdframed
+% ===========================================================
+\usepackage[tikz]{mdframed}
+\newmdenv[%
+	backgroundcolor = gray!20,
+	linewidth=0pt,
+	skipabove = 0.8cm
+	]{mybox}
+
+
+% ===========================================================
+
+\input{MathCmds.tex}
