@@ -33,7 +33,7 @@ if __name__ == '__main__':
                             seed=0)
     start = time.time()
 
-    provider.get_data_and_labels()
+    provider.get_data_list()
     # provider.segment_sequences()
 
     roi_data = [('/IMG_0001', (100, 120, 10, 20), 'meles_meles'),

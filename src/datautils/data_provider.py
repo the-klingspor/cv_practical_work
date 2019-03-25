@@ -144,6 +144,30 @@ class DataProvider:
                     test_data.append((image_name, self._data[label][image_name], label))
         return test_data
 
+    def get_data_list(self):
+        """
+        Returns the data as a list of tupels. If there currently is no data, the
+        precomputed numpy files are read.
+
+        :author: Joschka Strüber
+        :return: All data as a list of tuples [(img, roi, label), ...,
+                                               (img, roi, label)]
+            Example:
+            self._data = {'meles_meles_dachs': {'.../IMG_0001.JPG:
+                {(10, 10, 1, 1)}}
+            results in:
+            data_list = [('.../IMG_0001.JPG', (10, 10, 1, 1),
+                          'meles_meles_dachs')]
+        """
+        if not self._data:
+            self._read_segmentation_data()
+        data_list = []
+        for label, img_dict in self._data.items():
+            for img_path, roi in img_dict.items():
+                data_list.append((img_path, roi, label))
+        print(data_list)
+        return data_list
+
     def _get_min_test_data_length(self):
         """Private function to calculate the amount of images that are selected for the animal with the lowest image amount.
         """

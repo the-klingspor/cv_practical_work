@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def split_data_labels(roi_data, label_index=2):
+def split_data_labels(roi_data):
     """
     Returns the roi_data split into the data fields and the labels as ints.
     Additionally, a list is returned, that maps the string labels to their
@@ -11,8 +11,6 @@ def split_data_labels(roi_data, label_index=2):
     :param roi_data: array of tuples: [(path, roi, label), ...,
                                        (path, roi, label)]
         where path is a string, roi a tuple of ints and label a string.
-    :param label_index: int (default: 2)
-        The index of the label field of the given roi data.
     :return: data (list of tuples): [(img, roi), ..., (img, roi)],
         labels (array of ints): [label, ..., label],
         label_map (list of strings): [label_str, ..., label_str]
@@ -24,6 +22,7 @@ def split_data_labels(roi_data, label_index=2):
         str_labels.append(label)
     labels, label_map = map_labels_to_int(str_labels)
     return data, labels, label_map
+
 
 def get_roi(img, roi):
     """
