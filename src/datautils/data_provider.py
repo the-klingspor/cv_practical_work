@@ -23,7 +23,6 @@ class DataProvider:
     seed: int
     over_train_factor: float
 
-
     _data = dict()
     _data_keys = dict()
     _is_shuffled = False
@@ -116,7 +115,7 @@ class DataProvider:
                     training_data.append((image_name, self._data[label][image_name], label))
         return training_data
 
-    def get_test_data(self, max_length = 99999999999):
+    def get_test_data(self, max_length=99999999999):
         """Provides a list of tuples containing all data not used for training
 
         :return A list of tuples containing (<File Name>, <ROI>, <label>). For each animal all remaining images not

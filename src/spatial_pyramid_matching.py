@@ -1,16 +1,15 @@
 import time
-import random
 
 from sklearn.metrics import confusion_matrix
 
 from src.datautils.data_provider import DataProvider
-from src.classifier.spm_classifier import SpmClassifier
-from src.datautils.classify_util import print_h_m_s
+from src.classifier.spm_transformer import SpmTransformer
+from src.datautils.classify_util import print_h_m_s, split_data_labels
 
 # number of random images used for training the code book of the encoder
 SUB_SAMPLING_SIZE = 300
 SEQ_DATA_DIR = "/home/joschi/Documents/DDD+_seq"
-SEGMENT_DATA_DIR = "/home/joschi/Documents/DDD+_segs"
+SEGMENT_DATA_DIR = "/home/joschi/Documents/testDDD_segments"
 
 if __name__ == '__main__':
     """
@@ -34,22 +33,23 @@ if __name__ == '__main__':
                             seed=0)
     start = time.time()
 
+    provider.get_data_and_labels()
     # provider.segment_sequences()
 
+    roi_data = [('/IMG_0001', (100, 120, 10, 20), 'meles_meles'),
+                ('/IMG_0002', (12, 21, 23, 12), 'dama_dama'),
+                ('/IMG_0003', (12, 23, 42, 54), 'meles_meles'),
+                ('/IMG_0004', (12, 324, 345, 34), 'ovis')]
+    split_data_labels(roi_data)
+    """
     segment_time = time.time()
     print_h_m_s(segment_time - start, "Segmentation time: ")
 
     training_data = provider.get_training_data()
-    # select random images from the training data for training the code book
-    code_book_data = []
-    n_training_data = len(training_data)
-    for i in range(SUB_SAMPLING_SIZE):
-        random_index = random.randint(1, n_training_data) - 1
-        code_book_data.append(training_data[random_index])
 
-    classifier = SpmClassifier(codebook_size=2048,
-                               alpha=500,
-                               sigma=100)
+    classifier = SpmTransformer(codebook_size=2048,
+                                alpha=500,
+                                sigma=100)
     classifier.train_codebook(code_book_data)
 
     code_book_time = time.time()
@@ -75,5 +75,6 @@ if __name__ == '__main__':
     print(conf_norm)
     score_time = time.time()
     print_h_m_s(score_time - fit_time, "Score time: ")
+    """
 
 
