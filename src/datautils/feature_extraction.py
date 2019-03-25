@@ -13,7 +13,7 @@ class FeatureExtraction:
     :author: Joschka Strüber
     """
 
-    def __init__(self, feature_extractor, max_size=300):
+    def __init__(self, feature_extractor, max_size=None):
         """
         :author: Joschka Strüber
         :param feature_extractor: An object with a method compute(image,
@@ -24,8 +24,9 @@ class FeatureExtraction:
         is too large, it will be resized to the maximum size with the same
         aspect ratio as before.
         """
-        self._feature_extractor = feature_extractor
-        self._max_size = max_size
+        self._feature_extractor = feature_extractor if feature_extractor is \
+            not None else cv2.xfeatures2d.SIFT_create()
+        self._max_size = max_size if max_size is not None else 300
 
     def get_dense_features(self, images, step_size=16):
         """

@@ -1,11 +1,13 @@
-import time
-from sklearn.model_selection import train_test_split, GridSearchCV
+from cv2.xfeatures2d import SIFT_create
+from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.svm import SVC
 from sklearn.pipeline import Pipeline
+from scipy.stats import reciprocal
+from sklearn.metrics import confusion_matrix, f1_score, precision_score
 
 from src.datautils.data_provider import DataProvider
 from src.classifier.spm_transformer import SpmTransformer
-from src.datautils.classify_util import print_h_m_s, split_data_labels
+from src.datautils.classify_util import split_data_labels
 
 
 def call_DDD_pipeline():
@@ -21,41 +23,51 @@ def call_DDD_pipeline():
                             shuffle_data=True,
                             seed=0)
     # provider.segment_sequences()
+
     labeled_data = provider.get_data_list()
-    train_labeled_data, test_labeled_data = train_test_split(labeled_data,
-                                                             test_size=0.2,
-                                                             random_state=42)
-    train_data, train_labels, label_map = split_data_labels(
-        train_labeled_data)
+    X, y, label_map = split_data_labels(labeled_data)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
+                                                        random_state=42)
 
     llc_svm_pipeline = Pipeline([
-        ('spm_transformer', SpmTransformer()),
-        ('classififer', SVC(gamma='auto'))
+        ('spm_transformer', SpmTransformer(extractor=SIFT_create(),
+                                           codebook_train_size=100)),
+        ('classifier', SVC(gamma='auto', class_weight='balanced'))
     ])
 
-    param_grid = [{
-        'spm_transformer__codebook_size': [128, 256, 1024, 2048],
-        'spm_transformer__alpha': [10, 100, 500],
-        'spm_transformer__sigma': [10, 100, 500],
+    param_dist = {
+        'spm_transformer__codebook_size': [256, 512, 1024, 2048],
+        'spm_transformer__alpha': reciprocal(10, 1000),
+        'spm_transformer__sigma': reciprocal(10, 1000),
         'spm_transformer__pooling': ['max', 'sum'],
-        'spm_tranformer__normalization': ['sum', 'eucl'],
-    }]
+        'spm_transformer__normalization': ['sum', 'eucl'],
+        'classifier__C': reciprocal(0.1, 100)
+    }
 
-    grid_search = GridSearchCV(llc_svm_pipeline, param_grid, cv=5, verbose=2,
-                               n_jobs=4)
+    # Unfortunately, the extractors of the FeatureExtraction can't be pickled.
+    # This prevents us from setting n_jobs to more than one thread. However,
+    # the encoding uses more threads anyway, so the core utilization should be
+    # fairly good.
+    random_search = RandomizedSearchCV(llc_svm_pipeline, param_dist, n_iter=30,
+                                       cv=5, verbose=5, n_jobs=1, scoring='f1')
 
-    grid_search.fit(train_data, train_labels)
-    cv_results = grid_search.cv_results_
+    random_search.fit(X_train, y_train)
+    cv_results = random_search.cv_results_
 
     for mean_score, params in zip(cv_results["mean_test_score"],
                                   cv_results["params"]):
         print(mean_score, params)
 
-    test_data, test_labels, x = split_data_labels(test_labeled_data)
+    final_classifier = random_search.best_estimator_
 
-    score = llc_svm_pipeline.score(test_data, test_labels)
-    print(score)
+    predictions = final_classifier.predict(X_test)
+    conf = confusion_matrix(y_test, predictions)
+    print("Confusion Matrix:\n", conf)
 
+    precision = precision_score(y_test, predictions)
+    print("Precision score: ", precision)
+    score_f1 = f1_score(y_test, predictions)
+    print("F1 score: ", score_f1)
 
 def call_DDD_plus_pipeline():
     seq_data_dir = "/home/joschi/Documents/DDD+_seqs"
@@ -69,7 +81,8 @@ def call_DDD_plus_pipeline():
                             train_with_equal_image_amount=False,
                             shuffle_data=True,
                             seed=0)
-    # provider.segment_sequences()
+    provider.segment_sequences()
+
 
 
 if __name__ == '__main__':

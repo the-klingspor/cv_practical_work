@@ -15,7 +15,7 @@ class LlcSpatialPyramidEncoder:
     :author: Joschka Strüber
     """
 
-    def __init__(self, size=None, codebook=None, alpha=500, sigma=100):
+    def __init__(self, size=None, codebook=None, alpha=None, sigma=None):
         """
         :author: Joschka Strüber
         :param size: int
@@ -36,8 +36,8 @@ class LlcSpatialPyramidEncoder:
             self._codebook = codebook.astype(np.float64)
         else:
             self._codebook = None
-        self._alpha = alpha
-        self._sigma = sigma
+        self._alpha = alpha if alpha is not None else 500
+        self._sigma = sigma if sigma is not None else 100
 
     def train_codebook(self, features, size=256):
         """

@@ -37,19 +37,24 @@ class SpmTransformer(BaseEstimator, TransformerMixin):
     """
 
     def __init__(self,
-                 extractor=cv2.xfeatures2d.SIFT_create(),
-                 codebook_train_size=300,
-                 codebook_size=256,
-                 alpha=500,
-                 sigma=100,
-                 pooling='max',
-                 normalization='eucl'):
-        self.feature_extractor = FeatureExtraction(extractor)
-        self.codebook_train_size = codebook_train_size
-        self.codebook_size = codebook_size
-        self.pooling = pooling
-        self.normalization = normalization
-        self.encoder = LlcSpatialPyramidEncoder(alpha=alpha, sigma=sigma)
+                 extractor=None,
+                 codebook_train_size=None,
+                 codebook_size=None,
+                 alpha=None,
+                 sigma=None,
+                 pooling=None,
+                 normalization=None):
+        self._feature_extractor = FeatureExtraction(extractor)
+        self._codebook_train_size = codebook_train_size if codebook_train_size \
+            is not None else 300
+        self._codebook_size = codebook_size if codebook_size is not None else \
+            256
+        self._pooling = pooling if pooling is not None else 'max'
+        self._normalization = normalization if normalization is not None else \
+            'eucl'
+        alpha = alpha if alpha is not None else 500
+        sigma = sigma if sigma is not None else 100
+        self._encoder = LlcSpatialPyramidEncoder(alpha=alpha, sigma=sigma)
 
     def fit(self, X, y=None):
         """
@@ -58,11 +63,11 @@ class SpmTransformer(BaseEstimator, TransformerMixin):
         :param X: The image data as a list of tuples [(path, roi), ..., ]
         :return: self
         """
-        # select random images from the training data for training the code book
         n_training_data = len(X)
-
         # don't use more than ten percent of all images to train the codebook
-        train_size = min(int(n_training_data / 10), self.codebook_train_size)
+        train_size = min(int(n_training_data / 10), self._codebook_train_size)
+
+        # select random images from the training data for training the code book
         training_subset = [X[i] for i in random.sample(range(n_training_data),
                                                        train_size)]
         self._train_codebook(training_subset)
@@ -88,10 +93,10 @@ class SpmTransformer(BaseEstimator, TransformerMixin):
                 print_progress_bar(index + 1, n_training_data)
             img = cv2.imread(path, flags=cv2.IMREAD_GRAYSCALE)
             roi = get_roi(img, roi_coordinates)
-            spatial_pyramid = self.feature_extractor.get_spatial_pyramid(roi)
-            llc_code = self.encoder.encode(spatial_pyramid,
-                                           pooling=self.pooling,
-                                           normalization=self.normalization)
+            spatial_pyramid = self._feature_extractor.get_spatial_pyramid(roi)
+            llc_code = self._encoder.encode(spatial_pyramid,
+                                            pooling=self._pooling,
+                                            normalization=self._normalization)
             descriptors.append(llc_code)
         descriptors = np.array(descriptors)
         return descriptors
@@ -114,6 +119,6 @@ class SpmTransformer(BaseEstimator, TransformerMixin):
             img = cv2.imread(path, flags=cv2.IMREAD_GRAYSCALE)
             roi = get_roi(img, roi_coordinates)
             imgs.append(roi)
-        feature_subset = self.feature_extractor.get_dense_features(imgs)
-        self.encoder.train_codebook(feature_subset, self.codebook_size)
+        feature_subset = self._feature_extractor.get_dense_features(imgs)
+        self._encoder.train_codebook(feature_subset, self._codebook_size)
 
