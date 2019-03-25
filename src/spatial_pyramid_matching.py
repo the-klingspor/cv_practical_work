@@ -1,15 +1,76 @@
 import time
-
-from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.svm import SVC
+from sklearn.pipeline import Pipeline
 
 from src.datautils.data_provider import DataProvider
 from src.classifier.spm_transformer import SpmTransformer
 from src.datautils.classify_util import print_h_m_s, split_data_labels
 
-# number of random images used for training the code book of the encoder
-SUB_SAMPLING_SIZE = 300
-SEQ_DATA_DIR = "/home/joschi/Documents/DDD+_seq"
-SEGMENT_DATA_DIR = "/home/joschi/Documents/testDDD_segments"
+
+def call_DDD_pipeline():
+    seq_data_dir = "/home/joschi/Documents/DDD_seqs"
+    segment_data_dir = "/home/joschi/Documents/DDD_segs"
+    provider = DataProvider(image_data_dir=None,
+                            sequences_data_dir=seq_data_dir,
+                            segments_dir=segment_data_dir,
+                            show_images_with_roi=True,
+                            folder_names_to_process=None,
+                            max_training_data_percentage=0.7,
+                            train_with_equal_image_amount=False,
+                            shuffle_data=True,
+                            seed=0)
+    # provider.segment_sequences()
+    labeled_data = provider.get_data_list()
+    train_labeled_data, test_labeled_data = train_test_split(labeled_data,
+                                                             test_size=0.2,
+                                                             random_state=42)
+    train_data, train_labels, label_map = split_data_labels(
+        train_labeled_data)
+
+    llc_svm_pipeline = Pipeline([
+        ('spm_transformer', SpmTransformer()),
+        ('classififer', SVC(gamma='auto'))
+    ])
+
+    param_grid = [{
+        'spm_transformer__codebook_size': [128, 256, 1024, 2048],
+        'spm_transformer__alpha': [10, 100, 500],
+        'spm_transformer__sigma': [10, 100, 500],
+        'spm_transformer__pooling': ['max', 'sum'],
+        'spm_tranformer__normalization': ['sum', 'eucl'],
+    }]
+
+    grid_search = GridSearchCV(llc_svm_pipeline, param_grid, cv=5, verbose=2,
+                               n_jobs=4)
+
+    grid_search.fit(train_data, train_labels)
+    cv_results = grid_search.cv_results_
+
+    for mean_score, params in zip(cv_results["mean_test_score"],
+                                  cv_results["params"]):
+        print(mean_score, params)
+
+    test_data, test_labels, x = split_data_labels(test_labeled_data)
+
+    score = llc_svm_pipeline.score(test_data, test_labels)
+    print(score)
+
+
+def call_DDD_plus_pipeline():
+    seq_data_dir = "/home/joschi/Documents/DDD+_seqs"
+    segment_data_dir = "/home/joschi/Documents/DDD+_segs"
+    provider = DataProvider(image_data_dir=None,
+                            sequences_data_dir=seq_data_dir,
+                            segments_dir=segment_data_dir,
+                            show_images_with_roi=True,
+                            folder_names_to_process=None,
+                            max_training_data_percentage=0.7,
+                            train_with_equal_image_amount=False,
+                            shuffle_data=True,
+                            seed=0)
+    # provider.segment_sequences()
+
 
 if __name__ == '__main__':
     """
@@ -22,59 +83,13 @@ if __name__ == '__main__':
     
     :author: Joschka Strüber
     """
-    provider = DataProvider(image_data_dir=None,
-                            sequences_data_dir=SEQ_DATA_DIR,
-                            segments_dir=SEGMENT_DATA_DIR,
-                            show_images_with_roi=True,
-                            folder_names_to_process=None,
-                            max_training_data_percentage=0.7,
-                            train_with_equal_image_amount=False,
-                            shuffle_data=True,
-                            seed=0)
-    start = time.time()
 
-    provider.get_data_list()
-    # provider.segment_sequences()
+    call_DDD_pipeline()
 
-    roi_data = [('/IMG_0001', (100, 120, 10, 20), 'meles_meles'),
-                ('/IMG_0002', (12, 21, 23, 12), 'dama_dama'),
-                ('/IMG_0003', (12, 23, 42, 54), 'meles_meles'),
-                ('/IMG_0004', (12, 324, 345, 34), 'ovis')]
-    split_data_labels(roi_data)
     """
-    segment_time = time.time()
-    print_h_m_s(segment_time - start, "Segmentation time: ")
-
-    training_data = provider.get_training_data()
-
-    classifier = SpmTransformer(codebook_size=2048,
-                                alpha=500,
-                                sigma=100)
-    classifier.train_codebook(code_book_data)
-
-    code_book_time = time.time()
-    print_h_m_s(code_book_time - segment_time, "Code book time: ")
-
-    tr_features, tr_labels = classifier.get_descr_and_labels(training_data)
-    classifier.fit(tr_features, tr_labels)
-
-    fit_time = time.time()
-    print_h_m_s(fit_time - code_book_time, "Fit time: ")
-
-    test_data = provider.get_test_data()
-    test_features, test_labels = classifier.get_descr_and_labels(test_data)
-
-    prediction = classifier.predict(test_features)
-
-    result = classifier.score(test_features, test_labels)
-    print("The mean accuracy of the classification was: {}".format(result))
-
     conf = confusion_matrix(test_labels, prediction)
     print(conf)
     conf_norm = conf / conf.sum(axis=0)
     print(conf_norm)
-    score_time = time.time()
-    print_h_m_s(score_time - fit_time, "Score time: ")
     """
-
 

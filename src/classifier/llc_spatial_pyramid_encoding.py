@@ -1,5 +1,4 @@
 import numpy as np
-import time
 
 from sklearn.cluster import MiniBatchKMeans
 from src.classifier.llc_optimization import encode_spatial_bin_numba
@@ -99,7 +98,6 @@ class LlcSpatialPyramidEncoder:
         1, followed by level 2. In case of an error, a ValueError will be
         raised.
         """
-        start = time.time()
         if self._codebook is None:
             print("No code book was given or trained.")
             return
@@ -149,8 +147,6 @@ class LlcSpatialPyramidEncoder:
         else:
             raise ValueError("Invalid normalization method was chosen: {}".
                              format(normalization))
-        end = time.time()
-        print("\nencoding_time: {:.3f}".format(end - start))
         return spm_code
 
     def _encode_spatial_bin(self, features, pooling='max'):

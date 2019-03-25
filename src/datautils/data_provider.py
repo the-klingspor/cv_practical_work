@@ -165,7 +165,6 @@ class DataProvider:
         for label, img_dict in self._data.items():
             for img_path, roi in img_dict.items():
                 data_list.append((img_path, roi, label))
-        print(data_list)
         return data_list
 
     def _get_min_test_data_length(self):
@@ -200,7 +199,8 @@ class DataProvider:
     def __init__(self, image_data_dir: str, sequences_data_dir: str,
                  segments_dir: str, show_images_with_roi: bool,
                  folder_names_to_process, max_training_data_percentage: float,
-                 train_with_equal_image_amount: bool, shuffle_data: bool, seed: int, over_train_factor = 1):
+                 train_with_equal_image_amount: bool, shuffle_data: bool,
+                 seed: int, over_train_factor=1):
         """Initialises an DataProvider object
 
         :param image_data_dir: image data / location of the animal folders that contains all unordered images

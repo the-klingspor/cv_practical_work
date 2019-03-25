@@ -60,8 +60,11 @@ class SpmTransformer(BaseEstimator, TransformerMixin):
         """
         # select random images from the training data for training the code book
         n_training_data = len(X)
+
+        # don't use more than ten percent of all images to train the codebook
+        train_size = min(int(n_training_data / 10), self.codebook_train_size)
         training_subset = [X[i] for i in random.sample(range(n_training_data),
-                                                    self.codebook_train_size)]
+                                                       train_size)]
         self._train_codebook(training_subset)
         return self
 
@@ -95,19 +98,19 @@ class SpmTransformer(BaseEstimator, TransformerMixin):
 
     def _train_codebook(self, training_data):
         """
-        Train the code book of the llc encoder by extracting dense features on a
+        Train the code book of the llc encoder by extracting features on a
         given set of images with regions of interest and using these features
         for clustering.
 
         :author: Joschka Strüber
-        :param training_data: List of tuples : [(path, roi, label), ...,
-                                                (path, roi, label)]
+        :param training_data: List of tuples : [(path, roi), ...,
+                                                (path, roi)]
             Image data as paths to image files and regions of interest as
-            tuples. The labels are not needed, but part of the given data.
+            tuples.
         :return: None
         """
         imgs = []
-        for path, roi_coordinates, label in training_data:
+        for path, roi_coordinates in training_data:
             img = cv2.imread(path, flags=cv2.IMREAD_GRAYSCALE)
             roi = get_roi(img, roi_coordinates)
             imgs.append(roi)

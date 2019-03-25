@@ -1,15 +1,15 @@
 import numpy as np
 
 
-def split_data_labels(roi_data):
+def split_data_labels(labeled_data):
     """
-    Returns the roi_data split into the data fields and the labels as ints.
+    Returns the labeled_data split into the data fields and the labels as ints.
     Additionally, a list is returned, that maps the string labels to their
     corresponding int labels.
 
     :author: Joschka Strüber
-    :param roi_data: array of tuples: [(path, roi, label), ...,
-                                       (path, roi, label)]
+    :param labeled_data: array of tuples: [(path, roi, label), ...,
+                                           (path, roi, label)]
         where path is a string, roi a tuple of ints and label a string.
     :return: data (list of tuples): [(img, roi), ..., (img, roi)],
         labels (array of ints): [label, ..., label],
@@ -17,7 +17,7 @@ def split_data_labels(roi_data):
     """
     data = []
     str_labels = []
-    for path, roi_coordinates, label in roi_data:
+    for path, roi_coordinates, label in labeled_data:
         data.append((path, roi_coordinates))
         str_labels.append(label)
     labels, label_map = map_labels_to_int(str_labels)
@@ -50,16 +50,12 @@ def get_roi_with_aspect_ratio(img, roi, asp_ratio):
     current_ratio = w/h
     if current_ratio > asp_ratio:
         h_temp = int(w / asp_ratio)
-        h_old = h
         y = max(int(y - (h_temp - h)/2), 0)
         h = h_temp
-        pass
     else:
         w_temp = int(asp_ratio * h)
-        w_old = w
         x = max(int(x - (w_temp - w)/2), 0)
         w = w_temp
-        pass
     return get_roi(img, (x, y, w, h))
 
 
@@ -91,7 +87,8 @@ def print_progress_bar (iteration, total, prefix='Progress:',
         total       - Required  : total iterations (Int)
         prefix      - Optional  : prefix string (Str)
         suffix      - Optional  : suffix string (Str)
-        decimals    - Optional  : positive number of decimals in percent complete (Int)
+        decimals    - Optional  : positive number of decimals in percent
+                                  complete (Int)
         length      - Optional  : character length of bar (Int)
         fill        - Optional  : bar fill character (Str)
     """
