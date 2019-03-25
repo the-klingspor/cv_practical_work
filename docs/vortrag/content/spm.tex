@@ -46,13 +46,13 @@
 		\item Hierbei ist $\odot$ die elementweise Multiplikation und $d_i$ ist ein Distanzterm, der die Ähnlichkeit von Feature $x_i$ zu allen Visual Words des Codebooks wiederspiegelt.
 	\end{itemize}
 	\begin{equation}
-		d_i = \exp \left( \frac{ \mathop{dist}(x_i, B)}{\lambda} \right)
+		d_i = \exp \left( \frac{ \mathop{dist}(x_i, B)}{\sigma} \right)
 	\end{equation}
 \end{frame}
 
 \begin{frame}[t, fragile]{Analytische Lösung von LLC}
 	\begin{itemize}
-		\item Anders als viele Quantisierungsstrategien lässt sich LLC analytisch lösen.
+		\item Anders als viele andere Quantisierungsstrategien lässt sich LLC analytisch lösen.
 		\begin{itemize}
 			\item wir können selber etwas programmieren
 			\item (angeblich) in der Praxis schneller
@@ -103,6 +103,7 @@
 	\begin{itemize}
 		\item Programmiersprache Python
 		\item größtenteils mit \emph{numpy} umgesetzt
+		\item Parallelisierung der Enkodierung von Level 2 Spatial Bins mit Pythons Multiprocessing
 		\item Berechnung der SIFT-Features mit OpenCV
 		\item Clustering für Codebook mit Scikit-learns \emph{MiniBatchKMeans} \cite{sklearn}
 		\begin{itemize}

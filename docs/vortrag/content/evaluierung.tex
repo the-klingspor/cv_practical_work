@@ -7,7 +7,7 @@
 	\begin{table}
 		\begin{tabular}{|c||c|c|c|c|}
 			\hline
-			Mean Accuracy & $\alpha$ = 500 & $\alpha$ = 100 & $\alpha$ = 10 & $\alpha$ = 1 \\
+			Mean Accuracy & $\lambda$ = 500 & $\lambda$ = 100 & $\lambda$ = 10 & $\lambda$ = 1 \\
 			\hline
 			$\sigma$ = 100 & 94,3\% & 90.5\% & 93,3\% & 87,6\% \\ 
 			\hline
@@ -19,7 +19,7 @@
 		\begin{table}
 		\begin{tabular}{|c||c|c|c|c|}
 			\hline
-			Mean Accuracy & $\alpha$ = 500 & $\alpha$ = 100 & $\alpha$ = 10 & $\alpha$ = 1 \\
+			Mean Accuracy & $\lambda$ = 500 & $\lambda$ = 100 & $\lambda$ = 10 & $\lambda$ = 1 \\
 			\hline
 			$\sigma$ = 100 & 93,3\% & 95,7\% & 87,6\% & 87,6\% \\ 
 			\hline
@@ -28,4 +28,27 @@
 		\end{tabular}
 		\caption{Größe des Codebooks: 512 Features}
 	\end{table}
+\end{frame}
+
+\begin{frame}[t, fragile]{DDD+}
+	\begin{itemize}
+		\item größere Testdatenbank mit Tag- und Nachtbildern von Damhirsch, Feldhase, Dachs, Wildschaf, Wildschwein und Rotfuchs
+		\item insgesamt 2336 Bilder, zwischen 240 und 490 pro Tierart
+		\item Mean Accuracy = 65,6\%
+	\end{itemize}
+			\begin{table}
+				\begin{tabular}{|c|c|c|c|c|c|c|}
+					\hline
+					& Dachs & Fuchs & Feldhase & Wildschwein & Schaf & Damhirsch \\
+					\hline
+					Dachs & 14 & 11 & 1 & 0 & 5 & 9 \\ \hline
+					Fuchs & 0 & 77 & 0 & 7 & 7 & 5 \\ \hline
+					Feldhase & 0 & 16 & 19 & 4 & 5 & 6 \\ \hline
+					Wildschwein & 0 & 12 & 1 & 39 & 4 & 18 \\ \hline
+					Schaf & 1 & 8 & 0 & 1 & 70 & 21 \\ \hline
+					Damhirsch & 1 & 10 & 2 & 6 & 4 & 96 \\
+					\hline
+				\end{tabular}
+				\caption{Confusion Matrix von sechs Tierarten.}
+			\end{table}
 \end{frame}
