@@ -1,25 +1,25 @@
 import numpy as np
-from numba import njit
+from numba import njit, prange
 
 
-#@njit(parallel=True)
+@njit
 def encode_spatial_bin_numba(codebook, features, size, alpha, sigma,
                              pooling='max'):
-    features_f = features.astype(np.float64)
-    num_features = features_f.shape[0]
-
+    num_features = features.shape[0]
+    # start = time.time()
     if num_features == 0:
         return np.zeros(size)
-    llc_codes_iter = [get_llc_code(codebook, features_f[i], size, alpha, sigma)
-                      for i in range(num_features)]
-    llc_codes_unpooled = np.array(llc_codes_iter)
+
+    llc_codes_unpooled = np.empty((num_features, size))
+    for i in prange(num_features):
+        llc_codes_unpooled[i] = get_llc_code(codebook, features[i], size,
+                                             alpha, sigma)
     if pooling == 'max':
-        llc_code = np.amax(llc_codes_unpooled, axis=0)
+        llc_code = amax(llc_codes_unpooled)
     elif pooling == 'sum':
         llc_code = np.sum(llc_codes_unpooled, axis=0)
     else:
-        raise ValueError("Invalid pooling method was chosen: {}".
-                         format(pooling))
+        raise ValueError("Invalid pooling method was chosen.")
     return llc_code
 
 
@@ -70,7 +70,7 @@ def get_distances(codebook, feature, sigma):
     max_distance = 0
     # get euclidean distance from feature to every visual word of the
     # codebook, save maximum distance for normalization
-    for i in range(size):
+    for i in prange(size):
         distance = np.linalg.norm(feature - codebook[i])
         max_distance = max(max_distance, distance)
         distances[i] = distance
@@ -81,3 +81,19 @@ def get_distances(codebook, feature, sigma):
 
     return np.exp(distances)
 
+
+@njit
+def amax(features):
+    """
+    Compute the elementwise maximum for each column of a 2d-array. This
+    implementation is necessary because numba currently does not support
+    numpy.amax.
+    :author: Joschka Strüber
+    """
+    num_features = features.shape[0]
+    if num_features == 0:
+        return None
+    max_row = features[0]
+    for i in range(1, num_features):
+        max_row = np.maximum(max_row, features[i])
+    return max_row
