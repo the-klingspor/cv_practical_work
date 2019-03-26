@@ -1,12 +1,13 @@
 import cv2
 import numpy as np
 import random
+import time
 
 from sklearn.base import BaseEstimator, TransformerMixin
 
 from src.classifier.llc_spatial_pyramid_encoding import LlcSpatialPyramidEncoder
 from src.datautils.feature_extraction import FeatureExtraction
-from src.datautils.classify_util import get_roi, print_progress_bar
+from src.datautils.classify_util import get_roi, print_progress_bar, print_h_m_s
 
 
 class SpmTransformer(BaseEstimator, TransformerMixin):
@@ -23,7 +24,9 @@ class SpmTransformer(BaseEstimator, TransformerMixin):
     :attr feature_extractor: default: cv2.xfeatures2d.SIFT_create()
         The feature extractor used for computing dense or sparse features on the
         images.
-    :attr codebook_train_size: default: 300
+    :attr density: {'dense', 'sparse}
+        If the features should be computed on dense grid or sparse.
+    :attr cb_train_size: default: 300
         The number of random images used for training the encoder's codebook.
     :attr codebook_size: default: 256
         The number of features that are used for the encoder's codebook.
@@ -38,23 +41,21 @@ class SpmTransformer(BaseEstimator, TransformerMixin):
 
     def __init__(self,
                  extractor=None,
-                 codebook_train_size=None,
-                 codebook_size=None,
-                 alpha=None,
-                 sigma=None,
-                 pooling=None,
-                 normalization=None):
-        self._feature_extractor = FeatureExtraction(extractor)
-        self._codebook_train_size = codebook_train_size if codebook_train_size \
-            is not None else 300
-        self._codebook_size = codebook_size if codebook_size is not None else \
-            256
-        self._pooling = pooling if pooling is not None else 'max'
-        self._normalization = normalization if normalization is not None else \
-            'eucl'
-        alpha = alpha if alpha is not None else 500
-        sigma = sigma if sigma is not None else 100
-        self._encoder = LlcSpatialPyramidEncoder(alpha=alpha, sigma=sigma)
+                 density='dense',
+                 cb_train_size=300,
+                 codebook_size=256,
+                 alpha=500,
+                 sigma=100,
+                 pooling='max',
+                 normalization='eucl'):
+        self.extractor = extractor
+        self.density = density
+        self.cb_train_size = cb_train_size
+        self.codebook_size = codebook_size
+        self.alpha = alpha
+        self.sigma = sigma
+        self.pooling = pooling
+        self.normalization = normalization
 
     def fit(self, X, y=None):
         """
@@ -63,9 +64,14 @@ class SpmTransformer(BaseEstimator, TransformerMixin):
         :param X: The image data as a list of tuples [(path, roi), ..., ]
         :return: self
         """
+        if self.extractor is None:
+            self.extractor = cv2.xfeatures2d.SIFT_create()
+        self.feature_extractor = FeatureExtraction(self.extractor, self.density)
+        self.encoder = LlcSpatialPyramidEncoder(alpha=self.alpha,
+                                                sigma=self.sigma)
         n_training_data = len(X)
         # don't use more than ten percent of all images to train the codebook
-        train_size = min(int(n_training_data / 10), self._codebook_train_size)
+        train_size = min(int(n_training_data / 10), self.cb_train_size)
 
         # select random images from the training data for training the code book
         training_subset = [X[i] for i in random.sample(range(n_training_data),
@@ -91,12 +97,17 @@ class SpmTransformer(BaseEstimator, TransformerMixin):
         for index, (path, roi_coordinates) in enumerate(X):
             if index % 5 == 0 or index + 1 == n_training_data:
                 print_progress_bar(index + 1, n_training_data)
+            start = time.time()
             img = cv2.imread(path, flags=cv2.IMREAD_GRAYSCALE)
             roi = get_roi(img, roi_coordinates)
-            spatial_pyramid = self._feature_extractor.get_spatial_pyramid(roi)
-            llc_code = self._encoder.encode(spatial_pyramid,
-                                            pooling=self._pooling,
-                                            normalization=self._normalization)
+            spatial_pyramid = self.feature_extractor.get_spatial_pyramid(roi)
+            spm_time = time.time()
+            # print_h_m_s(spm_time-start, "\nSP: ")
+            llc_code = self.encoder.encode(spatial_pyramid,
+                                           pooling=self.pooling,
+                                           normalization=self.normalization)
+            end = time.time()
+            # print_h_m_s(end-start, "\nEncoding: ")
             descriptors.append(llc_code)
         descriptors = np.array(descriptors)
         return descriptors
@@ -119,6 +130,6 @@ class SpmTransformer(BaseEstimator, TransformerMixin):
             img = cv2.imread(path, flags=cv2.IMREAD_GRAYSCALE)
             roi = get_roi(img, roi_coordinates)
             imgs.append(roi)
-        feature_subset = self._feature_extractor.get_dense_features(imgs)
-        self._encoder.train_codebook(feature_subset, self._codebook_size)
+        feature_subset = self.feature_extractor.get_features(imgs)
+        self.encoder.train_codebook(feature_subset, self.codebook_size)
 

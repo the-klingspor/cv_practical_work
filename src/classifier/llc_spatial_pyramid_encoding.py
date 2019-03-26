@@ -15,7 +15,7 @@ class LlcSpatialPyramidEncoder:
     :author: Joschka Strüber
     """
 
-    def __init__(self, size=None, codebook=None, alpha=None, sigma=None):
+    def __init__(self, size=256, codebook=None, alpha=500, sigma=100):
         """
         :author: Joschka Strüber
         :param size: int
@@ -36,8 +36,8 @@ class LlcSpatialPyramidEncoder:
             self._codebook = codebook.astype(np.float64)
         else:
             self._codebook = None
-        self._alpha = alpha if alpha is not None else 500
-        self._sigma = sigma if sigma is not None else 100
+        self._alpha = alpha
+        self._sigma = sigma
 
     def train_codebook(self, features, size=256):
         """
@@ -127,7 +127,7 @@ class LlcSpatialPyramidEncoder:
                 spm_code[0] = np.maximum(spm_code[0], spm_code[l1_bin])
         elif pooling == 'sum':
             for l1_index in range(1, 5):
-                start_index = 5 + 4 * l1_index
+                start_index = 5 + 4 * (l1_index - 1)
                 spm_code[l1_index] = spm_code[start_index]
                 for l2_bin in range(1, 4):
                     spm_code[l1_index] += spm_code[start_index + l2_bin]
