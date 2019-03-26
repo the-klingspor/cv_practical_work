@@ -32,7 +32,7 @@ def call_DDD_pipeline():
 
     llc_svm_pipeline = Pipeline([
         ('spm_transformer', transformer),
-        ('classifier', LinearSVC(C=0.5511, class_weight='balanced'))
+        ('classifier', LinearSVC(class_weight='balanced'))
     ])
 
     param_dist = {
