@@ -120,7 +120,7 @@ class FeatureExtraction:
                     # slice relevant bin of the image and detect sparse features
                     image_bin = resized[col_start:col_end-1, row_start:row_end-1]
                     kp, bin_desc = self._feature_extractor.detectAndCompute(
-                        image_bin, None)
+                        image_bin)
                 else:
                     assert False
                 bin_desc = bin_desc.astype(np.float64)
