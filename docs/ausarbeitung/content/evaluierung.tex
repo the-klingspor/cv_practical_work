@@ -1,8 +1,33 @@
 %!TEX root = ../ausarbeitung.tex
 \section{Evaluierung}
 
+-hinweis auf laufzeit und klassifizierung
+-pca nicht testbar, da keine ground-truth bilder
+
 \subsection{Daten}
+
+-hoge veluwe
+-kamerafallenbilder, sequenzen
+-größe
+-spezies
+-DDD/DDD+
 
 \subsection{Laufzeit Spatial Pyramid Matching}
 
-\subsection{Klassifizierung Spatial Pyramid Matching}
+-sequentiell
+-multiprocessing
+-numba
+-hauptproblem: lösung des gleichungssystems
+-ausblick: umsetzung mit tensorflow
+
+\subsection{Güte der Klassifizierungstechniken}
+
+-HOG: auf DDD und DDD+
+-SPM:
+	-random search cv mit fünf folds
+	-scipy reciprocal
+	-versch. Größen
+	-SIFT Güte auf DDD
+	-LBP Güte auf DDD
+	-SIFT Güte auf DDD+
+	-kombination von SIFT und LBP auf DDD+
