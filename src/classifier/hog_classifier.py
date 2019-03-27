@@ -63,13 +63,13 @@ class HogClassifier:
         self._hog_descriptor = hog
         return hog
 
-    def _svm_init(self, C=12.5, gamma=0.50625):
+    def _svm_init(self, C=12.5, gamma=0.50625, kernel=cv2.ml.SVM_RBF, type=cv2.ml.SVM_C_SVC):
         """Private helper function to create a Support Vector Machine"""
         svm = cv2.ml.SVM_create()
         svm.setGamma(gamma)
         svm.setC(C)
-        svm.setKernel(cv2.ml.SVM_RBF)
-        svm.setType(cv2.ml.SVM_C_SVC)
+        svm.setKernel(kernel)
+        svm.setType(type)
         self._svm = svm
 
     def _svm_train(self, descriptors, labels):
