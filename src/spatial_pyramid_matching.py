@@ -17,7 +17,7 @@ def call_DDD_sift_pipeline():
 
     :author: Joschka Strüber
     """
-    print("Calling SIFT pipeline on DDD.")
+    print("Calling SIFT pipeline on the DDD.")
     seq_data_dir = "/home/joschi/Documents/DDD_seqs"
     segment_data_dir = "/home/joschi/Documents/DDD_segs"
     provider = DataProvider(image_data_dir=None,
@@ -86,7 +86,7 @@ def call_DDD_lbp_pipeline():
 
     :author: Joschka Strüber
     """
-    print("Calling LBP pipeline on DDD.")
+    print("Calling LBP pipeline on the DDD.")
     seq_data_dir = "/home/joschi/Documents/DDD_seqs"
     segment_data_dir = "/home/joschi/Documents/DDD_segs"
     provider = DataProvider(image_data_dir=None,
@@ -224,7 +224,7 @@ def call_DDD_plus_sift_lbp_pipeline():
 
     :author: Joschka Strüber
     """
-    print("Calling SIFT pipeline on DDD.")
+    print("Calling LBP/SIFT pipeline on the DDD+.")
     seq_data_dir = "/home/joschi/Documents/DDD+_seqs"
     segment_data_dir = "/home/joschi/Documents/DDD+_segs"
     provider = DataProvider(image_data_dir=None,
