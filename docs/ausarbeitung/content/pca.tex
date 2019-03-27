@@ -1,16 +1,15 @@
 %!TEX root = ../ausarbeitung.tex
-\newpage
 \section{ Lokalisierung mit Principal Components Analysis (PCA)}
 Die automatische Lokalisierung von Objekten in digitalen Bildern ist ein wesentlicher Bestandteil vieler Anwendungen. 
-Für das Lokalisierungsproblem in dieser Arbeit bietet sich die Verwendung von der Methoden \textit{Hintergrund-Subtraktion} und \textit{Sliding-window mit PCA} an.
+Für das Lokalisierungsproblem in dieser Arbeit bietet sich die Verwendung von der Methoden \textit{Hintergrund-Subtraktion} und \textit{Sliding-Window} mit PCA an.
 
 \subsection{Hintergrundapproximation mit PCA}
-Um Bewegungen in Bildsequenzen erkennen zu können, wird in der Praxis sehr häufig das Verfahren der \textit{Hintergrund-Subtraktion} angewandt. Dabei handelt es sich um ein klassisches Verfahren aus dem Bereich der Bilderkennung. Das Hintergrundbild kann mithilfe von PCA approximiert werden. Anschließend wird das Vordergrundbild über die Differenz zum Hintergrundbild extrahiert. PCA, oder auch Haptkomponentenanalyse, ist ein statistisches Verfahren um große Mengen von Datensätzen zu vereinfachen und zu strukturieren, indem die Datenpunkte im $p$-dimensionalen Raum $R^p$ in einen $q$-dimensionalen Unterraum ${R} ^{q}$ mit ($q<p$) projiziert werden. Diese Transformation muss dabei so gewählt werden, dass möglichst wenig Information verloren geht. 
-Grundsätzlich benutzt PCA die \textit{Niedrigrang Approximation}. Damit kann eine Matrix durch eine andere Matrix im allgemeinen Rang angenähert werden. Sei eine Matrix $A$ mit $Rang(A) = r$ und $r > k$:
+Um Bewegungen in Bildsequenzen erkennen zu können, wird in der Praxis sehr häufig das Verfahren der \textit{Hintergrund-Subtraktion} angewandt. Dabei handelt es sich um ein klassisches Verfahren aus dem Bereich der Bilderkennung. Das Hintergrundbild kann mithilfe von PCA approximiert werden. Anschließend wird das Vordergrundbild über die Differenz zum Hintergrundbild extrahiert. PCA, oder auch Hauptkomponentenanalyse, ist ein statistisches Verfahren um große Mengen von Datensätzen zu vereinfachen und zu strukturieren, indem die Datenpunkte im $p$-dimensionalen Raum $R^p$ in einen $q$-dimensionalen Unterraum ${R} ^{q}$ mit ($q<p$) projiziert werden. Diese Transformation muss dabei so gewählt werden, dass möglichst wenig Information verloren geht. 
+Grundsätzlich benutzt PCA die \textit{Niedrigrangapproximation}. Damit kann eine Matrix durch eine andere Matrix im allgemeinen Rang angenähert werden. Sei eine Matrix $A$ mit $Rang(A) = r$ und $r > k$:
 \begin{equation}
 \min_{rang(A)=k}||A-B||_2 
 \end{equation}
-Dabei soll die Differenz zwichen $A$ und $B$ minimiert werden. Mithilfe der \textit{Singulärwertzerlegung (SVD)} können die Singulärwerte einer Matrix abgelesen werden. Die SVD von Matrix $A$ ist dann:
+Dabei soll die Differenz zwischen $A$ und $B$ minimiert werden. Mithilfe der \textit{Singulärwertzerlegung} (SVD) können die Singulärwerte einer Matrix abgelesen werden. Die SVD von Matrix $A$ ist dann:
 \begin{equation}
 A = U \Sigma V^T
 \end{equation}
@@ -21,7 +20,7 @@ Somit kann ein Hintergrundbild aus einer Sequenz von Bildern wie folgt approximi
 SVD(X)= C = U \Sigma V^T
 \end{equation}
 \item{Leite die Matrix ${\Sigma_k}$ von ${\Sigma}$ her, sodass die Werte ${n - k}$  entlang der Diagonale durch 0 ersetzt werden.}
-\item{Dies ergibt die Niedrigrang Approximation vom Matrix $X$:}
+\item{Dies ergibt die Niedrigrangapproximation von Matrix $X$:}
 \begin{equation}
 SVD(X)_k=C_k = U\Sigma_kV^T \quad\quad mit  \quad  \Sigma_k = diag(\sigma_1, ..., \sigma_k,0,...,0)
 \end{equation}
@@ -51,7 +50,7 @@ SVD(X)_k=C_k = U\Sigma_kV^T \quad\quad mit  \quad  \Sigma_k = diag(\sigma_1, ...
 
 \end{center}
 
-\noindent Anschließend kann das Vordergrundbild durch die klassiche \textit{Hintergrund-Subtraktion} extrahiert werden (Abbildung~\ref{fig:foreground}).
+\noindent Anschließend kann das Vordergrundbild durch die klassische \textit{Hintergrund-Subtraktion} extrahiert werden (Abbildung~\ref{fig:foreground}).
 
 \begin{center}
 \begin{tabular}{c}
@@ -70,10 +69,10 @@ Damit können kleinere Bildstrukturen und Rauschen entfernt, vergrößert, gesch
 \captionof{figure}{Die Pipeline der Nachbearbeitung des Vordergrundbildes. Durch \textit{Opening} und \textit{Closing} werden kleine Bildstrukturen bzw. Rauschen entfernt und kleine Löcher geschlossen werden. Die Gauß-Filterung dient in diesem Fall dazu, die Silhouette des Vordergrundelements grob zu vergrößern.}
 \label{fig:pipe}
 \end{center}
-\subsection{Sliding-window Lokalisierung mit PCA}
-Sliding-window ist eine Brute-Force-Suche über das Bild mit fester Fenstergröße, um Objekte zu finden. Für jedes dieser Fenster wird ein Bildklassifikator angewendet, um zu bestimmen, ob das Fenster ein bekanntes Objekt enthält. In diesem Fall wird PCA als Objekt-Klassifikator angewandt.
+\subsection{Sliding-Window Lokalisierung mit PCA}
+Sliding-Window ist eine Brute-Force-Suche über das Bild mit fester Fenstergröße, um Objekte zu finden. Für jedes dieser Fenster wird ein Bildklassifikator angewendet, um zu bestimmen, ob das Fenster ein bekanntes Objekt enthält. In diesem Fall wird PCA als Objekt-Klassifikator angewandt.
 \subsection{Objektdetektion mit PCA}
-Jedes Bild ist ein Punkt in einem hochdimensionalen Raum. Durch das PCA-Verfahren lassen sich die Datenpunkte in einem kleineren dimensionalen Unterraum abbilden. PCA sucht die ersten $k$-Hauptkomponenten, welche die Daten mit einer maximalen Varianz beschreiben. Damit wird es eine niederdimensionale Darstellung gefunden, bei der die Klassifizierung leichter wird.\\
+Jedes Bild ist ein Punkt in einem hochdimensionalen Raum. Durch das PCA-Verfahren lassen sich die Datenpunkte in einen niederdimensionalen Unterraum abbilden. PCA sucht die ersten $k$-Hauptkomponenten, welche die Daten mit einer maximalen Varianz beschreiben. Damit wird es eine niederdimensionale Darstellung gefunden, bei der die Klassifizierung leichter wird.\\
 
 \subsubsection{Algorithmus}
 \begin{itemize}
