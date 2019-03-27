@@ -20,7 +20,8 @@ class LocalBinaryPatterns():
         """
         :author: Joschka Strüber
         :param n_points: Number of circularly symmetric neighbour set points.
-        :param radius: Radius of circle.
+        :param radius: Radius of circle. radius = 1 means that only points of
+            the 8-neighborhood are considered.
         :param block_size: Size of each block that is used to compute a lbp
             histogram.
         """
@@ -48,7 +49,10 @@ class LocalBinaryPatterns():
         lbp_histograms = []
         for kp in key_points:
             col, row = kp.pt
-            lbp_slice = img[col:col+self._block_size, row:row+self._block_size]
+            col = int(col)
+            row = int(row)
+            lbp_slice = lbp_img[col:col+self._block_size,
+                                row:row+self._block_size]
             # Compute the histogram of the lbp slice. The number of bins has to
             # be n_points + 2, because there can be at most n_points + 1 uniform
             # patterns and we need another bin for all non-uniform patterns
@@ -58,7 +62,8 @@ class LocalBinaryPatterns():
             hist = hist.astype(np.float64)
             hist = hist / (hist.sum() + eps)
             lbp_histograms.append(hist)
-        return lbp_histograms
+        lbp_histograms = np.array(lbp_histograms)
+        return key_points, lbp_histograms
 
     def detectAndCompute(self, img, eps=1e-7):
         """
