@@ -1,8 +1,9 @@
 %!TEX root = ../ausarbeitung.tex
 \newpage
-\section{Klassifizierung mit Histograms of Gradients und Support Vector Machines}
+\section{Klassifizierung mit Histograms of Gradients und Support Vector Machines} \label{sec:HOG}
 
-\subsection{Kurzeinführung zu Histograms of Oriented Gradients}
+
+\subsection{Einführung zu Histograms of Oriented Gradients}
 
 Die Bezeichnung \textit{Histograms of Oriented Gradients} (HOG) bezeichnet einen \textit{Feature Descriptor} und wurde bekannt durch die Arbeit von Navneet Dalal and Bill Triggs \cite{dalal05}. Initial wurde der Deskriptor verwendet um Fußgänger zu detektieren. Später wurde er auch für andere Objekte wie Autos, Busse und Tiere eingesetzt. Wie der Name bereits andeutet handelt es sich bei HOG um ein Histogramm basierten \textit{Feature Descriptor}. Die Berechnung des HOG-Descriptors lässt sich in drei Schritte unterteilen: Gradientenberechnung, Gruppierung der Orientierungen und Histogrammerzeugung. Häufig werden  auch Vorverarbeitungsschritte, wie zum Beispiel ein Histogrammausgleich durchgeführt.
 
@@ -42,6 +43,9 @@ Ein vollständiges HOG, bestehend aus den Konkatenation der Teil-Histogramm ist 
 \label{fig:img2HOG}
 \end{center}
 
+
+\subsection{Umsetzung der Klassifizierung}
+Umgesetzt wurde der HOG basierte Klassifizierer in Python mit OpenCV (Version: opencv-contrib-python 3.4.2.17). Der Klassifizierer setzt voraus, dass Bilder und die interessanten Regionen (ROI) bereits bestimmt wurden. Details zur ROI Bestimmungen werden in Kapitel~\ref{sec:PCA} gegeben. Die grobe Arbeitsweise wird in Abbildung~\ref{fig:hog_classification_ov} gezeigt. 
 \begin{center}
 \begin{tabular}{c}
 \includegraphics[trim={0 0cm 0cm 0cm},clip=true,width=13cm]{img/ClassificationOverview.png}
@@ -50,12 +54,7 @@ Ein vollständiges HOG, bestehend aus den Konkatenation der Teil-Histogramm ist 
 \label{fig:hog_classification_ov}
 \end{center}
 
-2) Wie wird es bestimmt?
 
-3) Implementierung von OpenCV/Parameter Erklärung
-
-\subsection{Implementierung}
-
-\subsubsection{Optimierung und Auswertung}
+\subsection{Optimierung und Auswertung}
 
 

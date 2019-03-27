@@ -1,17 +1,11 @@
-from itertools import permutations
-
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.patches as patches
 from typing import List, Tuple
-import xml.etree.ElementTree as ET
-import pickle
-import re
 
 from src.datautils.classify_util import get_roi_with_aspect_ratio
 from datautils.data_provider import DataProvider
-
 
 # For type hints
 TupleList = List[Tuple[str, Tuple[int, int, int, int], str]]
@@ -227,21 +221,6 @@ class HogClassifier:
             print(f"{key}: {eval_tuple[0]}/{eval_tuple[1]}={eval_tuple[0]/eval_tuple[1]:1.3f}")
         print(f"total: {total_ok_sum}/{total_count_sum}={total_ok_sum/total_count_sum:1.3f}")
         return evaluation_dict
-
-    # ToDo: Dirty test hack from http://answers.opencv.org/question/56655/how-to-use-a-custom-svm-with-hogdescriptor-in-python/
-    def dirty_test(self):
-        self._svm.save("svm.xml")
-        tree = ET.parse('svm.xml')
-        root = tree.getroot()
-        # now this is really dirty, but after ~3h of fighting OpenCV its what happens :-)
-        SVs = root.getchildren()[0].getchildren()[-2].getchildren()[0]
-        rho = float(root.getchildren()[0].getchildren()[-1].getchildren()[0].getchildren()[1].text)
-        svmvec = [float(x) for x in re.sub('\s+', ' ', SVs.text).strip().split(' ')]
-        svmvec.append(-rho)
-        pickle.dump(svmvec, open("svm.pickle", 'wb'))
-        svm = pickle.load(open("svm.pickle", "rb"))
-        self._hog_descriptor.setSVMDetector(np.array(svm))
-        del svm
 
     def detect(self, img):
         # self.dirty_test()
