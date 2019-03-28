@@ -13,7 +13,7 @@ TupleList = List[Tuple[str, Tuple[int, int, int, int], str]]
 
 class HogClassifier:
 
-    PATCH_SIZE = (128, 128)
+    PATCH_SIZE = (64, 128)
     SHOW_TRAINING_ROI = False
     SHOW_TRAINING_TIME = 1000
 
@@ -41,9 +41,9 @@ class HogClassifier:
 
           The parameter values can be seen in the openCV documentation"""
         winSize = self.PATCH_SIZE
-        blockSize = (32, 32)
-        blockStride = (16, 16)
         cellSize = (16, 16)
+        blockSize = (int(cellSize[0]*2), int(cellSize[1]*2))
+        blockStride = (int(blockSize[0]/2), int(blockSize[1]/2))
         nbins = 9
         derivAperture = 1
         winSigma = -1.
@@ -265,7 +265,8 @@ def test_multiple_times(number_of_runns):
                                 # "/home/tp/Downloads/CVSequences/npy",
                                 "/home/tp/Downloads/CVSequences/CVSequences",
                                 True,
-                                {"dayvision", "day", "nightvision", "night"},  # the subfoldernames that are used for sequence separations
+                                # {"dayvision", "day", "nightvision", "night"},  # the subfoldernames that are used for sequence separations
+                                {"dayvision", "day"},  # the subfoldernames that are used for sequence separations
                                 0.66,  # the maximum % of images of a kind that are used as training data
                                 True,  # If any animal should be trained with equal amount of images
                                 True,  # if the images should be shuffled
@@ -325,7 +326,7 @@ if __name__ == '__main__':
 
     # good seeds: 8034652065224866011
 
-    test_multiple_times(50)
+    test_multiple_times(200)
     #
     # tr_data = provider.get_training_data()
     # provider.generate_sequences()
