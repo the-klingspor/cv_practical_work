@@ -2,7 +2,7 @@ from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.svm import LinearSVC
 from sklearn.pipeline import Pipeline, FeatureUnion
 from scipy.stats import reciprocal
-from sklearn.metrics import confusion_matrix, f1_score, precision_score
+from sklearn.metrics import confusion_matrix, f1_score, accuracy_score
 
 from src.datautils.data_provider import DataProvider
 from src.classifier.spm_transformer import SpmTransformer
@@ -72,8 +72,8 @@ def call_DDD_sift_pipeline():
     conf = confusion_matrix(y_test, predictions)
     print("Confusion Matrix:\n", conf)
 
-    precision = precision_score(y_test, predictions, average='weighted')
-    print("Precision score: ", precision)
+    accuracy = accuracy_score(y_test, predictions)
+    print("Accuracy: ", accuracy)
     score_f1 = f1_score(y_test, predictions, average='weighted')
     print("F1 score: ", score_f1)
 
@@ -127,8 +127,8 @@ def call_DDD_lbp_pipeline():
     # This prevents us from setting n_jobs to more than one thread. However,
     # the encoding uses more threads anyway, so the core utilization should be
     # fairly good.
-    random_search = RandomizedSearchCV(lbp_pipeline, param_dist, n_iter=20,
-                                       cv=5, verbose=3, n_jobs=1, scoring='f1')
+    random_search = RandomizedSearchCV(lbp_pipeline, param_dist, n_iter=15,
+                                       cv=5, verbose=3, scoring='f1')
 
     random_search.fit(X_train, y_train)
     cv_results = random_search.cv_results_
@@ -143,8 +143,8 @@ def call_DDD_lbp_pipeline():
     conf = confusion_matrix(y_test, predictions)
     print("Confusion matrix:\n", conf)
 
-    precision = precision_score(y_test, predictions, average='weighted')
-    print("Precision score: ", precision)
+    accuracy = accuracy_score(y_test, predictions)
+    print("Accuracy: ", accuracy)
     score_f1 = f1_score(y_test, predictions, average='weighted')
     print("F1 score: ", score_f1)
 
@@ -174,17 +174,17 @@ def call_DDD_plus_sift_pipeline():
                                                         random_state=None)
 
     sift_pipeline = Pipeline([
-        ('spm_transformer', SpmTransformer(cb_train_size=300)),
+        ('spm_transformer', SpmTransformer(cb_train_size=500)),
         ('classifier', LinearSVC(class_weight='balanced'))
     ])
 
     param_dist = {
         'spm_transformer__density': ['dense'],
-        'spm_transformer__codebook_size': [512, 1024, 1536],
+        'spm_transformer__codebook_size': [512, 1024],
         'spm_transformer__alpha': reciprocal(100, 1000),
         'spm_transformer__sigma': reciprocal(50, 500),
-        'spm_transformer__pooling': ['max'],
-        'spm_transformer__normalization': ['eucl'],
+        'spm_transformer__pooling': ['max', 'sum'],
+        'spm_transformer__normalization': ['eucl', 'sum'],
         'classifier__C': reciprocal(0.1, 5)
     }
 
@@ -193,8 +193,7 @@ def call_DDD_plus_sift_pipeline():
     # the encoding uses more threads anyway, so the core utilization should be
     # fairly good.
     random_search = RandomizedSearchCV(sift_pipeline, param_dist, n_iter=10,
-                                       cv=5, verbose=5, n_jobs=1,
-                                       scoring='f1_weighted')
+                                       cv=5, verbose=5, scoring='f1_weighted')
 
     random_search.fit(X_train, y_train)
     cv_results = random_search.cv_results_
@@ -210,8 +209,8 @@ def call_DDD_plus_sift_pipeline():
     print("Label: \n", label_map)
     print("Confusion matrix:\n", conf)
 
-    precision = precision_score(y_test, predictions, average='weighted')
-    print("Precision score: ", precision)
+    accuracy = accuracy_score(y_test, predictions)
+    print("Accuracy: ", accuracy)
     score_f1 = f1_score(y_test, predictions, average='weighted')
     print("F1 score: ", score_f1)
 
@@ -244,7 +243,7 @@ def call_DDD_plus_sift_lbp_pipeline():
                                                         random_state=None)
 
     sift_transformer = SpmTransformer(density='dense',
-                                      cb_train_size=100,
+                                      cb_train_size=300,
                                       codebook_size=1024,
                                       alpha=350,
                                       sigma=300,
@@ -254,10 +253,10 @@ def call_DDD_plus_sift_lbp_pipeline():
     extractor = LocalBinaryPatterns(n_points=16, radius=2)
     lbp_transformer = SpmTransformer(extractor=extractor,
                                      density='dense',
-                                     cb_train_size=100,
+                                     cb_train_size=300,
                                      codebook_size=512,
                                      alpha=350,
-                                     sigma=300,
+                                     sigma=100,
                                      pooling='max',
                                      normalization='eucl')
 
@@ -268,7 +267,7 @@ def call_DDD_plus_sift_lbp_pipeline():
 
     full_pipeline = Pipeline([
         ('transformer', feature_union_pipeline),
-        ('classifier', LinearSVC(C=0.55, class_weight='balanced'))
+        ('classifier', LinearSVC(C=1.3, class_weight='balanced'))
     ])
 
     full_pipeline.fit(X_train, y_train)
@@ -281,8 +280,8 @@ def call_DDD_plus_sift_lbp_pipeline():
     conf = confusion_matrix(y_test, predictions)
     print("Confusion matrix:\n", conf)
 
-    precision = precision_score(y_test, predictions, average='weighted')
-    print("Precision score: ", precision)
+    accuracy = accuracy_score(y_test, predictions)
+    print("Accuracy: ", accuracy)
     score_f1 = f1_score(y_test, predictions, average='weighted')
     print("F1 score: ", score_f1)
 
@@ -304,7 +303,7 @@ if __name__ == '__main__':
     :author: Joschka Strüber
     """
 
-    # call_DDD_sift_pipeline()
+    call_DDD_sift_pipeline()
 
     call_DDD_lbp_pipeline()
 
