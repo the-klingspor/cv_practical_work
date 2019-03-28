@@ -19,7 +19,7 @@ class FeatureExtraction:
         :param feature_extractor: An object with a method compute(image,
         keypoints[]) that computes a set of features of an image for a given set
         of key points. An example for this is cv2.xfeatures2d.SIFT from OpenCV.
-        :param density: {'dense' (default), 'sparse'}
+        :param density: {'dense' (default), 'sparse'} : deprecated
         Whether the features should be computed on a dense grid or sparse.
         :param max_size: int (default = 300)
         The maximum size of the image prior to feature extraction. If an image
@@ -118,7 +118,8 @@ class FeatureExtraction:
                                                                    key_points)
                 elif self._density == 'sparse':
                     # slice relevant bin of the image and detect sparse features
-                    image_bin = resized[col_start:col_end-1, row_start:row_end-1]
+                    image_bin = resized[col_start:col_end,
+                                        row_start:row_end]
                     kp, bin_desc = self._feature_extractor.detectAndCompute(
                         image_bin)
                 else:

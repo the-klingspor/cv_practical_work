@@ -24,7 +24,7 @@ class SpmTransformer(BaseEstimator, TransformerMixin):
     :attr feature_extractor: default: cv2.xfeatures2d.SIFT_create()
         The feature extractor used for computing dense or sparse features on the
         images.
-    :attr density: {'dense', 'sparse}
+    :attr density: {'dense', 'sparse} : deprecated
         If the features should be computed on dense grid or sparse.
     :attr cb_train_size: default: 300
         The number of random images used for training the encoder's codebook.
@@ -64,6 +64,9 @@ class SpmTransformer(BaseEstimator, TransformerMixin):
         :param X: The image data as a list of tuples [(path, roi), ..., ]
         :return: self
         """
+        if self.density == 'sparse':
+            print("Sparse density is currently not supported.\n")
+            return
         if self.extractor is None:
             self.extractor = cv2.xfeatures2d.SIFT_create()
         self.feature_extractor = FeatureExtraction(self.extractor, self.density)
