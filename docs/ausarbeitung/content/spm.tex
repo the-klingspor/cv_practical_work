@@ -9,7 +9,7 @@ Die Features aus jedem der insgesamt 21 Bins werden anschließend über die Lös
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=1]{img/sift_spm.png}
+	\fbox{\includegraphics[scale=1]{img/sift_spm.png}}
 	\caption{Architektur des Algorithmus mit Veranschaulichung der Spatial Pyramid auf SIFT-Features und Pooling. Im Anschluss werden der $L_0$- (rot), die vier $L_1$- (blau) und 16 $L_2$-Codes (grün) konkateniert - angelehnt an \cite{yygh09}.}
 	\label{img:architecture}
 \end{figure}
@@ -36,6 +36,7 @@ Wang et al. haben festgestellt, dass für eine optimale Zuordnung zum Codebook S
 \end{figure}
 
 \subsubsection{Optimierungsproblem und analytische Lösung}
+\label{sec:llc}
 
 Die Beschreibung von LLC folgt der Veröffentlichung von \cite{wyylhg10}. Es seien eine Menge von D-dimensionalen Features $X = [x_1, \dots, x_N] \in \RR^{(D \times N)}$ und ein Codebook $B = [b_1, \dots, b_M] \in \RR^{(D \times M)}$ mit $M$ Einträgen gegeben. Bei $X$ handelt es sich um Features aus einem Bild und bei $B$ um eine Menge von Deskriptoren, die den Merkmalsraum über allen Bildern gut widerspiegelt.
  
@@ -88,21 +89,21 @@ Der von uns verwendete lineare Kernel der SVM hat den Vorteil, dass wir den Klas
 
 \subsection{Implementierung}
 
-Die Implementierung des Verfahrens erfolgte in der Programmiersprache Python, wobei verschiedene Bibliotheken zum Einsatz gekommen sind. Zu diesem Zeitpunkt seien uns die Pfade der Bilder und die Regions of Interest der zu klassifizierenden Tiere als Bounding Boxes gegeben.
+Die Implementierung des Verfahrens erfolgte in der Programmiersprache Python, wobei verschiedene Bibliotheken zum Einsatz gekommen sind. Zu diesem Zeitpunkt seien uns die Pfade der Bilder und die Regions of Interest der zu klassifizierenden Tiere als Bounding Boxes gegeben. Um die Laufzeit des Verfahrens zu verringern, werden alle Teilbilder auf eine maximale Länge oder Breite von 300 Pixeln verkleinert und in Graustufenbilder umgerechnet. Das Seitenverhältnis bleibt konstant.
 
 \subsubsection{Berechnung der Features}
 
+Wir verwenden zur Klassifizierung der Bilder zwei verschiedene Arten von Features. Das \emph{Scale-invariant-Feature-Transform}-Feature (SIFT) ist ein Strukturfeature, bei dem über eine \emph{Scale-space}-Pyramide von \emph{Difference-of-Gaussian}-Bildern Histogramme von Gradienten berechnet werden \cite{lowe99}. Wir benutzen die Implementierung von OpenCV, die sich in dem Modul \texttt{opencv-contrib} der patentierten Verfahren befindet und gegebenenfalls nicht von sich aus mit OpenCV installiert wird \cite{ocv}. SIFT findet vielfältig Verwendung und zeichnet sich durch hohe Aussagekraft sowie die Invarianz gegenüber Skalierungen und geringen Perspektiv- und Belichtungswechseln aus.
 
+Das zweite Feature ist das Texturfeature \emph{Local Binary Binary} (LBP) \cite{oph94}. Wir verwenden die uniforme Variante mit Radius zwei und 16 benachbarten Punkten von \enquote{Scikit-image} \cite{skimg}. Hierbei wird ein Graustufenpixel mit 16 symmetrisch verteilten Pixel im Abstand von zwei Pixeln verglichen. Falls der Nachbar größer ist als der zentrale Pixel, merken wir uns für diese Stelle eine 0, ist er kleiner, eine 1. Das ergibt bei 16 Nachbarn eine Kodierung von zwei Bytes. In der uniformen Variante prüfen wir zusätzlich, ob der Deskriptor uniform ist, also ob es höchstens zwei Transformationen der Form $0 \rightarrow 1$ oder $1 \rightarrow 0$ gibt. Bei der anschließenden Berechnung des Histogramms über einem Block von Pixeln erstellen wir für jedes uniforme Muster einen Bin im Histogramm und einen einzelnen Bin für alle nicht-uniformen Muster. Die Verwendung der uniformen Variante sorgt dafür, dass die Histogramme lediglich die Länge 18 statt 512 haben und sorgen zusätzlich für Graustufen- und Rotationsinvarianz. 
+
+Die Klasse \texttt{FeatureExtraction} ermöglicht das Berechnen von Featuremengen und Features in Spatial Pyramids für übergebene Featureextraktoren wie beispielsweise dem für SIFT oder LBP. Die Features werden in einem dichten Gitter der Schrittweite 16 über Blöcken von 16 mal 16 Pixeln berechnet. Für die Klassifizierung wäre eine geringere Schrittweite (beispielsweise vier Pixel) vermutlich besser, da bei nicht überlappenden Blöcken wichtige Kanten und Eckpunkte verloren gehen können. Dieses Verfahren wurde auch von \cite{ywkjwh13} verwendet. Wir verzichten bewusst darauf, um die Anzahl der Features und damit die Komplexität der Berechnungen zu verringern.
 
 \subsubsection{LLC Encoding}
 
+Den Kern unseres Verfahrens bildet die Klasse \texttt{LlcSpatialPyramidEncoder}, der über die \texttt{encode}-Methode Features mit LLC kodieren kann. Zuerst wird mithilfe von Scikit-learns \texttt{MiniBatchKMeans} ein Codebook über einer Menge von Features trainiert, die auf der Datenbank der Bilder zufällig bestimmt wurden \cite{sklearn}. Anschließend wurde der Algorithmus aus Abschnitt \ref{sec:llc} mit \enquote{Numpy} umgesetzt. Leider hat sich die Laufzeit der Kodierung als problematisch herausgestellt (s. \ref{sec:eval}), weshalb der ursprünglich sequentielle Algorithmus in klassischem Python mehrmals optimiert wurde. Die Hilfsfunktionen der Klasse wurden in das Modul \texttt{llc\_optimization} ausgelagert und mit \enquote{Numba} annotiert \cite{numba}. Numba bietet die Möglichkeit Pythonfunktionen, die lediglich die Standardbibliothek und Numpy verwenden, mit sogenannten \emph{Decorators} zu markieren. Bei der Ausführung des Programms werden diese Funktionen mit Hilfe des LLVM-Compilers in Echtzeit kompiliert, was in einer deutlich schnelleren Laufzeit im Vergleich zu interpretiertem Code resultiert. 
 
+\subsubsection{Scikit-learn SPM-Transformer und LinearSVC}
 
-\subsubsection{Scikit-learn SPM-Transformer}
-
-
-
--umsetzung numpy, optimierung numba
--opencv für sift, scikit-image für lbp
--clustering und linear svm mit scikit-learn
--transformer mit scikit-learn, einbettung in pipeline
+Alle obigen Funktionen wurden in der Klasse \texttt{SpmTransformer} zusammengefasst. Diese implementiert als Unterklasse von Scikit-learns \texttt{BaseEstimator} die Methoden \texttt{fit} und \texttt{transform}, wodurch sich das LLC-Verfahren problemlos in Scikit-learns \emph{Pipelines} integrieren lässt \cite{sklearn}. Das ermöglicht einem spielend leicht die Kombination mit Klassifizierern, Ensemblemethoden und Modelselektionsverfahren der Bibliothek. \\
+Abschließend wurde in dem Modul \texttt{spatial\_pyramid\_matching} das komplette Verfahren von der Segmentierung, über Locality-constrained linear Coding bis zur Klassifizierung mit Scikit-learns \texttt{LinearSVC} auf zwei verschiedenen Datenbanken umgesetzt.
