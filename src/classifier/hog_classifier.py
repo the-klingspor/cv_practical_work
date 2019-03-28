@@ -14,9 +14,12 @@ TupleList = List[Tuple[str, Tuple[int, int, int, int], str]]
 class HogClassifier:
 
     PATCH_SIZE = (64, 128)
+
+    # for debug purpose only
     SHOW_TRAINING_ROI = False
     SHOW_TRAINING_TIME = 1000
 
+    # private class parameters
     _hog_descriptor = None
     _svm = None
     _show_classified_img = False
@@ -262,8 +265,8 @@ def test_multiple_times(number_of_runns):
         print(f"RUN {i} STARTED: ")
         provider = DataProvider("/home/tp/Downloads/CVSequences/data",
                                 "/home/tp/Downloads/CVSequences/sequ",
-                                # "/home/tp/Downloads/CVSequences/npy",
-                                "/home/tp/Downloads/CVSequences/CVSequences",
+                                "/home/tp/Downloads/CVSequences/npy",
+                                # "/home/tp/Downloads/CVSequences/CVSequences",
                                 True,
                                 # {"dayvision", "day", "nightvision", "night"},  # the subfoldernames that are used for sequence separations
                                 {"dayvision", "day"},  # the subfoldernames that are used for sequence separations
@@ -326,7 +329,7 @@ if __name__ == '__main__':
 
     # good seeds: 8034652065224866011
 
-    test_multiple_times(200)
+    test_multiple_times(50)
     #
     # tr_data = provider.get_training_data()
     # provider.generate_sequences()
