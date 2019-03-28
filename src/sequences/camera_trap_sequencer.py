@@ -33,7 +33,8 @@ class CameraTrapSequencer(QtWidgets.QWidget):
         self.directory_type = QtWidgets.QComboBox()
         self.directory_type.addItem("Database")
         self.directory_type.addItem("Directory")
-        self.directory_type.currentIndexChanged.connect(self._directory_type_change)
+        self.directory_type.currentIndexChanged.connect(
+            self._directory_type_change)
 
         self.move_method_label = QtWidgets.QLabel("Move method: ")
 
@@ -93,6 +94,13 @@ class CameraTrapSequencer(QtWidgets.QWidget):
         self.setWindowTitle("Camera Trap Sequencer")
 
     def on_start(self):
+        """
+        Check if all necessary data fields are set and there has been a change
+        in settings since the method was called last, to prevent errors.
+        If everything is fine, the files are moved into sequences from the input
+        to the output directory.
+        :author: Joschka Strüber
+        """
         if self.input_dir is None:
             no_input_dialog = QtWidgets.QErrorMessage(self)
             no_input_dialog.showMessage("No input directory was chosen.")
@@ -118,32 +126,57 @@ class CameraTrapSequencer(QtWidgets.QWidget):
             self.sequence_thread.start()
 
     def on_finished(self):
-        # Stop the pulsation
+        """
+        Stop the pulsation of the progress bar.
+        :author: Joschka Strüber
+        """
         self.progress_bar.setRange(0, 1)
 
     def get_input_dir(self):
+        """
+        Read the input directory chosen by the user in a file dialog and set
+        the data field correspondingly.
+        :author: Joschka Strüber
+        """
         self.input_dir = self._get_dir("Choose Input Directory")
         self.dirs_changed = True
         self.input_dir_label.setText(self._shorten_dir(self.input_dir))
 
     def get_output_dir(self):
+        """
+        Read the output directory chosen by the user in a file dialog and set
+        the data field correspondingly.
+        :author: Joschka Strüber
+        """
         self.output_dir = self._get_dir("Choose Output Directory")
         self.dirs_changed = True
         self.output_dir_label.setText(self._shorten_dir(self.output_dir))
 
     def _get_dir(self, caption):
+        """
+        Return the directory chosen by the user in a file dialog.
+        :author: Joschka Strüber
+        """
         dir_name = QtWidgets.QFileDialog.getExistingDirectory(self, caption,
                                                               os.path.expanduser("~"),
                                                               options=QtWidgets.QFileDialog.ShowDirsOnly)
         return dir_name
 
     def _shorten_dir(self, path):
+        """
+        Shorten the directory for display in a data field.
+        :author: Joschka Strüber
+        """
         parent_dirs, dir_name = os.path.split(path)
         parent_dir = os.path.basename(parent_dirs)
         short_path = os.path.join("...", parent_dir, dir_name)
         return short_path
 
     def _directory_type_change(self):
+        """
+        Whether or not the type of input was changed to "Database".
+        :author: Joschka Strüber
+        """
         if self.directory_type.currentText() == "Database":
             self.empty_info.setEnabled(True)
         elif self.directory_type.currentText() == "Directory":
@@ -153,7 +186,12 @@ class CameraTrapSequencer(QtWidgets.QWidget):
 
 
 class SequencesThread(QtCore.QThread):
+    """
+    Class which wraps the actual ordering of sequences. Needed to be able to
+    use a progress bar while the thread is still running.
 
+    :author: Joschka Strüber
+    """
     def __init__(self, move_type, path_from, path_to, copy, empty, parent=None):
         QtCore.QThread.__init__(self, parent)
 

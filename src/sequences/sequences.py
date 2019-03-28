@@ -36,12 +36,12 @@ def read_images(path, empty=False):
 
     :author: Joschka Strüber
     :param path: Path of the directory with image files, which EXIF tags will
-    be read and returned.
+        be read and returned.
     :param empty: Boolean (default = False)
         Information if this image is empty or contains a relevant subject (e.g.
         an animal in camera trap images).
     :return: List of tuples with a serial number, date of creation, filename and
-    the empty information of all image files in the given path.
+        the empty information of all image files in the given path.
     """
     if not os.path.exists(path):
         print("Input directory '{}' does not exist".format(path))
@@ -238,7 +238,7 @@ def create_sequence(seq_number, path_to, images, start, end, copy=True,
     Additionally, a file with information of all empty images of the sequence
     can be written to the output path.
 
-    :author; Joschka Strüber
+    :author: Joschka Strüber
     :param seq_number: The sequence number which the new directory will be named
         after.
     :param path_to: The directory where the new sequence directory will be made.

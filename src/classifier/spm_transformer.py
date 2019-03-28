@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 import random
-import time
 
 from sklearn.base import BaseEstimator, TransformerMixin
 
@@ -61,6 +60,8 @@ class SpmTransformer(BaseEstimator, TransformerMixin):
         """
         Fit this transformer by selecting random images from the training data
         to train the encoder's codebook.
+
+        :author: Joschka Strüber
         :param X: The image data as a list of tuples [(path, roi), ..., ]
         :return: self
         """
@@ -100,17 +101,12 @@ class SpmTransformer(BaseEstimator, TransformerMixin):
         for index, (path, roi_coordinates) in enumerate(X):
             if index % 5 == 0 or index + 1 == n_training_data:
                 print_progress_bar(index + 1, n_training_data)
-            start = time.time()
             img = cv2.imread(path, flags=cv2.IMREAD_GRAYSCALE)
             roi = get_roi(img, roi_coordinates)
             spatial_pyramid = self.feature_extractor.get_spatial_pyramid(roi)
-            spm_time = time.time()
-            # print_h_m_s(spm_time-start, "\nSP: ")
             llc_code = self.encoder.encode(spatial_pyramid,
                                            pooling=self.pooling,
                                            normalization=self.normalization)
-            end = time.time()
-            # print_h_m_s(end-start, "\nEncoding: ")
             descriptors.append(llc_code)
         descriptors = np.array(descriptors)
         return descriptors

@@ -4,7 +4,7 @@ import cv2
 from skimage import feature
 
 
-class LocalBinaryPatterns():
+class LocalBinaryPatterns:
     """
     Class which computes uniform local binary patterns as histograms on images.
     The local binary pattern is a texture feature which was proposed by Ojala
@@ -80,5 +80,5 @@ class LocalBinaryPatterns():
         key_points = [cv2.KeyPoint(x, y, self._block_size)
                       for y in range(0, height, self._block_size)
                       for x in range(0, width, self._block_size)]
-        return self.compute(img, key_points)
+        return self.compute(img, key_points, eps)
 

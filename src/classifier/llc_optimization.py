@@ -5,6 +5,11 @@ from numba import njit, prange
 @njit
 def encode_spatial_bin_numba(codebook, features, size, alpha, sigma,
                              pooling='max'):
+    """
+    Encode all features of a spatial bin for a given codebook and
+    hyperparameters. Numba optimised numpy is used.
+    :author: Joschka Strüber
+    """
     num_features = features.shape[0]
     # start = time.time()
     if num_features == 0:
@@ -24,19 +29,16 @@ def encode_spatial_bin_numba(codebook, features, size, alpha, sigma,
 
 
 @njit(parallel=True)
-def get_llc_code(codebook, feature, size, alpha, sigma):
+def get_llc_code(codebook, feature, size, alpha, sigma, eps=1e-7):
     """
+    Compute a single llc code for a feature.
     :author: Joschka Strüber
     """
     covariance_regularized = get_covariance_regularized(codebook, feature,
                                                         alpha, sigma)
     llc_code_not_norm = np.linalg.solve(covariance_regularized, np.ones(size))
     sum_of_llc_code = np.sum(llc_code_not_norm)
-    if sum_of_llc_code != 0:
-        llc_code = llc_code_not_norm / sum_of_llc_code
-    else:
-        llc_code = np.zeros(size)
-        # todo: error handling for llc_code with sum of zero
+    llc_code = llc_code_not_norm / (sum_of_llc_code + eps)
     return llc_code
 
 

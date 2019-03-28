@@ -273,7 +273,7 @@ def call_DDD_plus_sift_lbp_pipeline():
     full_pipeline.fit(X_train, y_train)
 
     bias_preds = full_pipeline.predict(X_train)
-    bias_score = f1_score(y_test, bias_preds, average="weighted")
+    bias_score = f1_score(y_train, bias_preds, average="weighted")
     print("Bias score: ", bias_score)
 
     predictions = full_pipeline.predict(X_test)

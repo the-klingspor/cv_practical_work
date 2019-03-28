@@ -17,14 +17,15 @@ class FeatureExtraction:
         """
         :author: Joschka Strüber
         :param feature_extractor: An object with a method compute(image,
-        keypoints[]) that computes a set of features of an image for a given set
-        of key points. An example for this is cv2.xfeatures2d.SIFT from OpenCV.
+            keypoints[]) that computes a set of features of an image for a given
+            set of key points. An example for this is cv2.xfeatures2d.SIFT from
+            OpenCV.
         :param density: {'dense' (default), 'sparse'} : deprecated
-        Whether the features should be computed on a dense grid or sparse.
+            Whether the features should be computed on a dense grid or sparse.
         :param max_size: int (default = 300)
-        The maximum size of the image prior to feature extraction. If an image
-        is too large, it will be resized to the maximum size with the same
-        aspect ratio as before.
+            The maximum size of the image prior to feature extraction. If an
+            image is too large, it will be resized to the maximum size with the
+            same aspect ratio as before.
         """
         self._feature_extractor = feature_extractor if feature_extractor is \
             not None else cv2.xfeatures2d.SIFT_create()
@@ -43,12 +44,12 @@ class FeatureExtraction:
 
         :author: Joschka Strüber
         :param images: A list of images as numpy arrays. They have to be single
-        channel,  grayscale images.
+            channel,  grayscale images.
         :param step_size: int (default = 16)
-        The step size between the features in x and y directions. Ignored, if
-        self._density = 'sparse'.
+            The step size between the features in x and y directions. Ignored,
+            if self._density = 'sparse'.
         :return: ndarray
-        A 2d array of features where every row is a feature.
+            A 2d array of features where every row is a feature.
         """
         feature_list = []
         # collect dense key points for every image and compute features
@@ -85,12 +86,12 @@ class FeatureExtraction:
 
         :author: Joschka Strüber
         :param image: The image as numpy array, which features will be computed
-        as a spatial pyramid.
+            as a spatial pyramid.
         :param step_size: The step size between dense featurse. Ignored, if
-        self._density = 'sparse'.
+            self._density = 'sparse'.
         :return: [[array, array, array, array], [...], [...], [...]]
-        A list that contains four lists, that contain four numpy arrays of
-        features each.
+            A list that contains four lists, that contain four numpy arrays of
+            features each.
         """
         resized = self._resize_fixed_aspect_ratio(image)
 
@@ -143,6 +144,7 @@ class FeatureExtraction:
         """
         Resize the image to the maximum size allowed, while keeping the aspect
         ratio fixed.
+
         :author: Joschka Strüber
         :param image: The image that is to be resized.
         :return: The resized image.

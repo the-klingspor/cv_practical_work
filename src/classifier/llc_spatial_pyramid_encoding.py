@@ -19,17 +19,17 @@ class LlcSpatialPyramidEncoder:
         """
         :author: Joschka Strüber
         :param size: int
-        The number of features in the codebook.
+            The number of features in the codebook.
         :param codebook: ndarray
-        Set of features in a matrix, which is a good representation of the
-        feature space. Usually, this will be trained based on a larger set of
-        features, but a precomputed codebook can be used as well.
+            Set of features in a matrix, which is a good representation of the
+            feature space. Usually, this will be trained based on a larger set
+            of features, but a precomputed codebook can be used as well.
         :param alpha: float (default = 500)
-        Hyperparameter for regularization, which affects how much choosing
-        non-local bases of the codebook is penalized.
+            Hyperparameter for regularization, which affects how much choosing
+            non-local bases of the codebook is penalized.
         :param sigma: float (default = 100)
-        Hyperparameter for regularization, which is used for adjusting the
-        weight decay speed of the locality adaptor.
+            Hyperparameter for regularization, which is used for adjusting the
+            weight decay speed of the locality adaptor.
         """
         self._size = size
         if codebook is not None:
@@ -46,9 +46,9 @@ class LlcSpatialPyramidEncoder:
 
         :author: Joschka Strüber
         :param size: unsigned int (default 1024)
-        Number of cluster centers for the codebook.
+            Number of cluster centers for the codebook.
         :param features: ndarray
-        ndarray of features, which will be clustered for the codebook.
+            ndarray of features, which will be clustered for the codebook.
         :return: None
         """
         # size of codebook must be maximum of number of features and wanted size
@@ -73,30 +73,31 @@ class LlcSpatialPyramidEncoder:
 
         :author: Joschka Strüber
         :param spatial_pyramid: ndarray
-        A spatial pyramid of feature vectors, which is three layers deep. It is
-        a nested list of four lists of four  numpy arrays each of features. C.f.
-        Lazebnik et al.'s publication "Beyond bags of features: spatial pyramid
-        matching for recognizing natural scene categories" (2006 CVPR).
-        Each of the 16 most inner arrays holds the features of a level 2 spatial
-        bin. A level 1 spatial bin consists of all features of all level 2 bins
-        that are part of the same inner list. The level 0 spatial bin consists
-        of all features.
-        Example:
-        [[f0, f1, f2, f3], ..., [f12, f13, f14, f15]]
-        The array of features f0 is a level 2 spatial bin, {f0, ..., f3} is a
-        level 1 spatial bin and {f0, ..., f15} is the level 0 spatial bin.
+            A spatial pyramid of feature vectors, which is three layers deep. It
+             is a nested list of four lists of four  numpy arrays each of
+             features. C.f. Lazebnik et al.'s publication "Beyond bags of
+             features: spatial pyramid matching for recognizing natural scene
+             categories" (2006 CVPR).
+            Each of the 16 most inner arrays holds the features of a level 2
+            spatial bin. A level 1 spatial bin consists of all features of all
+            level 2 bins that are part of the same inner list. The level 0
+            spatial bin consists of all features.
+            Example:
+            [[f0, f1, f2, f3], ..., [f12, f13, f14, f15]]
+            The array of features f0 is a level 2 spatial bin, {f0, ..., f3} is
+            a level 1 spatial bin and {f0, ..., f15} is the level 0 spatial bin.
         :param pooling: {'max' (default), 'sum'}
-        The method used for pooling the locality-constrained linear codes of
-        each feature. The supported pooling methods are max pooling (default)
-        and sum pooling.
+            The method used for pooling the locality-constrained linear codes of
+            each feature. The supported pooling methods are max pooling
+            (default) and sum pooling.
         :param normalization: {'eucl' (default), 'sum'}
-        The method used for normalizing the pooled encoding. The euclidean norm
-        (default) and sum normalization are supported.
+            The method used for normalizing the pooled encoding. The euclidean
+            norm (default) and sum normalization are supported.
         :return: ndarray, dtype=float64
-        The normalized concatenation of the pooled codes for all 21 spatial
-        bins. The first part corresponds to the level 0 bin, followed by level
-        1, followed by level 2. In case of an error, a ValueError will be
-        raised.
+            The normalized concatenation of the pooled codes for all 21 spatial
+            bins. The first part corresponds to the level 0 bin, followed by
+            level 1, followed by level 2. In case of an error, a ValueError will
+             be raised.
         """
         if self._codebook is None:
             print("No code book was given or trained.")
@@ -115,6 +116,7 @@ class LlcSpatialPyramidEncoder:
 
         # use associativity of pooling methods to compute pooled codes for l1
         # bins and l0 bin
+        # todo: rewrite these for loops with redundant code
         if pooling == 'max':
             for l1_index in range(1, 5):
                 start_index = 5 + 4 * (l1_index - 1)
@@ -123,7 +125,7 @@ class LlcSpatialPyramidEncoder:
                     spm_code[l1_index] = np.maximum(spm_code[l1_index],
                                                 spm_code[start_index + l2_bin])
             spm_code[0] = spm_code[1]
-            for l1_bin in range(2,5):
+            for l1_bin in range(2, 5):
                 spm_code[0] = np.maximum(spm_code[0], spm_code[l1_bin])
         elif pooling == 'sum':
             for l1_index in range(1, 5):
@@ -154,6 +156,9 @@ class LlcSpatialPyramidEncoder:
         Computes the LLC codes for a set of features and pools them with the
         specified pooling method. In case of an empty set, a zero vector will be
         returned.
+        In further versions it is planned to implement another version of
+        "encode_spatial_bin", preferably using Tensorflow or Pytorch and this
+        method can choose which to call based on set options.
         :author: Joschka Strüber
         """
         return encode_spatial_bin_numba(self._codebook, features, self._size,
