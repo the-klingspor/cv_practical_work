@@ -25,7 +25,7 @@ __pycache__/
 # *.ps
 # *.eps
 # *.pdf
-
+\docs\ausarbeitung\*.pdf
 ## Generated if empty string is given at "Please type another file name for output:"
 .pdf
 

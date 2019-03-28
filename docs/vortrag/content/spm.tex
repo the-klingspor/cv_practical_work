@@ -37,7 +37,7 @@
 \begin{frame}[t, fragile]{Locality-constrained Linear Coding (LLC) II}
 	\begin{itemize}
 		\item Gegeben D-dimensionale Features $X = [x_1, \dots, x_N] \in \mathbb{R}^{(D \times N)}$ und Codebook mit M Einträgen $B = [b_1, \dots, b_M] \in \mathbb{R}^{(D \times M)}$. 
-		\item Gesucht: lokale Zuordnung $C = [c_1, \dots, c_N] \in \mathbb{R}^{(M \times N)}$, die Features aus $X$ Visual Words aus $B$ zuweist  
+		\item Gesucht: lokale Zuordnung $C = [c_1, \dots, c_N] \in \mathbb{R}^{(M \times N)}$, die Features aus $X$ Visual Words aus $B$ zuweist.  
 	\end{itemize}	 
 	\begin{equation}
 		\min_C \sum_{i=1}^{N} ||x_i - B\cdot c_i||^2 + \lambda\cdot ||d_i \odot c_i||^2, \text{ s.t. } 1^Tc_i = 1 \forall i

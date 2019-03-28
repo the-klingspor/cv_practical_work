@@ -1,7 +1,7 @@
 %!TEX root = ../ausarbeitung.tex
 \section{ Lokalisierung mit Principal Components Analysis (PCA)} \label{sec:PCA}
 Die automatische Lokalisierung von Objekten in digitalen Bildern ist ein wesentlicher Bestandteil vieler Anwendungen. 
-Für das Lokalisierungsproblem in dieser Arbeit bietet sich die Verwendung von der Methoden \textit{Hintergrund-Subtraktion} und \textit{Sliding-Window} mit PCA an.
+Für das Lokalisierungsproblem in dieser Arbeit bietet sich die Verwendung der Methoden \textit{Hintergrund-Subtraktion} und \textit{Sliding-Window} mit PCA an.
 
 \subsection{Hintergrundapproximation mit PCA}
 Um Bewegungen in Bildsequenzen erkennen zu können, wird in der Praxis sehr häufig das Verfahren der \textit{Hintergrund-Subtraktion} angewandt. Dabei handelt es sich um ein klassisches Verfahren aus dem Bereich der Bilderkennung. Das Hintergrundbild kann mithilfe von PCA approximiert werden. Anschließend wird das Vordergrundbild über die Differenz zum Hintergrundbild extrahiert. PCA, oder auch Hauptkomponentenanalyse, ist ein statistisches Verfahren um große Mengen von Datensätzen zu vereinfachen und zu strukturieren, indem die Datenpunkte im $p$-dimensionalen Raum $R^p$ in einen $q$-dimensionalen Unterraum ${R} ^{q}$ mit ($q<p$) projiziert werden. Diese Transformation muss dabei so gewählt werden, dass möglichst wenig Information verloren geht.
@@ -25,7 +25,7 @@ SVD(X)= C = U \Sigma V^T
 SVD(X)_k=C_k = U\Sigma_kV^T \quad\quad mit  \quad  \Sigma_k = diag(\sigma_1, ..., \sigma_k,0,...,0)
 \end{equation}
 \end{itemize}
-\newpage
+
 \begin{center}
 \begin{tabular}{ccccc}
 \includegraphics[width=2.3cm]{img/Segmentierung/original-image}
