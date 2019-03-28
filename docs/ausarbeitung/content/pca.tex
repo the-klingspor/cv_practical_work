@@ -54,9 +54,9 @@ SVD(X)_k=C_k = U\Sigma_kV^T \quad\quad mit  \quad  \Sigma_k = diag(\sigma_1, ...
 
 \begin{center}
 \begin{tabular}{c}
-\includegraphics[width=6cm]{img/Segmentierung/foreground-image}
+\includegraphics[trim={0, 4cm, 0 ,5cm},clip=ture,width=11cm]{img/Segmentierung/foreground-image}
 \end{tabular}
-\captionof{figure}{Das Vordergrundbild ergibt sich durch die Subtraktion des approximierten Hintergrundbildes.}
+\captionof{figure}{Das Vordergrundbild $S$ ergibt sich durch die Subtraktion des approximierten Hintergrundbildes $L$.}
 \label{fig:foreground}
 \end{center}
 \noindent Zum Nachbearbeitung des Vordergrundes gehört eine Vielzahl von Operationen 
@@ -71,10 +71,10 @@ Damit können kleinere Bildstrukturen und Rauschen entfernt, vergrößert, gesch
 \end{center}
 \subsection{Sliding-Window Lokalisierung mit PCA}
 Sliding-Window ist eine Brute-Force-Suche über das Bild mit fester Fenstergröße, um Objekte zu finden. Für jedes dieser Fenster wird ein Bildklassifikator angewendet, um zu bestimmen, ob das Fenster ein bekanntes Objekt enthält. In diesem Fall wird PCA als Objekt-Klassifikator angewandt.
-\subsection{Objektdetektion mit PCA}
+\subsubsection{Objektdetektion mit PCA}
 Jedes Bild ist ein Punkt in einem hochdimensionalen Raum. Durch das PCA-Verfahren lassen sich die Datenpunkte in einen niederdimensionalen Unterraum abbilden. PCA sucht die ersten $k$-Hauptkomponenten, welche die Daten mit einer maximalen Varianz beschreiben. Damit wird es eine niederdimensionale Darstellung gefunden, bei der die Klassifizierung leichter wird.\\
 
-\subsubsection{Algorithmus}
+\textbf{Algorithmus}
 \begin{itemize}
 \item{Phase I: Initialisierung}
 \begin{itemize}
