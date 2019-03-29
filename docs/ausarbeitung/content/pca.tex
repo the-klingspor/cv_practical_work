@@ -4,12 +4,12 @@ Die automatische Lokalisierung von Objekten in digitalen Bildern ist ein wesentl
 Für das Lokalisierungsproblem in dieser Arbeit bietet sich die Verwendung der Methoden \textit{Hintergrund-Subtraktion} und \textit{Sliding-Window} mit PCA an.
 
 \subsection{Hintergrundapproximation mit PCA}
-Um Bewegungen in Bildsequenzen erkennen zu können, wird in der Praxis sehr häufig das Verfahren der \textit{Hintergrund-Subtraktion} angewandt. Dabei handelt es sich um ein klassisches Verfahren aus dem Bereich der Bilderkennung. Das Hintergrundbild kann mithilfe von PCA approximiert werden. Anschließend wird das Vordergrundbild über die Differenz zum Hintergrundbild extrahiert. PCA, oder auch Hauptkomponentenanalyse, ist ein statistisches Verfahren um große Mengen von Datensätzen zu vereinfachen und zu strukturieren, indem die Datenpunkte im $p$-dimensionalen Raum $R^p$ in einen $q$-dimensionalen Unterraum ${R} ^{q}$ mit ($q<p$) projiziert werden. Diese Transformation muss dabei so gewählt werden, dass möglichst wenig Information verloren geht.
+Um Bewegungen in Bildsequenzen erkennen zu können, wird in der Praxis sehr häufig das Verfahren der \textit{Hintergrund-Subtraktion} angewandt. Dabei handelt es sich um ein klassisches Verfahren aus dem Bereich der Bilderkennung. Das Hintergrundbild kann mithilfe von PCA approximiert werden. Anschließend wird das Vordergrundbild über die Differenz zum Hintergrundbild extrahiert. PCA, oder auch Hauptkomponentenanalyse, ist ein statistisches Verfahren um große Mengen von Datensätzen zu vereinfachen und zu strukturieren, indem die Datenpunkte im $p$-dimensionalen Raum $R^p$ in einen $q$-dimensionalen Unterraum ${R} ^{q}$ mit ($q<p$) projiziert werden. Diese Transformation muss dabei so gewählt werden, dass möglichst wenig Information verloren geht \cite{Verbeke2007APT}.
 Grundsätzlich benutzt PCA die \textit{Niedrigrangapproximation}. Damit kann eine Matrix durch eine andere Matrix im allgemeinen Rang angenähert werden. Sei eine Matrix $A$ mit $Rang(A) = r$ und $r > k$:
 \begin{equation}
 \min_{rang(A)=k}||A-B||_2 
 \end{equation}
-Dabei soll die Differenz zwischen $A$ und $B$ minimiert werden. Mithilfe der \textit{Singulärwertzerlegung} (SVD) können die Singulärwerte einer Matrix abgelesen werden. Die SVD von Matrix $A$ ist dann:
+Dabei soll die Differenz zwischen $A$ und $B$ minimiert werden \cite{MARKOVSKY2008891}. Mithilfe der \textit{Singulärwertzerlegung} (SVD) können die Singulärwerte einer Matrix abgelesen werden. Die SVD von Matrix $A$ ist dann:
 \begin{equation}
 A = U \Sigma V^T
 \end{equation}
@@ -61,7 +61,7 @@ SVD(X)_k=C_k = U\Sigma_kV^T \quad\quad mit  \quad  \Sigma_k = diag(\sigma_1, ...
 \end{center}
 \noindent Zum Nachbearbeitung des Vordergrundes gehört eine Vielzahl von Operationen 
 z.B. \textit{morphologische Operationen, Thresholding} und \textit{Filterung}.
-Damit können kleinere Bildstrukturen und Rauschen entfernt, vergrößert, geschlossen oder aufgefüllt werden. Können jedoch diese Operationen zu einer Veränderung der Größe der Vordergrundelemente führen, was zur Lokalisierung des Elements aber keinen Störfaktor ergibt. Durch Kombination der Operationen in einer bestimmten Reihenfolge kann Größenveränderung verhindert und dennoch die Vorteile der Operationen genutzt werden. Durch \textit{Opening} werden zunächst kleine Strukturen bzw. Rauschen, welches zum Hintergrund gehört, entfernt. Danach werden kleine Löcher innerhalb der Vordergrundelemente durch \textit{Closing} geschlossen. In (Abbildung~\ref{fig:pipe}) ist eine Kombination dieser  Pipeline zur Nachbearbeitung des Vordergrundes benutzt worden.
+Damit können kleinere Bildstrukturen und Rauschen entfernt, vergrößert, geschlossen oder aufgefüllt werden. Können jedoch diese Operationen zu einer Veränderung der Größe der Vordergrundelemente führen, was zur Lokalisierung des Elements aber keinen Störfaktor ergibt. Durch Kombination der Operationen in einer bestimmten Reihenfolge kann Größenveränderung verhindert und dennoch die Vorteile der Operationen genutzt werden. Durch \textit{Opening} werden zunächst kleine Strukturen bzw. Rauschen, welches zum Hintergrund gehört, entfernt. Danach werden kleine Löcher innerhalb der Vordergrundelemente durch \textit{Closing} geschlossen. In (Abbildung~\ref{fig:pipe}) ist eine Kombination dieser  Pipeline zur Nachbearbeitung des Vordergrundes benutzt worden \cite{Giraldoarticle}.
 \begin{center}
 \begin{tabular}{c}
 \includegraphics[trim={0 3cm 0cm 3cm},clip=true,width=13cm]{img/Segmentierung/pipe.pdf}
@@ -70,7 +70,7 @@ Damit können kleinere Bildstrukturen und Rauschen entfernt, vergrößert, gesch
 \label{fig:pipe}
 \end{center}
 \subsection{Sliding-Window Lokalisierung mit PCA}
-Sliding-Window ist eine Brute-Force-Suche über das Bild mit fester Fenstergröße, um Objekte zu finden. Für jedes dieser Fenster wird ein Bildklassifikator angewendet, um zu bestimmen, ob das Fenster ein bekanntes Objekt enthält. In diesem Fall wird PCA als Objekt-Klassifikator angewandt.
+Sliding-Window ist eine Brute-Force-Suche über das Bild mit fester Fenstergröße, um Objekte zu finden. Für jedes dieser Fenster wird ein Bildklassifikator angewendet, um zu bestimmen, ob das Fenster ein bekanntes Objekt enthält. In diesem Fall wird PCA als Objekt-Klassifikator angewandt \cite{belhumeur1997eigenfaces}.
 \subsubsection{Objektdetektion mit PCA}
 Jedes Bild ist ein Punkt in einem hochdimensionalen Raum. Durch das PCA-Verfahren lassen sich die Datenpunkte in einen niederdimensionalen Unterraum abbilden. PCA sucht die ersten $k$-Hauptkomponenten, welche die Daten mit einer maximalen Varianz beschreiben. Damit wird es eine niederdimensionale Darstellung gefunden, bei der die Klassifizierung leichter wird.\\
 
@@ -106,8 +106,7 @@ Gegeben ist ein unbekanntes Bild  $M$
 \item{Finde den nächsten Nachbarn zwischen den projizierten Trainingsbildern $\mathbf{Y}$ und dem projizierten Bild $\mathbf{W}$}.
 \end{itemize}
 \end{itemize}
-Die Sliding-Windows laufen das Bild mit unterschiedlichen Fenstergrößen durch. Demnach werden Schnittbilder einzelne mit PCA klassifiziert. Dabei wird der nächste Nachbar der projizierten Schnittbilder gefunden und zugeordnet (Abbildung~\ref{fig:loc}).
-
+Die Sliding-Windows laufen das Bild mit unterschiedlichen Fenstergrößen durch. Demnach werden Schnittbilder einzelne mit PCA klassifiziert. Dabei wird der nächste Nachbar der projizierten Schnittbilder gefunden und zugeordnet. Die bunte Rahmen in (Abbildung~\ref{fig:loc}) weisen darauf hin, dass ein Objekt mit einer bestimmten Wahrscheinlichkeit innerhalb jeweiliges Fenster existiert. Anschließend können diese Rahmen miteinander verschmolzen werden um das Tier zu lokalisieren.
 \begin{center}
 \begin{tabular}{c}
 \includegraphics[width=8cm]{img/Segmentierung/localisation}
@@ -115,3 +114,13 @@ Die Sliding-Windows laufen das Bild mit unterschiedlichen Fenstergrößen durch.
 \captionof{figure}{ Lokalisierung mit Sliding-windows und PCA.}
 \label{fig:loc}
 \end{center}
+
+\subsection{Ergebnisse}
+Da keine \textit{Ground-Truth} Bilder für die Evaluierung vorhanden sind, erfolgt die Evaluierung nur über subjektive Beobachtungen. Die Lokalissierungsergebnisse mit \textit{Hintergrund-Subtraktion} und \textit{Hintergrundapproximation} erzielten Präzision über 82 \% auf Damhirsch und Dachs Datensätze. 
+Die Einschränkung für dieses Verfahren ist das, dass die Sequenzen mindestens aus drei Bilder bestehen müssen. Darüber hinaus müssen die Bilder einer Sequenz auch möglichst unterschiedlich voneinander sein. 
+Die Lokalissierungsergebnisse mit \textit{Sliding-Windows} und PCA-Klassifikator erzielten Präzision von 60-65 \% auf Damhirsch und Dachs Datensätze. Da der PCA-Klassifikator hohe Sensibilität für Variationen zwischen den
+Trainingsbildern und dem zu klassifizierenden Bild hat, könnte die Anwendung mit Sliding-windows zu Falsch-positiv Klassifikation führen. Gleiche Art und Weise wurde \textit{Sliding-Windows} mit HOG-Klassifikator \textit{(Histograms of Oriented Gradients)} erweitert. In Kapitel~\ref{sec:HOG} wurde HOG-Verfahren  im Detail durchgegangen. Damit erzielten die Lokalissierungsergebnisse Präzision von 80\% auf Damhirsch und Dachs Datensätze.
+
+
+
+

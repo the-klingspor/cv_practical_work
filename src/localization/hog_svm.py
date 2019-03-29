@@ -7,6 +7,8 @@ from sklearn.svm import SVC
 from functools import reduce
 import pickle
 
+"""Sliding-Windows using Histograms of Oriented Gradients author: Sufian Zaabalawi"""
+
 target_names = ['deer', 'badger', 'empty']
 patch_size = (64, 64)
 vec_patch_size = reduce((lambda x, y: x * y), patch_size)
@@ -45,15 +47,15 @@ def slidingWindows(image, w, h, stepSize=None):
         factor = factor - 0.1
 
 
-def localisation(clf, hog, im, target=''):
+def localisation(svm, hog, im, target=''):
     fig, ax = plt.subplots(1)
     probability = -1
     bestRoi = (0, 0, 1, 1)
     sliding_window = slidingWindows(im, im.shape[0], im.shape[1])
     for x, y, w, h, image in sliding_window:
         proj = hog.compute(rescalePatch(image))
-        p = np.amax(clf.predict_proba(proj.T)[0])
-        prediction = clf.predict(proj.T)[0]
+        p = np.amax(svm.predict_proba(proj.T)[0])
+        prediction = svm.predict(proj.T)[0]
         if target == target_names[prediction] and (probability < p or probability is -1):
             probability = p
             bestRoi = (x, y, w, h)
@@ -107,7 +109,7 @@ if __name__ == '__main__':
     svm, hog = TrainingsPhase()
 
     # Phase II: Lokalisirung Testen
-    imagesPaths = ['IMG_0123', 'IMG_0142', 'IMG_0297', 'IMG_0417', 'IMG_0310']
+    imagesPaths = ['image', 'image..']
     for path in imagesPaths:
         image = plt.imread(path)[33:1465, :, :]  # Crop header and footer with 33, 1465 respectively
         localisation(svm, hog, image, 'deer')  # possible labels ['deer', 'badger', 'empty']
