@@ -260,24 +260,24 @@ class DataProvider:
 
 if __name__ == '__main__':
     # This is an usage example and not supposed to be run as main. It just provides an easy manual predict case
-    # provider = DataProvider("~/data", # image data / location of the animal folders that contains all unordered images
-    #     "~/data/sequ", # The path were the images sorted into sequences should be stored
-    #     "~/data/npy", # The path were the ROIs correlated to image file names are stored. (The *.npy files)
-    #     True, # If the ROIs should be printed to the output. They are stored were the *.npy files are generated
-    #     {"dayvision", "day"}, # the subfolder names that are used for sequence separations
-    #     0.4, # the maximum % of images of a kind that are used as training data
-    #     True, # If any animal should be trained with equal amount of images
-    #     True, # if the images should be shuffled
-    #     123) # the random seed for shuffle. If 0 is chosen the seed is random too. Any other number can be chosen to increase the reproducibility of the experiment
+    provider = DataProvider("/home/tp/data/data", # image data / location of the animal folders that contains all unordered images
+        "/home/tp/data/sequ", # The path were the images sorted into sequences should be stored
+        "/home/tp/data/npy", # The path were the ROIs correlated to image file names are stored. (The *.npy files)
+        True, # If the ROIs should be printed to the output. They are stored were the *.npy files are generated
+        {"dayvision", "day"}, # the subfolder names that are used for sequence separations
+        0.4, # the maximum % of images of a kind that are used as training data
+        True, # If any animal should be trained with equal amount of images
+        True, # if the images should be shuffled
+        123) # the random seed for shuffle. If 0 is chosen the seed is random too. Any other number can be chosen to increase the reproducibility of the experiment
 
     # perform sequenc seperation
-    # provider.generate_sequences()
+    provider.generate_sequences()
     # perform segmentation
-    # provider.segment_sequences()
+    provider.segment_sequences()
 
     #get training tuples
-    # training_images = provider.get_training_data()
+    training_images = provider.get_training_data()
     # get test tuples
-    # test_images = provider.get_test_data()
+    test_images = provider.get_test_data()
     pass
 
