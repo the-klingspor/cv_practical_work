@@ -1,6 +1,7 @@
 %!TEX root = ../ausarbeitung.tex
 \section{Fazit}
 \label{sec:fazit}
+Das Ziel des ersten Teils dieser Arbeit war es einen automatischen Detektor und Klassifizierer für die Damhirsch und Dachs Datenbank zu erstellen. Eine Schwierigkeit dieser Datenbank ist es, dass die Bildermenge, insbesondere für den Dachs, sehr gering ist. Dadurch ist es nicht möglich einen Klassifikator mit vielen Bildern zu trainieren. Um dieses Problem abzuschwächen wurde die Trainingsdatenmenge durch Spiegelung der Bilder künstlich verdoppelt. Außerdem war es ein Ziel eine Präzision von üer 80~\% zu erreichen. Mit dem von uns in Kapitel~\ref{sec:HOG} gezeigtem Ansatz konnte dieses Ziel erreicht werden. Es wurde eine durchschnittlichen Präzision von über 83~\% erreicht. Ein entscheidender Faktor dabei war die Wahl der besten experimentell bestimmten Parameter. Ein besonderer Vorteil der hier verwendeten Methode ist die hohe Geschwindigkeit mit der das Modell trainiert werden kann. Eine weitere Erhöhung der Geschwindigkeit könnte zusätzlich erreicht werden, wenn zur Umsetzung eine Hardware nähere Sprache wie C++ verwendet würde. Für diese konzeptionelle Arbeit ist das Resultat allerdings bereits als sehr gut einzuordnen. Der Klassifizierer eignet sich jedoch nicht für eine Klassifizierung von mehr als 2 verschiedene Klassen, da in diesem Experiment eine zu geringe Präzision erreicht wurde. 
 
 -kurzbeschreibung der verfahren und ergebnisse
 -ausblick:

@@ -1,10 +1,10 @@
 %!TEX root = ../ausarbeitung.tex
-\section{ Lokalisierung mit Principal Components Analysis (PCA)}
+\section{ Lokalisierung mit Principal Components Analysis (PCA)} \label{sec:PCA}
 Die automatische Lokalisierung von Objekten in digitalen Bildern ist ein wesentlicher Bestandteil vieler Anwendungen. 
 Für das Lokalisierungsproblem in dieser Arbeit bietet sich die Verwendung der Methoden \textit{Hintergrund-Subtraktion} und \textit{Sliding-Window} mit PCA an.
 
 \subsection{Hintergrundapproximation mit PCA}
-Um Bewegungen in Bildsequenzen erkennen zu können, wird in der Praxis sehr häufig das Verfahren der \textit{Hintergrund-Subtraktion} angewandt. Dabei handelt es sich um ein klassisches Verfahren aus dem Bereich der Bilderkennung. Das Hintergrundbild kann mithilfe von PCA approximiert werden. Anschließend wird das Vordergrundbild über die Differenz zum Hintergrundbild extrahiert. PCA, oder auch Hauptkomponentenanalyse, ist ein statistisches Verfahren um große Mengen von Datensätzen zu vereinfachen und zu strukturieren, indem die Datenpunkte im $p$-dimensionalen Raum $R^p$ in einen $q$-dimensionalen Unterraum ${R} ^{q}$ mit ($q<p$) projiziert werden. Diese Transformation muss dabei so gewählt werden, dass möglichst wenig Information verloren geht. 
+Um Bewegungen in Bildsequenzen erkennen zu können, wird in der Praxis sehr häufig das Verfahren der \textit{Hintergrund-Subtraktion} angewandt. Dabei handelt es sich um ein klassisches Verfahren aus dem Bereich der Bilderkennung. Das Hintergrundbild kann mithilfe von PCA approximiert werden. Anschließend wird das Vordergrundbild über die Differenz zum Hintergrundbild extrahiert. PCA, oder auch Hauptkomponentenanalyse, ist ein statistisches Verfahren um große Mengen von Datensätzen zu vereinfachen und zu strukturieren, indem die Datenpunkte im $p$-dimensionalen Raum $R^p$ in einen $q$-dimensionalen Unterraum ${R} ^{q}$ mit ($q<p$) projiziert werden. Diese Transformation muss dabei so gewählt werden, dass möglichst wenig Information verloren geht.
 Grundsätzlich benutzt PCA die \textit{Niedrigrangapproximation}. Damit kann eine Matrix durch eine andere Matrix im allgemeinen Rang angenähert werden. Sei eine Matrix $A$ mit $Rang(A) = r$ und $r > k$:
 \begin{equation}
 \min_{rang(A)=k}||A-B||_2 

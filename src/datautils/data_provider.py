@@ -11,6 +11,7 @@ class DataProvider:
 
     This class provides easy to use access to segment.py, sequences.py and selects the amount of images that should be
     used for training and testing purposes of a classifier.
+    :author: Thomas Poschadel
     """
     image_data_dir: str
     sequences_data_dir: str
@@ -48,6 +49,7 @@ class DataProvider:
 
         No data is returned by this function. Currently the sequence.py writes the sequences into separate folder on the
         hard disk.
+        :author: Thomas Poschadel
         """
         for animal_folder_name in os.listdir(self.image_data_dir):
             print(f"Processing folder {animal_folder_name}")
@@ -69,6 +71,7 @@ class DataProvider:
         of the animal subfolders, which should contain the sequences, will be processed using the segment.py code.
         As output numpy arrays will be written to the 'segments_dir' folder and contain the image paths and the
         ROIS detected in segment.py. The file name is the label of the animal.
+        :author: Thomas Poschadel
         """
         for animal_folder_name in os.listdir(self.sequences_data_dir):
             path = os.path.join(self.sequences_data_dir, animal_folder_name)
@@ -89,8 +92,7 @@ class DataProvider:
         Furthermore the predict data can be shuffled. If 'shuffle_data' is set to True the data is shuffled. In order to
         create reproducible shuffled experiments the seed for the random generator can be set with the 'seed' attribute.
 
-        :param over_train_factor: A factor that allows for increasing the trainin image amount by this factor, eaven if
-        equal training size was chosen
+        :author: Thomas Poschadel
         :return A list of tuples containing (<File Name>, <ROI>, <label>). Depending on the settings for each
         the same amount of images can be added or a fraction of all available image of a animal are returned.
         """
@@ -118,8 +120,10 @@ class DataProvider:
     def get_test_data(self, max_length=99999999999):
         """Provides a list of tuples containing all data not used for training
 
+        :param max_length: The maximum length of the returned test data.
         :return A list of tuples containing (<File Name>, <ROI>, <label>). For each animal all remaining images not
         used tor training are returned.
+        :author: Thomas Poschadel
         """
         if not self._data:
             self._read_segmentation_data()
@@ -169,6 +173,7 @@ class DataProvider:
 
     def _get_min_test_data_length(self):
         """Private function to calculate the amount of images that are selected for the animal with the lowest image amount.
+        :author: Thomas Poschadel
         """
         min_number = float('inf')
         for animal_dict in self._data_keys.items():
@@ -181,7 +186,9 @@ class DataProvider:
     def _shuffle_data(self):
         """Private function to shuffle the data.
 
-        This function is called if the boolean 'shuffle_data' is set"""
+        This function is called if the boolean 'shuffle_data' is set
+        :author: Thomas Poschadel
+        """
         if self.seed != 0 and not self._seed_is_set:
             self._seed_is_set = True
             random.seed(self.seed)
@@ -214,6 +221,7 @@ class DataProvider:
         :param seed: the random seed for shuffle. If 0 is chosen the seed is random too. Any other number can be chosen to increase the reproducibility of the experiment
         :param over_train_factor: Allows to increase the test data to a number wich is the factor multiplied by the
         number of test images for the animal with the lowest sample size
+        :author: Thomas Poschadel
         """
         self.image_data_dir = image_data_dir
         self.sequences_data_dir = sequences_data_dir
@@ -237,7 +245,9 @@ class DataProvider:
         """Private helper function to read data from *.npy files
 
         This function is called if there is a attempt to retrieve image data. This function also manages if the data
-        still needs to be shuffled"""
+        still needs to be shuffled
+        :author: Thomas Poschadel
+        """
         for npy_file in os.listdir(self.segments_dir):
             if npy_file.endswith(".npy"):
                 label = npy_file.split(".")[0]
@@ -250,25 +260,24 @@ class DataProvider:
 
 if __name__ == '__main__':
     # This is an usage example and not supposed to be run as main. It just provides an easy manual predict case
-    provider = DataProvider("/home/tp/Downloads/CVSequences/data", # image data / location of the animal folders that contains all unordered images
-        "/home/tp/Downloads/CVSequences/sequ", # The path were the images sorted into sequences should be stored
-        "/home/tp/Downloads/CVSequences/npy", # The path were the ROIs correlated to image file names are stored. (The *.npy files)
-        True, # If the ROIs should be printed to the output. They are stored were the *.npy files are generated
-        {"dayvision", "day"}, # the subfolder names that are used for sequence separations
-        0.4, # the maximum % of images of a kind that are used as training data
-        True, # If any animal should be trained with equal amount of images
-        True, # if the images should be shuffled
-        123) # the random seed for shuffle. If 0 is chosen the seed is random too. Any other number can be chosen to increase the reproducibility of the experiment
+    # provider = DataProvider("~/data", # image data / location of the animal folders that contains all unordered images
+    #     "~/data/sequ", # The path were the images sorted into sequences should be stored
+    #     "~/data/npy", # The path were the ROIs correlated to image file names are stored. (The *.npy files)
+    #     True, # If the ROIs should be printed to the output. They are stored were the *.npy files are generated
+    #     {"dayvision", "day"}, # the subfolder names that are used for sequence separations
+    #     0.4, # the maximum % of images of a kind that are used as training data
+    #     True, # If any animal should be trained with equal amount of images
+    #     True, # if the images should be shuffled
+    #     123) # the random seed for shuffle. If 0 is chosen the seed is random too. Any other number can be chosen to increase the reproducibility of the experiment
 
     # perform sequenc seperation
     # provider.generate_sequences()
     # perform segmentation
     # provider.segment_sequences()
+
     #get training tuples
     # training_images = provider.get_training_data()
-    # get predict tuples
+    # get test tuples
     # test_images = provider.get_test_data()
     pass
-
-
 
