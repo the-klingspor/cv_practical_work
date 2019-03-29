@@ -2,7 +2,8 @@ import numpy as np
 from sklearn.utils.extmath import randomized_svd
 
 # rpca inspired by shriphani https://github.com/shriphani/robust_pcp/blob/master/robust_pcp.py
-
+"""Background-foreground with PCA and low-rank approximation:
+ Sufian Zaabalawi"""
 MAX_ITERS = 1000
 TOL = 1.0e-7
 

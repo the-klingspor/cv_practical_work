@@ -9,6 +9,9 @@ from sklearn.neighbors import KNeighborsClassifier
 from functools import reduce
 import pickle
 
+"""Sliding-Windows using Principle component analysis author:
+ Sufian Zaabalawi"""
+
 target_names = ['deer', 'badger', 'empty']
 patch_size = (100, 100)
 vec_patch_size = reduce((lambda x, y: x * y), patch_size)
@@ -32,7 +35,7 @@ def slidingWindows(image, w, h, stepSize=None):
         factor = factor - 0.1
 
 
-def localisation(clf, pca, im, target=''):
+def localisation(knn, pca, im, target=''):
     im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     fig, ax = plt.subplots(1)
     roi = []
@@ -43,9 +46,9 @@ def localisation(clf, pca, im, target=''):
         proj = pca.transform(np.reshape(rescalePatch(image), (vec_patch_size)).reshape(1, -1))
 
         # Finde den nächsten Nachbarn zwischen den projizierten Trainingsbildern Y und proj
-        prediction = clf.predict(proj.reshape(1, -1))[0]
-        p = (np.amax(clf.predict_proba(proj.reshape(1, -1))))
-        dist = clf.kneighbors(proj.reshape(1, -1), n_neighbors=1, return_distance=True)[0][0][0]
+        prediction = knn.predict(proj.reshape(1, -1))[0]
+        p = (np.amax(knn.predict_proba(proj.reshape(1, -1))))
+        dist = knn.kneighbors(proj.reshape(1, -1), n_neighbors=1, return_distance=True)[0][0][0]
         if target == target_names[prediction] and p == 1.0 and closest_distance > dist or closest_distance is -1:
             closest_distance = dist
             roi.append((x, y, w, h))
@@ -99,12 +102,12 @@ def showPCA(reduced_data, cluster=5):
     plt.show()
 
 
-def mergeRois(rio):
+def mergeRois(roi):
     x = 0
     y = 0
     xEnd = 0
     yEnd = 0
-    for i, j, k, l in rio:
+    for i, j, k, l in roi:
         if i < x or x == 0:
             x = i
         if j < y or y == 0:
@@ -154,7 +157,7 @@ if __name__ == '__main__':
     knn, pca = TrainingsPhase()
 
     # Phase II: Lokalisirung Testen
-    images = ['image', 'image..']
-    for path in images:
+    imagesPaths = ['image', 'image..']
+    for path in imagesPaths:
         image = plt.imread(path)[33:1465, :, :]  # Crop header and footer with 33, 1465 respectively
         localisation(knn, pca, image, 'deer')  # possible labels ['deer', 'badger', 'empty']
