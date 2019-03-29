@@ -1,13 +1,54 @@
 %!TEX root = ../ausarbeitung.tex
 \section*{Anleitung}
 \addcontentsline{toc}{section}{Anleitung}
-Im folgendem wird eine kurze Anleitung zur Verwendung des Programms gegeben.
+Im folgendem wird eine kurze Anleitung zur Verwendung der in dieser Arbeit implementierten Programms gegeben. Aufgrund des Umfangs kann nicht auf alle spezifischen Parameter und Optionen eingegangen werden. Daher ist diese Anleitung eher als ein \emph{Quick Start Guide} zu betrachten. Weiter Details können aber gegebenenfalls der Code Dokumentation entnommen werden
 \subsection*{Systemvoraussetzungen}
 Zur Verwendung des Codes wird eine Python 3.6-Umgebung vorausgesetzt. Die Installation von Python 3.6 wird auf der offiziellen Homepage beschrieben \url{https://www.python.org/}. Des Weiteren wird zur Sequenzierung das ExifTool von Phil Harvey in Version 11.33 verwendet. Die Installation für verschiedene Betriebssysteme wird auf der entsprechenden Homepage beschrieben \url{http://www.sno.phy.queensu.ca/~phil/exiftool/}. Zusätzlich müssen die folgenden Python-Pakete installiert sein: Matplotlib (Version 3.0.2), Numpy (Version 1.15.4), Scipy (1.2.1),  OpenCV mit \texttt{opencv-contrib-python} (Version 3.4.2.17), python-dateutil (Version 2.7.5), Scikit-image (Version 0.14.2), Scikit-learn (Version 0.20.2) und Numba (Version 0.43.0).
-
 \subsection*{Sequenzierung}
-\subsection*{PCA}
+Die Sequenzierung der Bilddatenbank kann auf zwei Varianten durchgeführt werden. Zum einen über die DATAPROVIDER oder über die einfachere und Benutzerfreundliche Variante mit GUI. Dazu muss das Pythonskript  \emph{camera\_trap\_sequencer.py} ausgeführt werden, das im Verzeichnis \emph{src/sequences} zu finden ist. Die GUI ist in Abbildung~\ref{fig:SequencerGUI} gezeigt.
+Einzelschritte:
+Vorbedingung: Es existiert ein Ordner der alle zu bearbeiten Tierbilder nach Tierart sortiert in Ordnern besitzt (<data folder>)
+\begin{enumerate}
+\item Starte \emph{camera\_trap\_sequencer.py}
+\item Selektiere Input type: Directory und Move method: Copy
+\item Wähle das Input Directory als <data folder>
+\item Wähle einen \textbf{leeren} Ordner als Output Directory
+\item Klicke auf Order Sequences
+\end{enumerate}
+Je nach Anzahl der Bilder dauert dieser Prozess einen Moment, da unter Umständen eine große Datenmenge bearbeitet werden muss.
+
+\subsection*{Lokalisierung}
+Nach der Sequenzierung der Bilderdatenbank könnten die Sequenzen mit \textit{Hintergrund-Subtraktion} und \textit{Hintergrundapproximation} lokalisiert bzw. segmentiert werden. Dafür kann die Methode \textit{``segment''} in der Klasse \textit{``segment.py''} verwendet werden.
+Die Parametern sind der Pfad des Überordners, der alle Unterordner der Sequenzen enthält, die ``label'' von jeweiligen Tier und der Ausgabepfad von den Segmentierten Bildern.\\\\
+Für die Lokalisierung mit \textit{Sliding-Windows} und PCA-Klassifikator man kann die Methode \textit{``TrainingsPhase''} in der Klasse \textit{``pca\_knn.py''} anpassen, um die Pfade von den Schnittbildern festzulegen. Die Schnittbilder sollen möglichst quadratisch sein und müssen das Tier enthalten. Defaultmäßig wird das trainierte \textit{``pca.sav und knn.sav''} Model geladen. Anschließend kann das gesuchte Tier in den Bildern mithilfe der Methode \textit{``localisation''} gefunden und ausgegeben werden. Analog kann die Lokalisierung mit \textit{Sliding-Windows} und HOG-Klassifikator in der Klasse \textit{``hog\_svm.py''} verwendet werden.
+
 \subsection*{Klassifizierung mit HOG}
+Zur Klassifizierung mit HOG muss wie in REFF ZU PCA beschrieben bereits die Segmentierung erfolgreich durchlaufen sein. Insbesondere werden die gespeicherten Numpy Arrays benötigt, welche die Dateipfade, ROIs und Labels enthalten.
+
+Trainieren des Klassifikators:
+
+
+\begin{lstlisting}
+provider = DataProvider("/home/tp/Downloads/CVSequences/data",
+                         "/home/tp/Downloads/CVSequences/sequ",
+                         "/home/tp/Downloads/CVSequences/npy",
+                         True,
+                         {"dayvision", "day", "nightvision", "night"},  # the subfoldernames that are used for sequence separations
+                         0.66,  # the maximum % of images of a kind that are used as training data
+                         True,  # If any animal should be trained with equal amount of images
+                         True,  # if the images should be shuffled
+                          0) # the random seed to shuffle the data. Choose a vlaue > 0 to create a reproducable shuffle
+
+provider.generate_sequences()
+provider.segment_sequences()
+
+classifier = HogClassifier()
+classifier.train(provider.get_training_data(), False, True)
+classifier.test(provider.get_test_data())
+\end{lstlisting}
+
+
+
 \subsection*{SPM}
 
 
