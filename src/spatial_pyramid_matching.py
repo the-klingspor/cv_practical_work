@@ -24,11 +24,9 @@ def call_DDD_sift_pipeline():
     :author: Joschka Strüber
     """
     print("Calling SIFT pipeline on the DDD.")
-    seq_data_dir = DIR_DDD_SEQUENCES
-    segment_data_dir = DIR_DDD_SEGMENTS
     provider = DataProvider(image_data_dir=None,
-                            sequences_data_dir=seq_data_dir,
-                            segments_dir=segment_data_dir,
+                            sequences_data_dir=DIR_DDD_SEQUENCES,
+                            segments_dir=DIR_DDD_SEGMENTS,
                             show_images_with_roi=True,
                             folder_names_to_process=None,
                             max_training_data_percentage=0.7,
@@ -94,11 +92,9 @@ def call_DDD_lbp_pipeline():
     :author: Joschka Strüber
     """
     print("Calling LBP pipeline on the DDD.")
-    seq_data_dir = DIR_DDD_SEQUENCES
-    segment_data_dir = DIR_DDD_SEGMENTS
     provider = DataProvider(image_data_dir=None,
-                            sequences_data_dir=seq_data_dir,
-                            segments_dir=segment_data_dir,
+                            sequences_data_dir=DIR_DDD_SEQUENCES,
+                            segments_dir=DIR_DDD_SEGMENTS,
                             show_images_with_roi=True,
                             folder_names_to_process=None,
                             max_training_data_percentage=0.7,
@@ -164,18 +160,16 @@ def call_DDD_plus_sift_pipeline():
     :author: Joschka Strüber
     """
     print("Calling SIFT pipeline on the DDD+.")
-    seq_data_dir = "/home/joschi/Documents/DDD+_seqs"
-    segment_data_dir = "/home/joschi/Documents/DDD+_segs"
     provider = DataProvider(image_data_dir=None,
-                            sequences_data_dir=seq_data_dir,
-                            segments_dir=segment_data_dir,
+                            sequences_data_dir=DIR_DDD_PLUS_SEQUENCES,
+                            segments_dir=DIR_DDD_PLUS_SEGMENTS,
                             show_images_with_roi=True,
                             folder_names_to_process=None,
                             max_training_data_percentage=0.7,
                             train_with_equal_image_amount=False,
                             shuffle_data=True,
                             seed=0)
-    # provider.segment_sequences()
+    provider.segment_sequences()
     labeled_data = provider.get_data_list()
     X, y, label_map = split_data_labels(labeled_data)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
@@ -232,11 +226,9 @@ def call_DDD_plus_sift_lbp_pipeline():
     :author: Joschka Strüber
     """
     print("Calling LBP/SIFT pipeline on the DDD+.")
-    seq_data_dir = "/home/joschi/Documents/DDD+_seqs"
-    segment_data_dir = "/home/joschi/Documents/DDD+_segs"
     provider = DataProvider(image_data_dir=None,
-                            sequences_data_dir=seq_data_dir,
-                            segments_dir=segment_data_dir,
+                            sequences_data_dir=DIR_DDD_PLUS_SEQUENCES,
+                            segments_dir=DIR_DDD_PLUS_SEGMENTS,
                             show_images_with_roi=True,
                             folder_names_to_process=None,
                             max_training_data_percentage=0.7,
@@ -307,7 +299,8 @@ if __name__ == '__main__':
     possible.
     
     The images are expected to be already ordered in sequences in the
-    SEQ_DATA_DIR. For this you can use the "Camera Trap Sequencer" for example.
+    directories DIR_DDD_SEQUENCES and DIR_DDD_PLUS_SEQUENCES. For this you can 
+    use the "Camera Trap Sequencer" for example.
     
     :author: Joschka Strüber
     """
@@ -316,6 +309,6 @@ if __name__ == '__main__':
 
     call_DDD_lbp_pipeline()
 
-    call_DDD_plus_sift_lbp_pipeline()
-
     call_DDD_plus_sift_pipeline()
+    
+    call_DDD_plus_sift_lbp_pipeline()
