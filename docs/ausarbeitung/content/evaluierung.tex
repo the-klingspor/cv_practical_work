@@ -21,7 +21,69 @@
 -hauptproblem: lösung des gleichungssystems
 -ausblick: umsetzung mit tensorflow
 
-\subsection{Güte der Klassifizierungstechniken}
+\subsection{Experimentelle Optimierung und Auswertung SVM mit HOG} \label{sec:HOG_parameter_and_results}
+In diesem Kapitel wird die experimentelle Bestimmung der besten Parameter für den HOG-Deskriptor und die SVM behandelt. Für diesen Teil wurden die Tagesbilder von Dachs und Damhirsch verwendet.
+
+
+\subsubsection{Arten der Testdaten} \label{sssec:test_data_HOG}
+Der HOG-Klassifizierer wurde auf einer Datenbank mit bereits bestimmten ROIs verwendet. In ersten Experimenten und zur optimalen Parameterbestimmung wurden Daten mit manuell selektierten ROIs verwendet. Dies wurde getan, um einen möglichen Fehler durch die automatische ROI-Selektion mit PCA auszuschließen. Später wurde die SVM jedoch mit automatisch selektierten ROIs trainiert und klassifiziert.\\ 
+Da der Datensatz der Dachsbilder sehr gering war, wurde versucht die Trainingsdatenmenge durch vertikale Spiegelung der Bilddaten künstlich zu erhöhen. Auf zehn Testläufen wurde eine geringe Verbesserung der Ergebnisse bestimmt. Auch wenn diese Erhöhung nicht signifikant war und in seltenen Fällen eine Reduktion der Präzision verursachte, wurde die künstliche Testdatenerhöhung für alle Tests im folgenden Teil angewandt. 
+
+Ein weiteres Problem der geringen Menge der Daten für den Dachs war, dass bei prozentualer Selektion der Trainingsdaten der Großteil aus Damhirschbildern bestand. Wurde die SVM mit dieser unausgewogenen Verteilung der Tierklassen trainiert, konnte die SVM fast nur noch Damhirsche erkennen. Die Erkennungsrate für Dachse lag dabei bei unter 50~\%. Dieses Problem wurde dadurch gelöst, dass darauf geachtet wurde gleich große Mengen an Trainingsdaten zu verwenden. Durch diese Maßnahme wurde die Präzision mit geeigneten Parametern auf durchschnittlich über 90~\% erhöhen. In der Zukunft scheint auch eine Verwendung des Parameters \texttt{class\_weight="balanced"} sinnvoll, um bessere Ergebnisse auf ungleichmäßig verteilten Datenmengen zu erreichen.
+
+\subsubsection{Parameterbestimmung HOG-Deskriptor und Support Vector Machines} \label{sssec:HOG:parmeter}
+Zwei der wichtigsten Parameter des HOG-Deskriptors sind die Größe des betrachteten Bildausschnittes und die Einteilung in Zellen, denn diese Größen bestimmen zum einem die benötigte Rechenzeit und zum anderem wie viele Details des Bildausschnittes regional aufgelöst werden. Außerdem ergibt sich aus dieser Kombination die Dimension des Ergebnisvektors. Dieser hat wiederum Einfluss auf den Rechenaufwand der SVM. Ziel der ersten Parameterfindung war es, die Präzision der Klassifizierung zu maximieren. Dabei wurde besonders darauf geachtet, dass die Präzision für beide trainierten Klassen maximal wurde. Dazu wurden die folgenden Bildausschnittgrößen betrachtet: 64 $\times$ 128, 128  $\times$ 256, 64 $\times$ 64, 128 $\times$ 128, 128 $\times$ 64 und 256 $\times$ 128 Pixel². Jede dieser Größen wurde mit einer Zellgröße von 16 $\times$ 16 und 32 $\times$ 32 Pixeln getestet. Für die Blockgröße wurde jeweils die Kombination aus 4 Zellen verwendet. Die Ergebnisse sind in Tabelle~\ref{tab:HOG_parameter_selection} gezeigt.  
+Ebenfalls wurde versucht die Parameter der SVM zu optimieren. Dazu wurde die \textit{trainAuto} Methode von OpenCV verwendet. Die besten Parameter waren für die Kostenfunktion $C=12,5$ und $\gamma=0,50625$. Diese Werte liegen sehr nah an den Standardwerten ($C=12$ und $\gamma=0,5$) für die SVM, sodass keine nennenswerten Änderungen an den Werten aus Tabelle~\ref{tab:HOG_parameter_selection} bestimmt werden konnten.
+
+\begin{table}[]
+	\centering
+	\caption{Präzision der Klassifizierung abhängig von der Bildausschnittgröße und der Zellgröße. Es werden aus 50 zufällig generierten Trainings- und Testdatenreihenfolgen die jeweils erreichte durchschnittliche Präzision $\overline{p}$, die minimale sowie maximale erhaltene Präzision ($p_{min}, p_{max}$) und die Standardabweichung $\sigma$ angegeben. }
+	\label{tab:HOG_parameter_selection}
+	\begin{tabular}{cl}
+		\hline
+		\textbf{Ausschnitt [Pixel²]} & \multicolumn{1}{c}{\textbf{Zellgröße 16 $\times$ 16}}                                                                                                                                                  \\ \hline
+		\textbf{64 $\times$ 128}                         & \begin{tabular}[c]{@{}l@{}}Dachs: $\overline{p}= 0.913, p_{min}=0.750, p_{max}=1.000, \sigma=0.062$ \\ Damhirsch: $\overline{p}=0.914, p_{min}=0.831, p_{max}=0.987, \sigma=0.034$\end{tabular} \\
+		\textbf{128 $\times$ 256}                      & \begin{tabular}[c]{@{}l@{}}Dachs: $\overline{p}=0.488, p_{min}=0.167, p_{max}=0.833, \sigma=0.161$ \\ Damhirsch: $\overline{p}=0.996, p_{min}=0.949, p_{max}=1.000, \sigma=0.011$\end{tabular}          \\
+		\textbf{64 $\times$ 64}                           & \begin{tabular}[c]{@{}l@{}}Dachs: $\overline{p}=0.908, p_{min}=0.833, p_{max}=1.000, \sigma=0.045 $\\ Damhirsch: $\overline{p}=0.859, p_{min}=0.797, p_{max}=0.916, \sigma=0.035$\end{tabular}          \\
+		\textbf{128 $\times$ 128}                      & \begin{tabular}[c]{@{}l@{}}Dachs: $\overline{p}=0.818, p_{min}=0.500, p_{max}=1.000, \sigma=0.111 $\\ Damhirsch: $\overline{p}=0.951, p_{min}=0.882, p_{max}=0.992, \sigma=0.023$\end{tabular}          \\
+		\textbf{128 $\times$ 64}                        & \begin{tabular}[c]{@{}l@{}}Dachs: $\overline{p}=0.933, p_{min}=0.833, p_{max}=1.000, \sigma=0.050 $\\ Damhirsch: $\overline{p}=0.881, p_{min}=0.709, p_{max}=0.979, \sigma=0.069$\end{tabular}          \\
+		\textbf{256 $\times$ 128}                      & \begin{tabular}[c]{@{}l@{}}Dachs: $\overline{p}=0.675, p_{min}=0.250, p_{max}=1.000, \sigma=0.308 $\\ Damhirsch: $\overline{p}=0.781, p_{min}=0.367, p_{max}=1.000, \sigma=0.249$\end{tabular}          \\ \hline
+		& \\
+		\hline
+		\textbf{Ausschnitt [Pixel²]} & \multicolumn{1}{c}{\textbf{Zellgröße 32 $\times$ 32}}                                                                                                                                                  \\ \hline
+		\textbf{64 $\times$ 128}                         & \begin{tabular}[c]{@{}l@{}}Dachs: $\overline{p}= 0.875, p_{min}=0.750, p_{max}=1.000, \sigma=0.067$ \\ Damhirsch: $\overline{p}=0.854, p_{min}=0.755, p_{max}=0.907, \sigma=0.044$\end{tabular} \\
+		\textbf{128 $\times$ 256}                      & \begin{tabular}[c]{@{}l@{}}Dachs: $\overline{p}=0.883, p_{min}=0.750, p_{max}=1.000, \sigma=0.076$ \\ Damhirsch: $\overline{p}=0.894, p_{min}=0.810, p_{max}=0.928, \sigma=0.037$\end{tabular}          \\
+		\textbf{64 $\times$ 64}                           & \begin{tabular}[c]{@{}l@{}}Dachs: $\overline{p}=0.975, p_{min}=0.917, p_{max}=1.000, \sigma=0.038 $\\ Damhirsch: $\overline{p}=0.859, p_{min}=0.708, p_{max}=0.574, \sigma=0.072$\end{tabular}          \\
+		\textbf{128 $\times$ 128}                      & \begin{tabular}[c]{@{}l@{}}Dachs: $\overline{p}=0.908, p_{min}=0.667, p_{max}=1.000, \sigma=0.102 $\\ Damhirsch: $\overline{p}=0.840, p_{min}=0.705, p_{max}=0.903, \sigma=0.062$\end{tabular}          \\
+		\textbf{128 $\times$ 64}                        & \begin{tabular}[c]{@{}l@{}}Dachs: $\overline{p}=0.967, p_{min}=0.917, p_{max}=1.000, \sigma=0.041 $\\ Damhirsch: $\overline{p}=0.834, p_{min}=0.776, p_{max}=0.932, \sigma=0.045$\end{tabular}          \\
+		\textbf{256 $\times$ 128}                      & \begin{tabular}[c]{@{}l@{}}Dachs: $\overline{p}=0.892, p_{min}=0.833, p_{max}=1.000, \sigma=0.075 $\\ Damhirsch: $\overline{p}=0.867, p_{min}=0.797, p_{max}=1.000, \sigma=0.954$\end{tabular}          \\ \hline
+	\end{tabular}
+\end{table}
+
+In den gezeigten Tabellen wird deutlich, dass die Präzision für die beiden Zellgrößen in einem ähnlichem Genauigkeitsbereich liegt. Jedoch scheint eine größere Zellgröße etwas besser geeignet, um Dachse zu erkennen, und etwas schlechter geeignet, um Damhirsche zu erkennen. Die besten Ergebnisse wurden für die Kombination aus einer Bildauschnittgröße von 64 $\times$ 128 Pixel² und einer Zellgröße von 16 $\times$ 16 Pixel² erhalten. Dieser Wert entspricht den üblichen Standardwerten für die Fußgängerdetektion in OpenCV. Für die Tierdetektion ist dieses Ergebnis überraschend, da die Seitenverhältnisse der betrachteten Tiere eher 1:1 bzw. 1:2 entsprechen. Eine Begründung für diese Abweichung kann an dieser Stelle nicht gegeben werden. 
+
+Im folgenden werden Experimente nur noch mit den hier gefundenen optimalen Parametern durchgeführt.
+
+\subsubsection{Ergebnisse}
+Die in Kapitel~\ref{sssec:HOG:parmeter} bestimmten optimalen Parameter wurden mit denen durch PCA ermittelten ROIs und der künstlichen Erhöhung der Testdaten getestet. Die in Tabelle~\ref{tab:HOG:ResultsAuto} gezeigten Ergebnisse stammen aus 50 Tests mit den selben Daten, aber einer zufälligen Unterteilung der Daten in Trainings- und Testdaten. Es ist zu erkennen, das die Präzision etwas geringer ist, als mit den manuell ausgewerteten ROIs. Dies war zu erwarten, weil die automatische Bestimmung der ROIs mit PCA kleine Fehler enthält. Der Vorteil dieser Variante ist dennoch die automatische ROI-Selektion und damit eine deutliche Aufwandsreduktion für den Benutzer. 
+
+\begin{table}[]
+	\centering
+	\caption{Präzision des Klassifizierers der sowohl mit den aus PCA stammenden ROIs trainiert und getestet wurde. Es werden aus 50 zufällig generierten Trainings- und Testdatenreihenfolgen die jeweils erreichte durchschnittliche Präzision $\overline{p}$, die minimale sowie maximale erhaltene Präzision ($p_{min}, p_{max}$) und die Standardabweichung $\sigma$ angegeben. }
+	\label{tab:HOG:ResultsAuto}
+	\begin{tabular}{cl}
+		\hline
+		\textbf{Tiergattung} 	       & \multicolumn{1}{c}{\textbf{Präzision}}                                                                                                                                                  \\ \hline
+		\textbf{Dachs}                         &$\overline{p}= 0.859, p_{min}=0.761, p_{max}=0.957, \sigma=0.052$ \\
+		\textbf{Damhirsch}                &$\overline{p}=0.833, p_{min}=0.763, p_{max}=0.930, \sigma=0.032$ \\
+		\hline
+	\end{tabular}
+\end{table}
+
+Experimentell wurde der HOG-Klassifizierer auch auf eine Datenbank mit Bildern von Damhirsch, Dachs, Wildschein und Schaf angewendet. Mit Erhöhung der Datenklassen sank die Güte der Ergebnisse auf den jeweiligen Klassen deutlich. Die Präzision lag üblicherweise unter 70~\%, für Dachse sogar unter 50~\%. Deshalb halten wir diese Technik ungeeignet für größere und kompliziertere Klassifizierungsprobleme und haben sie nicht weiter auf der DDD+ evaluiert.
+
+\subsection{Güte der Klassifizierungstechnike}
+
 
 -HOG: auf DDD und DDD+
 -SPM:

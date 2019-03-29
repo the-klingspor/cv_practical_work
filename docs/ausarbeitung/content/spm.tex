@@ -31,7 +31,7 @@ Wang et al. haben festgestellt, dass für eine optimale Zuordnung zum Codebook S
 \begin{figure}
 	\centering
 	\includegraphics[scale=0.5]{img/quant_comp.png}
-	\caption{Vergleich der drei Kodierungsstrategien Vector Quantization, Sparse Coding und Locality-constrained linear Coding \cite{wyylhg10}.}
+	\caption{Vergleich der drei Kodierungsstrategien Vector Quantization, Sparse Coding und Locality-constrained Linear Coding \cite{wyylhg10}.}
 	\label{img:quant_comp}
 \end{figure}
 
@@ -104,6 +104,7 @@ Die Klasse \texttt{FeatureExtraction} ermöglicht das Berechnen von Featuremenge
 Den Kern unseres Verfahrens bildet die Klasse \texttt{LlcSpatialPyramidEncoder}, der über die \texttt{encode}-Methode Features mit LLC kodieren kann. Zuerst wird mithilfe von Scikit-learns \texttt{MiniBatchKMeans} ein Codebook über einer Menge von Features trainiert, die auf der Datenbank der Bilder zufällig bestimmt wurden \cite{sklearn}. Anschließend wurde der Algorithmus aus Abschnitt \ref{sec:llc} mit \enquote{Numpy} umgesetzt. Leider hat sich die Laufzeit der Kodierung als problematisch herausgestellt (siehe Kapitel~\ref{sec:eval}), weshalb der ursprünglich sequentielle Algorithmus in klassischem Python mehrmals optimiert wurde. Die Hilfsfunktionen der Klasse wurden in das Modul \texttt{llc\_optimization} ausgelagert und mit \enquote{Numba} annotiert \cite{numba}. Numba bietet die Möglichkeit Pythonfunktionen, die lediglich die Standardbibliothek und Numpy verwenden, mit sogenannten \emph{Decorators} zu markieren. Bei der Ausführung des Programms werden diese Funktionen mit Hilfe des LLVM-Compilers in Echtzeit kompiliert, was in einer deutlich schnelleren Laufzeit im Vergleich zu interpretiertem Code resultiert. 
 
 \subsubsection{Scikit-learn SPM-Transformer und LinearSVC}
+\label{sec:llc}
 
 Alle obigen Funktionen wurden in der Klasse \texttt{SpmTransformer} zusammengefasst. Diese implementiert als Unterklasse von Scikit-learns \texttt{BaseEstimator} die Methoden \texttt{fit} und \texttt{transform}, wodurch sich das LLC-Verfahren problemlos in Scikit-learns \emph{Pipelines} integrieren lässt \cite{sklearn}. Das ermöglicht einem spielend leicht die Kombination mit Klassifizierern, Ensemblemethoden und Modelselektionsverfahren der Bibliothek. \\
-Abschließend wurde in dem Modul \texttt{spatial\_pyramid\_matching} das komplette Verfahren von der Segmentierung, über Locality-constrained linear Coding bis zur Klassifizierung mit Scikit-learns \texttt{LinearSVC} auf zwei verschiedenen Datenbanken umgesetzt.
+Abschließend wurde in dem Modul \texttt{spatial\_pyramid\_matching} das komplette Verfahren von der Segmentierung, über Locality-constrained Linear Coding bis zur Klassifizierung mit Scikit-learns \texttt{LinearSVC} auf zwei verschiedenen Datenbanken umgesetzt. \texttt{LinearSVC} setzt glücklicherweise bereits alle unsere Anforderungen bezüglich des Kernels, der Loss-Funktion und der Strategie für nicht-binäre Klassifikation um. Um der unbalancierten Datenlage Genüge zu leisten, setzen wir den Parameter \texttt{class\_weight="balanced"}. Das sorgt dafür, dass der Strafterm \texttt{C} reziprok zum Anteil der Label jeder Klasse modifiziert wird.

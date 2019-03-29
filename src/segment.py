@@ -7,7 +7,8 @@ from matplotlib import pyplot as plt
 from scipy import ndimage as sci
 from skimage import exposure as eq
 from src.background_separation import foreground
-
+"""Localization and Segmentation using Background-foreground with PCA and low-rank approximation:
+ Sufian Zaabalawi"""
 
 def segment(path, label, root_out_path='C:\\Users\Sufian\Downloads\data\DDD\out\\'):
     data = dict()
