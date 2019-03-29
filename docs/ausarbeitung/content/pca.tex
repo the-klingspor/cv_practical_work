@@ -1,10 +1,10 @@
 %!TEX root = ../ausarbeitung.tex
 \section{ Lokalisierung mit Principal Components Analysis (PCA)} \label{sec:PCA}
 Die automatische Lokalisierung von Objekten in digitalen Bildern ist ein wesentlicher Bestandteil vieler Anwendungen. 
-Für das Lokalisierungsproblem in dieser Arbeit bietet sich die Verwendung der Methoden \textit{Hintergrund-Subtraktion} und \textit{Sliding-Window} mit PCA an.
+Für das Lokalisierungsproblem in dieser Arbeit bietet sich die Verwendung der Methoden \textit{Hintergrund-Subtraktion} und \textit{Sliding-Window} mit \emph{Principal Components Analysis} (PCA) an.
 
 \subsection{Hintergrundapproximation mit PCA}
-Um Bewegungen in Bildsequenzen erkennen zu können, wird in der Praxis sehr häufig das Verfahren der \textit{Hintergrund-Subtraktion} angewandt. Dabei handelt es sich um ein klassisches Verfahren aus dem Bereich der Bilderkennung. Das Hintergrundbild kann mithilfe von PCA approximiert werden. Anschließend wird das Vordergrundbild über die Differenz zum Hintergrundbild extrahiert. PCA, oder auch Hauptkomponentenanalyse, ist ein statistisches Verfahren um große Mengen von Datensätzen zu vereinfachen und zu strukturieren, indem die Datenpunkte im $p$-dimensionalen Raum $R^p$ in einen $q$-dimensionalen Unterraum ${R} ^{q}$ mit ($q<p$) projiziert werden. Diese Transformation muss dabei so gewählt werden, dass möglichst wenig Information verloren geht \cite{Verbeke2007APT}.
+Um Bewegungen in Bildsequenzen erkennen zu können, wird in der Praxis sehr häufig das Verfahren der \textit{Hintergrund-Subtraktion} angewendet. Dabei handelt es sich um eine klassische Technik aus dem Bereich der Bilderkennung. Das Hintergrundbild kann mithilfe von PCA approximiert werden. Anschließend wird das Vordergrundbild über die Differenz zum Hintergrundbild extrahiert. PCA, oder auch Hauptkomponentenanalyse, ist ein statistisches Verfahren um große Mengen von Datensätzen zu vereinfachen und zu strukturieren, indem die Datenpunkte im $p$-dimensionalen Raum $\RR^p$ in einen $q$-dimensionalen Unterraum $\RR^{q}$ mit ($q<p$) projiziert werden. Diese Transformation muss dabei so gewählt werden, dass möglichst wenige Informationen verloren gehen \cite{Verbeke2007APT}.
 Grundsätzlich benutzt PCA die \textit{Niedrigrangapproximation}. Damit kann eine Matrix durch eine andere Matrix im allgemeinen Rang angenähert werden. Sei eine Matrix $A$ mit $Rang(A) = r$ und $r > k$:
 \begin{equation}
 \min_{rang(A)=k}||A-B||_2 
@@ -17,12 +17,12 @@ Somit kann ein Hintergrundbild aus einer Sequenz von Bildern wie folgt approximi
 \begin{itemize}
 \item{Berechne Singulärwertzerlegung aller Bildern von Sequenz $X$:}
 \begin{equation}
-SVD(X)= C = U \Sigma V^T
+\mathbf{SVD}(X)= C = U \Sigma V^T
 \end{equation}
-\item{Leite die Matrix ${\Sigma_k}$ von ${\Sigma}$ her, sodass die Werte ${n - k}$  entlang der Diagonale durch 0 ersetzt werden.}
+\item{Leite die Matrix ${\Sigma_k}$ von ${\Sigma}$ her, indem die Werte ${n - k}$  entlang der Diagonalen durch 0 ersetzt werden.}
 \item{Dies ergibt die Niedrigrangapproximation von Matrix $X$:}
 \begin{equation}
-SVD(X)_k=C_k = U\Sigma_kV^T \quad\quad mit  \quad  \Sigma_k = diag(\sigma_1, ..., \sigma_k,0,...,0)
+\mathbf{SVD}(X)_k=C_k = U\Sigma_kV^T \quad\quad mit  \quad  \Sigma_k = diag(\sigma_1, ..., \sigma_k,0,...,0)
 \end{equation}
 \end{itemize}
 
@@ -50,29 +50,33 @@ SVD(X)_k=C_k = U\Sigma_kV^T \quad\quad mit  \quad  \Sigma_k = diag(\sigma_1, ...
 
 \end{center}
 
-\noindent Anschließend kann das Vordergrundbild durch die klassische \textit{Hintergrund-Subtraktion} extrahiert werden (Abbildung~\ref{fig:foreground}).
+\noindent Anschließend kann das Vordergrundbild durch die klassische \textit{Hintergrundsubtraktion} extrahiert werden (Abbildung~\ref{fig:foreground}).
 
 \begin{center}
 \begin{tabular}{c}
 \includegraphics[trim={0, 4cm, 0 ,5cm},clip=ture,width=11cm]{img/Segmentierung/foreground-image}
 \end{tabular}
-\captionof{figure}{Das Vordergrundbild $S$ ergibt sich durch die Subtraktion des approximierten Hintergrundbildes $L$.}
+\captionof{figure}{Das Vordergrundbild $S$ ergibt sich durch die Subtraktion des approximierten Hintergrundbildes $L$ vom Eingabebild $M$.}
 \label{fig:foreground}
 \end{center}
-\noindent Zum Nachbearbeitung des Vordergrundes gehört eine Vielzahl von Operationen 
+\noindent Zur Nachbearbeitung des Vordergrundes gehört eine Vielzahl von Operationen 
 z.B. \textit{morphologische Operationen, Thresholding} und \textit{Filterung}.
-Damit können kleinere Bildstrukturen und Rauschen entfernt, vergrößert, geschlossen oder aufgefüllt werden. Jedoch können diese Operationen zu einer Veränderung der Größe der Vordergrundelemente führen, was bei der Lokalisierung des Elements aber keinen Störfaktor ist. Durch Kombination der Operationen in einer bestimmten Reihenfolge kann eine Größenveränderung verhindert und dennoch die Vorteile der Operationen genutzt werden. Durch \textit{Opening} werden zunächst kleine Strukturen bzw. Rauschen, welches zum Hintergrund gehört, entfernt. Danach werden kleine Löcher innerhalb der Vordergrundelemente durch \textit{Closing} geschlossen. In (Abbildung~\ref{fig:pipe}) ist eine Kombination dieser  Pipeline zur Nachbearbeitung des Vordergrundes benutzt worden \cite{DBLP:journals/corr/Giraldo-Zuluaga17}.
+Damit können kleinere Bildstrukturen und Rauschen entfernt, vergrößert, geschlossen oder aufgefüllt werden. Jedoch können diese Operationen zu einer Veränderung der Größe der Vordergrundelemente führen, was bei der Lokalisierung des Elements aber kein Störfaktor ist. Durch Kombination der Operationen in einer bestimmten Reihenfolge kann eine Größenveränderung verhindert und dennoch die Vorteile der Operationen genutzt werden. Durch \textit{Opening} werden zunächst kleine Strukturen bzw. Rauschen, welches zum Hintergrund gehört, entfernt. Danach werden kleine Löcher innerhalb der Vordergrundelemente durch \textit{Closing} geschlossen. In (Abbildung~\ref{fig:pipe}) ist die vollständige Pipeline zur Nachbearbeitung des Vordergrundes zu sehen \cite{DBLP:journals/corr/Giraldo-Zuluaga17}.
 \begin{center}
 \begin{tabular}{c}
 \includegraphics[trim={0 3cm 0cm 3cm},clip=true,width=13cm]{img/Segmentierung/pipe.pdf}
 \end{tabular}
-\captionof{figure}{Die Pipeline der Nachbearbeitung des Vordergrundbildes. Durch \textit{Opening} und \textit{Closing} werden kleine Bildstrukturen bzw. Rauschen entfernt und kleine Löcher geschlossen. Die Gauß-Filterung dient in diesem Fall dazu, die Silhouette des Vordergrundelements grob zu vergrößern.}
+\captionof{figure}{Die Pipeline der Nachbearbeitung des Vordergrundbildes. Durch \textit{Opening} und \textit{Closing} werden kleine Bildstrukturen bzw. Rauschen entfernt und kleine Löcher geschlossen. Die Gauß-Filterung dient in diesem Fall dazu, die Silhouette des Vordergrundelements leicht zu vergrößern.}
 \label{fig:pipe}
 \end{center}
+
+Bei Tierbildern kommt es häufig vor, dass sich auf einem einzigen Bild mehrere Tiere befinden. Für ein gutes Lokalisierungsverfahren ist es in diesem Kontext deshalb unerlässlich, dass es mehrere relevante Regionen im gleichen Bild erkennen kann. Im Falle von PCA ist das kein Problem, weil jede Zusammenhangskomponente im Vordergrundbild, die groß genug ist, als eine solche Region gespeichert wird.
+
 \subsection{Sliding-Window Lokalisierung mit PCA}
-Sliding-Window ist eine Brute-Force-Suche über das Bild mit fester Fenstergröße, um Objekte zu finden. Für jedes dieser Fenster wird ein Bildklassifikator angewendet, um zu bestimmen, ob das Fenster ein bekanntes Objekt enthält. In diesem Fall wird PCA als Objekt-Klassifikator angewandt \cite{belhumeur1997eigenfaces}.
+Sliding-Window ist eine Brute-Force-Suche über das Bild mit fester Fenstergröße, um Objekte zu finden. Für jedes dieser Fenster wird ein Bildklassifikator angewendet, um zu bestimmen, ob das Fenster ein bekanntes Objekt enthält. In diesem Fall wird eine auf PCA basierende Technik als Objekt-Klassifikator angewendet \cite{belhumeur1997eigenfaces}.
+
 \subsubsection{Objektdetektion mit PCA}
-Jedes Bild ist ein Punkt in einem hochdimensionalen Raum. Durch das PCA-Verfahren lassen sich die Datenpunkte in einen niederdimensionalen Unterraum abbilden. PCA sucht die ersten $k$-Hauptkomponenten, welche die Daten mit einer maximalen Varianz beschreiben. Damit wird es eine niederdimensionale Darstellung gefunden, bei der die Klassifizierung leichter wird.\\
+Jedes Bild ist ein Punkt in einem hochdimensionalen Raum. Durch das PCA-Verfahren lassen sich die Datenpunkte in einen niederdimensionalen Unterraum abbilden. PCA sucht die ersten $k$-Hauptkomponenten, welche die Daten mit einer maximalen Varianz beschreiben. Damit wird eine niederdimensionale Darstellung gefunden, bei der die Klassifizierung leichter wird.\\
 
 \textbf{Algorithmus}
 \begin{itemize}
@@ -106,7 +110,7 @@ Gegeben ist ein unbekanntes Bild  $M$
 \item{Finde den nächsten Nachbarn zwischen den projizierten Trainingsbildern $\mathbf{Y}$ und dem projizierten Bild $\mathbf{W}$}.
 \end{itemize}
 \end{itemize}
-Die Sliding-Windows laufen das Bild mit unterschiedlichen Fenstergrößen durch. Demnach werden Schnittbilder einzelne mit PCA klassifiziert. Dabei wird der nächste Nachbar der projizierten Schnittbilder gefunden und zugeordnet. Die bunte Rahmen in (Abbildung~\ref{fig:loc}) weisen darauf hin, dass ein Objekt mit einer bestimmten Wahrscheinlichkeit innerhalb jeweiliges Fenster existiert. Anschließend können diese Rahmen miteinander verschmolzen werden um das Tier zu lokalisieren.
+Die Sliding Windows laufen das Bild mit unterschiedlichen Fenstergrößen ab. Dabei werden einzelne Schnittbilder mit PCA klassifiziert, indem der nächste Nachbar der projizierten Schnittbilder gefunden und zugeordnet wird. Der bunte Rahmen in (Abbildung~\ref{fig:loc}) weist darauf hin, dass ein Objekt mit einer bestimmten Wahrscheinlichkeit innerhalb des jeweiligen Fenster existiert. Anschließend können diese Rahmen miteinander verschmolzen werden, um das Tier zu lokalisieren.
 \begin{center}
 \begin{tabular}{c}
 \includegraphics[width=8cm]{img/Segmentierung/localisation}
@@ -116,11 +120,7 @@ Die Sliding-Windows laufen das Bild mit unterschiedlichen Fenstergrößen durch.
 \end{center}
 
 \subsection{Ergebnisse}
-Da keine \textit{Ground-Truth} Bilder für die Evaluierung vorhanden sind, erfolgt die Evaluierung nur über subjektive Beobachtungen. Die Lokalissierungsergebnisse mit \textit{Hintergrund-Subtraktion} und \textit{Hintergrundapproximation} erzielten Präzision über 82 \% auf Damhirsch und Dachs Datensätze. 
-Die Einschränkung für dieses Verfahren ist das, dass die Sequenzen mindestens aus drei Bilder bestehen müssen. Darüber hinaus müssen die Bilder einer Sequenz auch möglichst unterschiedlich voneinander sein. 
-Die Lokalissierungsergebnisse mit \textit{Sliding-Windows} und PCA-Klassifikator erzielten Präzision von 60-65 \% auf Damhirsch und Dachs Datensätze. Da der PCA-Klassifikator hohe Sensibilität für Variationen zwischen den
-Trainingsbildern und dem zu klassifizierenden Bild hat, könnte die Anwendung mit Sliding-windows zu Falsch-positiv Klassifikation führen. Gleiche Art und Weise wurde \textit{Sliding-Windows} mit HOG-Klassifikator \textit{(Histograms of Oriented Gradients)} erweitert. In Kapitel~\ref{sec:HOG} wurde HOG-Verfahren  im Detail durchgegangen. Damit erzielten die Lokalissierungsergebnisse Präzision von 80\% auf Damhirsch und Dachs Datensätze.
-
-
-
-
+Da keine \textit{Ground-Truth}-Bilder für die Evaluierung vorhanden sind, erfolgt die Evaluierung der Lokalisierungsverfahren nur über subjektive Beobachtungen. Die Ergebnisse der \textit{Hintergrund-Subtraktion} und \textit{Hintergrundapproximation} erzielten eine Präzision von über 82~\% auf den Damhirsch- und Dachsdatensätzen.
+Die Einschränkung für dieses Verfahren ist, dass die Sequenzen aus mindestens drei Bildern bestehen müssen, weil sonst nicht über Bewegung erkannt werden kann, ob ein Pixel zum Vorder- oder Hintergrund gehört. Darüber hinaus müssen die Bilder einer Sequenz auch möglichst unterschiedlich voneinander sein.
+ 
+Die Lokalisierungsergebnisse mit dem \textit{Sliding-Windows}-Verfahren und PCA-Klassifikator erzielten eine Präzision von etwa 60-65~\% auf Damhirsch- und Dachsdatensätzen. Weil der PCA-Klassifikator eine hohe Sensibilität für Variationen zwischen den Trainingsbildern und dem zu klassifizierenden Bild hat, könnte die Anwendung mit Sliding-windows zu False-Positive Klassifikation führen. Deshalb wurde auf die gleiche Art und Weise das \textit{Sliding-Windows}-Verfahren mit einem HOG-Klassifikator \textit{(Histograms of Oriented Gradients)} erweitert. In Kapitel~\ref{sec:HOG} wird das HOG-Verfahren im Detail betrachtet. Mit diesem Verfahren erzielten wir bei der Lokalisierung eine Präzision von 80~\% auf dem Damhirsch- und Dachsdatensatz.
