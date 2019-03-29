@@ -249,3 +249,7 @@ TSWLatexianTemp*
 # Windows-specific files
 [Tt]humbs.db
 [Dd]esktop.ini
+
+!svm.sav
+!pca.sav
+!knn.sav
