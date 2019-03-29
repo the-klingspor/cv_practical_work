@@ -61,12 +61,12 @@ SVD(X)_k=C_k = U\Sigma_kV^T \quad\quad mit  \quad  \Sigma_k = diag(\sigma_1, ...
 \end{center}
 \noindent Zum Nachbearbeitung des Vordergrundes gehört eine Vielzahl von Operationen 
 z.B. \textit{morphologische Operationen, Thresholding} und \textit{Filterung}.
-Damit können kleinere Bildstrukturen und Rauschen entfernt, vergrößert, geschlossen oder aufgefüllt werden. Können jedoch diese Operationen zu einer Veränderung der Größe der Vordergrundelemente führen, was zur Lokalisierung des Elements aber keinen Störfaktor ergibt. Durch Kombination der Operationen in einer bestimmten Reihenfolge kann Größenveränderung verhindert und dennoch die Vorteile der Operationen genutzt werden. Durch \textit{Opening} werden zunächst kleine Strukturen bzw. Rauschen, welches zum Hintergrund gehört, entfernt. Danach werden kleine Löcher innerhalb der Vordergrundelemente durch \textit{Closing} geschlossen. In (Abbildung~\ref{fig:pipe}) ist eine Kombination dieser  Pipeline zur Nachbearbeitung des Vordergrundes benutzt worden.
+Damit können kleinere Bildstrukturen und Rauschen entfernt, vergrößert, geschlossen oder aufgefüllt werden. Jedoch können diese Operationen zu einer Veränderung der Größe der Vordergrundelemente führen, was bei der Lokalisierung des Elements aber keinen Störfaktor ist. Durch Kombination der Operationen in einer bestimmten Reihenfolge kann eine Größenveränderung verhindert und dennoch die Vorteile der Operationen genutzt werden. Durch \textit{Opening} werden zunächst kleine Strukturen bzw. Rauschen, welches zum Hintergrund gehört, entfernt. Danach werden kleine Löcher innerhalb der Vordergrundelemente durch \textit{Closing} geschlossen. In (Abbildung~\ref{fig:pipe}) ist eine Kombination dieser  Pipeline zur Nachbearbeitung des Vordergrundes benutzt worden.
 \begin{center}
 \begin{tabular}{c}
 \includegraphics[trim={0 3cm 0cm 3cm},clip=true,width=13cm]{img/Segmentierung/pipe.pdf}
 \end{tabular}
-\captionof{figure}{Die Pipeline der Nachbearbeitung des Vordergrundbildes. Durch \textit{Opening} und \textit{Closing} werden kleine Bildstrukturen bzw. Rauschen entfernt und kleine Löcher geschlossen werden. Die Gauß-Filterung dient in diesem Fall dazu, die Silhouette des Vordergrundelements grob zu vergrößern.}
+\captionof{figure}{Die Pipeline der Nachbearbeitung des Vordergrundbildes. Durch \textit{Opening} und \textit{Closing} werden kleine Bildstrukturen bzw. Rauschen entfernt und kleine Löcher geschlossen. Die Gauß-Filterung dient in diesem Fall dazu, die Silhouette des Vordergrundelements grob zu vergrößern.}
 \label{fig:pipe}
 \end{center}
 \subsection{Sliding-Window Lokalisierung mit PCA}
