@@ -9,9 +9,8 @@ Unglücklicherweise sind die Daten auf der Datenbank lediglich nach Tierart sowi
 
 Unser Algorithmus sammelt zunächst die Metadaten aller aufzuteilenden Bilder in einer Liste. Diese Liste wird primär nach Seriennummer der Kamera und sekundär nach Aufnahmezeitpunkt sortiert. Sollte es zwischen zwei benachbarten Bildern in der Liste zu einem Wechsel der Seriennummer kommen, so wissen wir, dass eine neue Sequenz beginnt. Ebenso gilt das für zwei Bilder, die von derselben Kamera aufgenommen wurden, deren Aufnahmezeitpunkte sich jedoch um mehr als ein paar Sekunden unterscheiden. Diese beiden Situationen markieren den Wechsel einer Sequenz anhand der wir unterscheiden können, welche Bilder zusammenhängen.
 
-Leider gehört die Seriennummer nicht zu den ursprünglichen Exif-Metadaten. Stattdessen wird sie in die sogenannten \emph{Maker Notes} geschrieben, einem freien Datenfeld, dass die Kamerahersteller für ihre Zwecke benutzen können. Aktuell gibt es keine uns bekannte Python-Bibliothek, die das Maker-Note-Feld auslesen kann. Aus diesem Grund waren wir gezwungen die Perl-Bibliothek \enquote{ExifTool} \cite{exif} zu benutzen und auf sie mit Hilfe einer Python-Schnittstelle zuzugreifen.
-
-Zugegebenermaßen ist die Verwendung der Metadaten nicht der eleganteste Weg Sequenzen zu bestimmen. Sie hat aber - anders als das Auslesen und Abgleichen der Pixel aus der linken oberen Ecke des Bildes - den Vorteil unabhängig vom Kamerahersteller und -modell zu sein und ist sehr effizient.
+Leider gehört die Seriennummer nicht zu den ursprünglichen Exif-Metadaten. Stattdessen wird sie in die sogenannten \emph{Maker Notes} geschrieben, einem freien Datenfeld, das die Kamerahersteller für ihre Zwecke benutzen können. Aktuell gibt es keine Python-Bibliothek, die das Maker-Note-Feld auslesen kann. Aus diesem Grund waren wir gezwungen die Perl-Bibliothek \enquote{ExifTool} \cite{exif} zu benutzen und auf sie mit Hilfe einer Python-Schnittstelle zuzugreifen. \\
+Die Verwendung der Metadaten hat - anders als das Auslesen und Abgleichen der Pixel aus der linken oberen Ecke des Bildes - den Vorteil unabhängig vom Kamerahersteller und -modell zu sein und ist sehr effizient.
 
 \begin{figure}
 	\centering

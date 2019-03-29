@@ -1,7 +1,6 @@
 %!TEX root = ../ausarbeitung.tex
 \section{Klassifizierung mit Histograms of Gradients und Support Vector Machines} \label{sec:HOG}
 
-
 \subsection{Einführung zu Histograms of Oriented Gradients} \label{ssec:intro_HOG}
 
 Die Bezeichnung \textit{Histograms of Oriented Gradients} (HOG) bezeichnet einen Feature-Deskriptor und wurde bekannt durch die Arbeit von Navneet Dalal und Bill Triggs \cite{dalal05}. Diese setzen den HOG-Deskriptor ein, um Fußgänger zu detektieren. Später wurde er auch für andere Objekte eingesetzt. Die Berechnung des HOG-Deskriptors lässt sich in drei Schritte unterteilen: Gradientenberechnung, Gruppierung der Orientierungen und Histogrammerzeugung. Häufig werden auch Vorverarbeitungsschritte, wie zum Beispiel ein Histogrammausgleich durchgeführt.
@@ -44,11 +43,10 @@ Exemplarisch ist in Abbildung~\ref{fig:img2HOG} eine visuell aufbereitete Reprä
 \label{fig:img2HOG}
 \end{center}
 
-
 \subsection{Technische Umsetzung der Klassifizierung} \label{ssec:implementation}
 Umgesetzt wurde der HOG-basierte Klassifizierer in Python mit OpenCV (Version: \texttt{opencv-contrib-python} 3.4.2.17). Der Klassifizierer setzt voraus, dass Bilder und die interessanten Regionen (ROI) bereits bestimmt wurden. Details zur ROI Bestimmungen werden in Kapitel~\ref{sec:PCA} gegeben. Eine Übersicht der Arbeitsweise wird in Abbildung~\ref{fig:hog_classification_ov} gezeigt. Dabei gibt es zwei Phasen: 1. Training und 2. Klassifikation. Die Trainings Phase wird durch den oberen Verlauf in der Abbildung skizziert. Zuerst werden aus einem gelabelten Bilddatensatz deren relevante ROIs selektiert. Für jedes ROI dieser Bilder wird, wie in Abschnitt~\ref{ssec:intro_HOG} erklärt, ein HOG-Deskriptor berechnet. Dabei wurde darauf geachtet, dass jedes ROI das selbe Seitenverhältnis besitzt. Zur Beschleunigung der Berechnung wurden die ROIs nur als Graustufenbilderverarbeitet und auf eine Größe von 64 x 128 Pixel² skaliert. Eine Zelle wurde auf 16 x 16 Pixel festgelegt, sodass eine Blockgröße von 32 x 32 Pixel² verwendet wurde. Diese Parametersatz wurde empirisch als der mit den Ergebnissen bestimmt (siehe Kapitel~\ref{sssec:HOG:parmeter}). Außerdem wurden die Orientierungen in neun Gruppen sortiert, sodass eine richtungsunabhängige Orientierung betrachtet wurde. Sonstige Parameter des HOG-Deskriptors wurden auf den entsprechenden Standardwerten der OpenCV-Implementierung belassen.
 
-Diese Deskriptoren sollen mit einer Support Vektor Machine (SVM) trainiert und im Anschluss klassifiziert werden. Dazu wurde die von OpenCV zur Verfügung gestellte Implementierung einer SVM verwendet. Als Kernel der SVM wurde eine radiale Basisfunktion gewählt. Experimentell wurden die Parameter $C = 12,5$ und $\gamma = 0,50625$ als optimal bestimmt. Details zur Parameterwahl werden im Kapitel~\ref{sssec:HOG:parmeter} beschrieben.\\
+Diese Deskriptoren sollen mit einer Support Vector Machine (SVM) trainiert und im Anschluss klassifiziert werden. Dazu wurde die von OpenCV zur Verfügung gestellte Implementierung einer SVM verwendet. Als Kernel der SVM wurde eine radiale Basisfunktion gewählt. Experimentell wurden die Parameter $C = 12,5$ und $\gamma = 0,50625$ als optimal bestimmt. Details zur Parameterwahl werden im Kapitel~\ref{sssec:HOG:parmeter} beschrieben.\\
 Mithilfe der so trainierten SVM kann dann in der 2. Phase die Klassifikation der Bilder durchgeführt werden. Dazu werden analog für Bildausschnitte der Testdaten Feature-Deskriptoren berechnet und diese von der SVM klassifiziert. Die Qualität dieser Klassifizierung wird im Unterkapitel \ref{sec:HOG_parameter_and_results} beschrieben.
 \begin{center}
 \begin{tabular}{c}
