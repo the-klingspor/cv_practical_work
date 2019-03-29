@@ -18,10 +18,23 @@ vec_patch_size = reduce((lambda x, y: x * y), patch_size)
 
 
 def rescalePatch(img, scale=patch_size):
+    """
+   rescale image patch using cubic interpolation
+   @:param image to rescale
+   @:param scale is target scale
+   @:return rescaled image
+    :author: Sufian Zaabalawi
+    """
     return cv2.resize(img, scale, interpolation=cv2.INTER_CUBIC)
 
 
 def slidingWindows(image, w, h, stepSize=None):
+    """
+    calculate sliding-windows with different scales
+     @:param image to rescale
+    :returns a tuple of image patch width height and its original postion in image
+     :author: Sufian Zaabalawi
+     """
     factor = 0.8
     width, height = image.shape
     while factor > 0.1:
@@ -36,6 +49,14 @@ def slidingWindows(image, w, h, stepSize=None):
 
 
 def localisation(knn, pca, im, target=''):
+    """
+         localization using the classification method KNN and PCA transformation
+         @:param knn Model
+         @:param pca Model
+         @:param im image to classify
+         @:param target searching for target label in image
+          :author: Sufian Zaabalawi
+          """
     im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     fig, ax = plt.subplots(1)
     roi = []
@@ -60,6 +81,12 @@ def localisation(knn, pca, im, target=''):
 
 
 def load_images(paths):
+    """
+       loads images from folders and assigns labels according to their order
+       @:param array of paths
+       :returns the whole data set as data and labels
+       :author: Sufian Zaabalawi
+       """
     data = []
     labels = []
     for path in paths:
@@ -74,6 +101,11 @@ def load_images(paths):
 
 
 def showPCA(reduced_data, cluster=5):
+    """
+        visulize PC1 and PC2 from pca-model in Voronoi Diagram
+        @:param reduced_data PCA space
+        :author: Sufian Zaabalawi
+        """
     kmeans = KMeans(init='k-means++', n_clusters=cluster, n_init=3)
     kmeans.fit(reduced_data[:, :2])
     h = .02
@@ -103,6 +135,12 @@ def showPCA(reduced_data, cluster=5):
 
 
 def mergeRois(roi):
+    """
+       merge array of bounding boxes to a single bounding box
+       @:param roi array of bounding boxes
+       :returns x, y, w, h of a bounding box
+       :author: Sufian Zaabalawi
+       """
     x = 0
     y = 0
     xEnd = 0
@@ -112,16 +150,21 @@ def mergeRois(roi):
             x = i
         if j < y or y == 0:
             y = j
-        if i+k > xEnd or xEnd == 0:
-            xEnd = i+k
-        if j+l > yEnd or yEnd == 0:
-            yEnd = j+l
-    h = abs(yEnd-y)
-    w = abs(xEnd-x)
+        if i + k > xEnd or xEnd == 0:
+            xEnd = i + k
+        if j + l > yEnd or yEnd == 0:
+            yEnd = j + l
+    h = abs(yEnd - y)
+    w = abs(xEnd - x)
     return x, y, w, h
 
 
 def TrainingsPhase():
+    """
+       Train a new model or load already trained model from *.sav files
+      :returns trained model with decider
+       :author: Sufian Zaabalawi
+       """
     pcaPath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'pca.sav')
     knnPath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'knn.sav')
     try:
