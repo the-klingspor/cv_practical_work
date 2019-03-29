@@ -2,24 +2,14 @@
 \section{Evaluierung}
 \label{sec:eval}
 
--hinweis auf laufzeit und klassifizierung
--pca nicht testbar, da keine ground-truth bilder
+In diesem Kapitel widmen wir uns der Evaluierung unserer Ergebnisse. Dabei betrachten wir die Laufzeit des SPM-Verfahrens und die Güte aller Klassifikationsverfahren. Leider liegen für die Segmentierungen keine Ground-Truth-Daten vor, bei denen jedes Pixel als innerhalb oder außerhalb eines Tieres markiert ist. Solche Daten wären aber nötig, um die Lokalisierungstechniken und insbesondere PCA verlässlich testen zu können. Stattdessen haben wir die Technik lediglich subjektiv durch Anwendung auf Bildern getestet. Dort waren die Ergebnisse überzeugend. Des Weiteren fließen die Ergebnisse der PCA-Segmentierung indirekt auch in die Güte der Klassifikationen von SPM ein, weil als gelabelte Trainings- und Testdaten die vorsegmentierten Bilder von PCA verwendet wurden. Wäre die Ergebisse von PCA schlecht, so hätte sich das auch deutlich in der Klassifikation zeigen müssen.
 
 \subsection{Daten}
 
--hoge veluwe
--kamerafallenbilder, sequenzen
--größe
--spezies
--DDD/DDD+
+Als Testdaten liegt uns eine umfangreiche Datenbank von Bildern aus dem niederländischen Nationalpark De Hoge Veluwe vor. Diese umfasst 40GB Bilder von neun verschiedenen Säugetierarten. Die Bildsequenzen wurden mit Reconyx-Kameras erstellt und umfassen zehn bis 120 Bilder. Jedes Bild der Größe 2048 $\times$ 1536 Pixel ist entweder eine farbige Tagaufnahme oder ein infrarotbelichtetes Graustufenbild, das nachts aufgenommen wurde.
 
-\subsection{Laufzeit Spatial Pyramid Matching}
-
--sequentiell
--multiprocessing
--numba
--hauptproblem: lösung des gleichungssystems
--ausblick: umsetzung mit tensorflow
+Für unsere Tests haben wir zwei verschiedene Datenbanken angelegt. In der Dachs-Damhirsch-Datenbank (DDD) befinden sich alle Tagbilder der Spezies \emph{Meles Meles} (Dachs) und \emph{Dama Dama} (Damhirsch). Für diese liegen jeweils 37 beziehungsweise 262 Bilder vor. \\
+Um unserer Verfahren auf komplexeren Datensätzen zu testen, haben wir zusätzlich die Dachs-Damhirsch-Datenbank+ (DDD+) zusammengestellt. Diese umfasst insgesamt 2336 Tag- und Nachtbilder von Rotfuchs, Damhirsch, Wildschwein, Feldhase, Dachs und Wildschaf. Für jede Klasse liegen zwischen 240 und 490 Bilder vor, wobei die Anteile von Tag- und Nachtbildern zwischen den Klassen abweichen. Beim nachtaktiven Dachs liegen beispielsweise kaum Tagbilder vor, während diese beim Wildschaf dominieren. Die Bilder in der DDD+ wurden zufällig aus der Gesamtdatenbank ausgewählt, ohne auf die Komplexität (z.B. Witterung oder Pose der Tiere) zu achten. Die einzigen Voraussetzungen waren die Auswahl von zusammenhängenden Sequenzen und dass sich auf den Bildern nicht Individuen verschiedener Spezies befinden. Das wäre problematisch, weil wir die Ordnerstruktur zum Auslesen der Label benutzen und so zu falschen Labels kommen könnte.
 
 \subsection{Experimentelle Optimierung und Auswertung SVM mit HOG} \label{sec:HOG_parameter_and_results}
 In diesem Kapitel wird die experimentelle Bestimmung der besten Parameter für den HOG-Deskriptor und die SVM behandelt. Für diesen Teil wurden die Tagesbilder von Dachs und Damhirsch verwendet.
@@ -82,15 +72,61 @@ Die in Kapitel~\ref{sssec:HOG:parmeter} bestimmten optimalen Parameter wurden mi
 
 Experimentell wurde der HOG-Klassifizierer auch auf eine Datenbank mit Bildern von Damhirsch, Dachs, Wildschein und Schaf angewendet. Mit Erhöhung der Datenklassen sank die Güte der Ergebnisse auf den jeweiligen Klassen deutlich. Die Präzision lag üblicherweise unter 70~\%, für Dachse sogar unter 50~\%. Deshalb halten wir diese Technik ungeeignet für größere und kompliziertere Klassifizierungsprobleme und haben sie nicht weiter auf der DDD+ evaluiert.
 
-\subsection{Güte der Klassifizierungstechnike}
+\subsection{Auswertung Spatial Pyramid Matching mit LLC}
+
+\subsubsection{Laufzeit}
+
+In der Praxis hat sich die Laufzeit von SPM mit LLC als der limitierende Faktor herausgestellt. Unsere Bildausschnitte, die von PCA bestimmt wurden, werden vor der Berechnung auf eine Größe von 300 Pixeln Seitenlänge oder Höhe verkleinert, um die Anzahl der zu berechnenden Features zu verringern. Trotzdem liegen die Laufzeiten pro Bild momentan in einem Bereich, der eine praktische Anwendung schwierig macht. Alle folgenden Tests wurden auf einem Desktop-PC aus dem Jahr 2014 mit einer i5-.... CPU mit vier Kernen à 3.3GHz durchgeführt.
+
+Wir haben festgestellt, dass der überwiegende Teil der Berechnungszeit für die Berechnung der LLC-Codes verwendet wird. Das Training der SVM mit linearem Kernel und die Berechnung der Features sowie das Training des Codebooks sind wie erwartet schnell. Die genaue Laufzeit ist abhängig von der Größe des Codebook, wobei die Lösung des linearen Gleichungssystems etwa 80 bis 95~\% der Berechnung ausmacht.
+
+Um die Enkodierung zu beschleunigen wurden mehrere Varianten des Algorithmus implementiert. Die erste entspricht einer klassischen sequentiellen Umsetzung mit Numpy ohne zusätzliche Optimierung. In der zweiten Variante haben wir versucht die unabhängige Kodierung der 16 $L_2$-Bins zu parallelisieren. Dafür wurde mit der Funktion \texttt{pool.map} aus dem Modul \texttt{multiprocessing} je ein Thread pro Bin gestartet. Leider hat sich in unseren Tests keine signifikante Verbesserung oder sogar eine Verschlechterung der Laufzeit eingestellt.\\
+Zuletzt haben wir die sequentielle Variante wiederhergestellt und die Low-Level-Funktionen mithilfe von Numba automatisch optimieren lassen \cite{numba}. Numba ist eine Bibliothek, die Pythoncode mit einem JIT-Compiler auf Basis des LLVM-Compilers optimiert. Dieser Schritt sorgte für eine deutliche Verbesserung der Laufzeit, die aber leider immer noch nicht zufriedenstellend ist. 
+
+Eine Gegenüberstellung der Ergebnisse befindet sich in Tabelle~\ref{tab:runtime}. Die lange Laufzeit für Codebooks der Größe 2048 hatte zur Folge, dass wir keine Codebooks dieser Größe zur Klassifizierung benutzt haben. Der nächste Schritt wird es sein die Enkodierung mit \emph{Tensorflow} zu programmieren und die Berechnungen der Codes aller Features eines Bilds parallel auf der GPU durchzuführen.
+
+\begin{table}
+	\centering
+	\begin{tabular}{|l|c|c|c|c|}
+		\hline
+		\textbf{Variante} & \textbf{n = 256} & \textbf{n = 512} & \textbf{n = 1024} & \textbf{n = 2048} \\ \hline
+		sequentiell & 0,44$\pm$0,25s & 1,55$\pm$0,94s & 8,32$\pm$3,99s & 39,92$\pm$20,62s \\ \hline
+		multiprocessing & 1,71$\pm$0,19s & 2,57$\pm$0,79s & 9,69$\pm$4,87s & 38,37$\pm$19,46s \\ \hline
+		Numba & 0,32$\pm$0,29s & 1,13$\pm$0,66s & 5,96$\pm$2,70s & 24,39$\pm$14,27s \\ \hline
+	\end{tabular}
+\caption{Gegenüberstellung durchschnittlichen Laufzeiten mit Standardabweichung der drei implementierten Varianten des Algorithmus für verschiedene Größen des Codebooks.}
+\label{tab:runtime}
+\end{table} 
+
+\subsubsection{Klassifizierung auf DDD}
+
+Dank der Implementierung des \texttt{SpmTransformers} als Scikit-learn-BaseEstimator waren wir in der Lage die Klassifizierung mit Spatial Pyramid Matching und einer linearen SVM problemlos in eine Pipeline einzubetten. Zur Bestimmung der optimalen Parameter haben wir die randomisierte Cross Validation \emph{RandomSearchCV} mit fünf Folds benutzt. Hierbei wurden 80~\% der Daten fürs Training und 20~\% zum Testen benutzt. Insgesamt wurden für SIFT- und LBP-Features jeweils zwanzig zufällige Parametersätze getestet.\\
+Die Parameterverteilung sah wie folgt aus:
+\begin{itemize}
+	\item Codebookgröße: [256, 512, 1025]
+	\item Alpha: reciprocal(100, 1000)
+	\item Sigma: reciprocal(50, 500)
+	\item Pooling: ['max', 'sum']
+	\item Normalisierung: ['sum', 'eucl']
+	\item C: reciprocal(0.1, 5)
+\end{itemize} 
+
+Eine reziproke Verteilung bedeutet, dass die Parameter in dem Bereich zufällig bestimmt werden, wobei kleinere Werte mit einer höheren Wahrscheinlichkeit gewählt werden. Der Logarithmus der Verteilung ist ungefähr gleichverteilt.
+
+Als bester Parametersatz für SIFT hat sich eine Codebookgröße von 1024, Alpha = 357, Sigma = 330, Sum-Pooling, euklidische Normalisierung und C = 0,55 herausgestellt. Als Scoring wurde F1-Scoring benutzt, um es zu bestrafen alle Tiere als Damhirsche zu klassifizieren. Die F1-Scores auf den Validation Sets waren sehr vielversprechend:
+
+\begin{center}
+\begin{tabular}{|l|r|r|r|r|r|}
+	\hline
+	\textbf{Fold k = } & 1 & 2 & 3 & 4 & 5 \\ \hline
+	\textbf{F1-Score} & 0,9901 & 0,97029 & 0,98 & 1,0 & 0,9583 \\ \hline
+\end{tabular}
+\end{center}
+
+Auf dem Testdatensatz ergab sich ein gewichteter F1-Score von 0,95493. Alle acht Dachsbilder wurden korrekt klassifiziert. Bei den Damhirschbildern gab es drei Misklassifikationen. 
+
+Auf die Daten für das uniforme LBP-Feature gehen wir nicht im Detail ein. Die Ergebnisse sind etwas schlechter, für die besten Parametersätze aber durchaus überraschend gut, wenn man bedenkt, dass das Feature lediglich 17 Dimensionen hat. Die Varianz zwischen den Ergebnissen war deutlich größer und überraschenderweise nahm die Genauigkeit bei Codebooks der Größe 1024 deutlich ab. Des Weiteren generalisieren die Ergebnisse bei LBP weniger gut. Als Unterstützung für SIFT scheint es aber eine gute Wahl zu sein.
 
 
--HOG: auf DDD und DDD+
--SPM:
-	-random search cv mit fünf folds
-	-scipy reciprocal
-	-versch. Größen
-	-SIFT Güte auf DDD
-	-LBP Güte auf DDD
-	-SIFT Güte auf DDD+
-	-kombination von SIFT und LBP auf DDD+
+
+\subsubsection{Zusammenfassung der Ergebnisse}
