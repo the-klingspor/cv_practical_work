@@ -2,8 +2,8 @@ import os
 import sys
 import numpy as np
 import random
-import segment
-import sequences.sequences as sequences
+import src.localization.segment as segment
+import src.sequences.sequences as sequences
 
 
 class DataProvider:
