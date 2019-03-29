@@ -10,6 +10,12 @@ from src.datautils.classify_util import split_data_labels
 from src.datautils.local_binary_patterns import LocalBinaryPatterns
 
 
+# directories for sequences and segmentation files for DDD and DDD+
+DIR_DDD_SEQUENCES = "/home/joschi/Documents/DDD_seqs"
+DIR_DDD_SEGMENTS = "/home/joschi/Documents/DDD_segs"
+DIR_DDD_PLUS_SEQUENCES = "/home/joschi/Documents/DDD+_seqs"
+DIR_DDD_PLUS_SEGMENTS = "/home/joschi/Documents/DDD+_segs"
+
 def call_DDD_sift_pipeline():
     """
     Call a pipeline with SIFT features and spatial pyramid matching on the DDD.
@@ -18,8 +24,8 @@ def call_DDD_sift_pipeline():
     :author: Joschka Strüber
     """
     print("Calling SIFT pipeline on the DDD.")
-    seq_data_dir = "/home/joschi/Documents/DDD_seqs"
-    segment_data_dir = "/home/joschi/Documents/DDD_segs"
+    seq_data_dir = DIR_DDD_SEQUENCES
+    segment_data_dir = DIR_DDD_SEGMENTS
     provider = DataProvider(image_data_dir=None,
                             sequences_data_dir=seq_data_dir,
                             segments_dir=segment_data_dir,
@@ -88,8 +94,8 @@ def call_DDD_lbp_pipeline():
     :author: Joschka Strüber
     """
     print("Calling LBP pipeline on the DDD.")
-    seq_data_dir = "/home/joschi/Documents/DDD_seqs"
-    segment_data_dir = "/home/joschi/Documents/DDD_segs"
+    seq_data_dir = DIR_DDD_SEQUENCES
+    segment_data_dir = DIR_DDD_SEGMENTS
     provider = DataProvider(image_data_dir=None,
                             sequences_data_dir=seq_data_dir,
                             segments_dir=segment_data_dir,

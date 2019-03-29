@@ -4,7 +4,7 @@
 Im folgendem wird eine kurze Anleitung zur Verwendung der in dieser Arbeit implementierten Programms gegeben. Aufgrund des Umfangs kann nicht auf alle spezifischen Parameter und Optionen eingegangen werden. Daher ist diese Anleitung eher als ein \emph{Quick Start Guide} zu betrachten. Weiter Details können gegebenenfalls der Codedokumentation entnommen werden
 
 \subsection*{Systemvoraussetzungen}
-Zur Verwendung des Codes wird eine Python 3.6-Umgebung vorausgesetzt. Die Installation von Python 3.6 wird auf der offiziellen Homepage beschrieben \url{https://www.python.org/}. Des Weiteren wird zur Sequenzierung das ExifTool von Phil Harvey in Version 11.33 verwendet. Die Installation für verschiedene Betriebssysteme wird auf der entsprechenden Homepage beschrieben \url{http://www.sno.phy.queensu.ca/~phil/exiftool/}. Zusätzlich müssen die folgenden Python-Pakete installiert sein: Matplotlib (Version 3.0.2), Numpy (Version 1.15.4), Scipy (1.2.1),  OpenCV mit \texttt{opencv-contrib-python} (Version 3.4.2.17), python-dateutil (Version 2.7.5), Scikit-image (Version 0.14.2), Scikit-learn (Version 0.20.2) und Numba (Version 0.43.0).
+Zur Verwendung des Codes wird eine Python 3.6-Umgebung vorausgesetzt. Die Installation von Python 3.6 wird auf der offiziellen Homepage beschrieben \url{https://www.python.org/}. Des Weiteren wird zur Sequenzierung das ExifTool von Phil Harvey in Version 11.33 verwendet. Die Installation für verschiedene Betriebssysteme wird auf der entsprechenden Homepage beschrieben \url{http://www.sno.phy.queensu.ca/~phil/exiftool/}. Zusätzlich müssen die folgenden Python-Pakete installiert sein: Matplotlib (Version 3.0.2), Numpy (Version 1.15.4), Scipy (1.2.1),  OpenCV mit \texttt{opencv-contrib-python} (Version 3.4.2.17), python-dateutil (Version 2.7.5), Scikit-image (Version 0.14.2), Scikit-learn (Version 0.20.2), PyQt5 (Version 5.12) und Numba (Version 0.43.0).
 \subsection*{Sequenzierung}
 Die Sequenzierung der Bilddatenbank kann auf zwei Varianten durchgeführt werden. Zum einen über die DataProvider-Klasse (siehe Abschnitt \nameref{sec:Tut:DataProvider}) oder über die einfachere und Benutzerfreundliche Variante mit GUI. Dazu muss das Pythonskript  \emph{camera\_trap\_sequencer.py} ausgeführt werden, das im Verzeichnis \emph{src/sequences} zu finden ist. Die GUI ist in Abbildung~\ref{fig:SequencerGUI} gezeigt. \\
 \\
@@ -82,16 +82,27 @@ Es ist auch möglich multiple Iterationen der Trainings- und Testdurchläufe zu 
 
 
 \subsection*{Klassifizierung mit SPM}
-Zur Klassifizierung werden in der Pythondatei \emph{spatial\_pyramid\_matching.py} vier praktische Pipelines zur Verfügung gestellt:
+Zur Klassifizierung werden in der Python-Datei \emph{spatial\_pyramid\_matching.py} vier praktische Pipelines zur Verfügung gestellt:
 \begin{list}{}{}
 \item \texttt{call\_DDD\_sift\_pipeline()}
 \item \texttt{call\_DDD\_lbp\_pipeline()}
-\item \texttt{call\_DDD\_plus\_sift\_lbp\_pipeline()}:
 \item \texttt{call\_DDD\_plus\_sift\_pipeline()}:
+\item \texttt{call\_DDD\_plus\_sift\_lbp\_pipeline()}:
 \end{list}
-Die ersten beiden Pipelines sind für die Dachs und Damhirsch Datenbank optimiert und wenden, wie der Pipelinename andeutet, entweder denn auf SIFT basierenden Deskriptor oder den auf Local-Binary-Patterns basierenden Deskriptor an. Die beiden unteren Pipelines sind für die Verwendung mit der erweiterten Datenbank optimiert.
-Zur Verwendung der jeweiligen Pipeline muss das in der Pipeline verwendete DataProvider-Objekt an die lokale Datenstruktur angepasst werden. Dies wird hier exemplarisch für alle Pipelines an der \texttt{call\_DDD\_sift\_pipeline()} erklärt:
-Es wird vorausgesetzt, dass die Daten bereits Sequenziert wurden (siehe \nameref{ssec:Tut:Loc}) und ebenfalls die ROI Detektion mit PCA bereits abgeschlossen ist. Der relevante Code Bereich ist jeweils der oberste in der Pipeline und ist im folgendem gezeigt:
+Die ersten beiden Pipelines sind für die Dachs- und Damhirsch-Datenbank optimiert und wenden, wie der Pipelinename andeutet, entweder den auf SIFT basierenden oder den auf Local Binary Patterns basierenden Deskriptor an. Die beiden unteren Pipelines sind für die Verwendung mit der erweiterten DDD+-Datenbank optimiert.
+Zur Verwendung der jeweiligen Pipeline muss das in der Pipeline verwendete DataProvider-Objekt an die lokale Datenstruktur angepasst werden. Es wird vorausgesetzt, dass die Daten bereits auf Sequenzen aufgeteilt wurden (siehe \nameref{ssec:Tut:Loc}). Zur Anpassung der Datei an das eigene System genügt es die Pfade für die Ordner mit den Sequenzen und Segmentierungsdateien am Anfang der Datei manuell anzupassen:
+
+\begin{minted}[
+frame=lines,
+framesep=2mm,
+baselinestretch=1.2,
+bgcolor=mediumgray,
+fontsize=\footnotesize,
+linenos
+]{python}
+
+\end{minted}
+
 
 \begin{minted}[
 frame=lines,
