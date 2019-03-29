@@ -3,7 +3,7 @@
 
 \subsection{Einführung zu Histograms of Oriented Gradients} \label{ssec:intro_HOG}
 
-Die Bezeichnung \textit{Histograms of Oriented Gradients} (HOG) bezeichnet einen Feature-Deskriptor und wurde bekannt durch die Arbeit von Navneet Dalal und Bill Triggs \cite{dalal05}. Diese setzen den HOG-Deskriptor ein, um Fußgänger zu detektieren. Später wurde er auch für andere Objekte eingesetzt. Die Berechnung des HOG-Deskriptors lässt sich in drei Schritte unterteilen: Gradientenberechnung, Gruppierung der Orientierungen und Histogrammerzeugung. Häufig werden auch Vorverarbeitungsschritte, wie zum Beispiel ein Histogrammausgleich durchgeführt.
+Die Bezeichnung \textit{Histograms of Oriented Gradients} (HOG) bezeichnet einen Feature-Deskriptor und wurde bekannt durch die Arbeit von Navneet Dalal und Bill Triggs \cite{dalal05}. Diese benutzen den HOG-Deskriptor, um Fußgänger zu detektieren. Später wurde er auch für andere Objekte eingesetzt. Die Berechnung des HOG-Deskriptors lässt sich in drei Schritte unterteilen: Gradientenberechnung, Gruppierung der Orientierungen und Histogrammerzeugung. Häufig werden auch Vorverarbeitungsschritte, wie zum Beispiel ein Histogrammausgleich durchgeführt.
 
 Zur Gradientenberechnung wird der Sobel-Operator verwendet. Eine visuelle Darstellung des Ergebnisses ist in Abbildung~\ref{fig:sobel} gezeigt. Zu sehen ist die Magnitude der Ableitung über die vertikale (links) und horizontale (rechts) Bildachse. Dabei entspricht in dieser Darstellung der Grauwert der positiv definierten Magnitude des Gradienten. Mit den folgenden Formeln lassen sich aus den beiden Gradientenbildern die positiv definierte Gesamtmagnitude $|G|$ und die Orientierung $\Theta$ berechnen:
 
