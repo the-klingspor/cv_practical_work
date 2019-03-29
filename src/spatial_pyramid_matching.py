@@ -33,7 +33,7 @@ def call_DDD_sift_pipeline():
                             train_with_equal_image_amount=False,
                             shuffle_data=True,
                             seed=0)
-    # provider.segment_sequences()
+    provider.segment_sequences()
 
     labeled_data = provider.get_data_list()
     X, y, label_map = split_data_labels(labeled_data)
@@ -170,6 +170,7 @@ def call_DDD_plus_sift_pipeline():
                             shuffle_data=True,
                             seed=0)
     provider.segment_sequences()
+    
     labeled_data = provider.get_data_list()
     X, y, label_map = split_data_labels(labeled_data)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
