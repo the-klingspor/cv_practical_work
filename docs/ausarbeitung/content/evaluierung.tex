@@ -127,6 +127,32 @@ Auf dem Testdatensatz ergab sich ein gewichteter F1-Score von 0,95493. Alle acht
 
 Auf die Daten für das uniforme LBP-Feature gehen wir nicht im Detail ein. Die Ergebnisse sind etwas schlechter, für die besten Parametersätze aber durchaus überraschend gut, wenn man bedenkt, dass das Feature lediglich 17 Dimensionen hat. Die Varianz zwischen den Ergebnissen war deutlich größer und überraschenderweise nahm die Genauigkeit bei Codebooks der Größe 1024 deutlich ab. Des Weiteren generalisieren die Ergebnisse bei LBP weniger gut. Als Unterstützung für SIFT scheint es aber eine gute Wahl zu sein.
 
+\subsubsection{Klassifizierung auf DDD+}
 
+Die Datenbank DDD+ zeichnet sich durch deutlich kompliziertere Klassen aus. Um ein Gefühl für die Daten und die Parameter zu erhalten. haben wir zunächst einen Test mit SIFT auf wenigen Trainingsdaten mit RandomSearchCV und den gleichen Einstellungen wie im vorherigen Abschnitt durchgeführt. Aus dem kompletten Pool an Daten wurden lediglich 100 Trainings- und 100 Testbilder ausgewählt. Das sorgt für lediglich 12 bis 25 Trainingsbilder pro Klasse.
+
+Bei zehn Durchläufen mit zufälligen Parametersätzen haben wir einen Mean Test Score von 0,43 auf den Trainingsdaten erhalten. Überraschenderweise lag der gewichtete F1-Score auf den Testdaten bei sogar 0,52 also höher als auf den Validation Sets. Diese Ergebnisse sind nicht überragend, aber für die geringe Anzahl an Trainigsdaten und die Komplexität der Aufgabe durchaus überzeugend. Sie decken sich in etwa mit denen von \cite{wyylhg10} auf ähnlich komplexen Daten.
+
+Anschließend haben wir die empirisch bestimmten optimalen Parameter zur Evaluierung des Verfahrens auf der kompletten DDD+ benutzt. Aufgrund der Datenmenge war Cross Validation hier nicht möglich. Wieder werden die Daten im Verhältnis 80:20 auf Trainings- und Testdaten aufgeteilt. Wir wenden LLC auf SIFT-Features mit einem Codebooks der Größe 1024, Alpha = 500, Sigma = 100, Max-Pooling und euklidischer Normalisierung an. Die Klassifikation der Trainingsdaten selbst ergibt als Bias einen gewichteten F1-Score von 0,9853. Das beweist eindeutig die lineare Separierbarkeit der LLC-Codes. Leider fällt das Ergebnis auf den Testdaten mit 0,7678 etwas schlechter, aber nach wie vor gut aus. Möglicherweise lässt sich das Overfitting mit noch stärkerer Regularisierung durch Erhöhung von Alpha verringern. Eine Confusion Matrix für die DDD+ befindet sich in Abbildung~\ref{tab:ddd+}. Überraschenderweise waren die Tests bei denen nur SIFT benutzt wurde besser als bei konkatenierten Codes für SIFT und LBP. Dort betrug der durchschnittliche Score 0,7399 für den besten Klassifikator. Wie bei den Tests von LBP auf der DDD angedeutet könnten sich mit kleineren Codebooks für dieses Feature sogar bessere Ergebnisse erzielen lassen.
+
+\begin{table}
+	\centering
+	\begin{tabular}{|c|c|c|c|c|c|c|}
+		\hline
+		& Dachs & Rotfuchs & Feldhase & Wildschwein & Wildschaf & Damhirsch \\
+		\hline
+		Dachs & 19 & 0 & 3 & 2 & 0 & 2 \\ \hline
+		Rotfuchs & 2 & 45 & 1 & 3 & 1 & 4 \\ \hline
+		Feldhase & 2 & 4 & 19 & 0 & 0 & 2 \\ \hline
+		Wildschwein & 4 & 6 & 1 & 41 & 7 & 5 \\ \hline
+		Wildschaf & 0 & 5 & 2 & 0 & 59 & 6 \\ \hline
+		Damhirsch & 1 & 1 & 2 & 2 & 4 & 65 \\
+		\hline
+	\end{tabular}
+	\caption{Confusion Matrix der sechs Tierarten nach Anwendung von LLC-kodierten SIFT- und LBP-Features und einer linearen SVM auf der DDD+.}
+	\label{tab:ddd+}
+\end{table}
 
 \subsubsection{Zusammenfassung der Ergebnisse}
+
+Zusammenfassend lässt sich sagen, dass LLC mit SPM ordentliche Ergebnisse liefert, auch wenn nur wenige Daten vorliegen. Auf der DDD war unsere Klassifikation der menschlichen ebenbürtig, die in der Regel mit 96~\% angegeben wird. Auch auf der komplexeren DDD+ haben wir zufriedenstellende Ergebnisse erhalten, die durch bessere Parameter eventuell noch gesteigert werden können. Die in der Literatur angegebenen Werte von Alpha = 500 und Sigma = 100 haben auch für uns gute Ergebnisse geliefert \cite{wyylhg10}. Anders als dort angegeben, haben wir keine Unterschiede zwischen den Pooling- und Normalisierungsverfahren feststellen können. Bei den SIFT-Features hat insbesondere die Vergrößerung des Codebooks zu signifikaten Steigerungen in der Genauigkeit geführt. So ließen sich die Scores von 0,656 (256 Visual Words), über 0,7168 (512 Visual Words), bis auf 0,7678 für 1024 Visual Words steigern. Nach einer Reimplementierung des Verfahrens mit Tensorflow ist es denkbar, dass sich mit einer Vergrößerung des Codebooks auf zum Beispiel 2048 Repräsentanten noch bessere Ergebnisse einstellen.

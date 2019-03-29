@@ -30,10 +30,23 @@ hog = cv2.HOGDescriptor(winSize, blockSize, blockStride, cellSize, nbins, derivA
 
 
 def rescalePatch(img, scale=patch_size):
+    """
+  rescale image patch using cubic interpolation
+  @:param image to rescale
+  @:param scale is target scale
+  @:return rescaled image
+   :author: Sufian Zaabalawi
+   """
     return cv2.resize(img, scale, interpolation=cv2.INTER_CUBIC)
 
 
 def slidingWindows(image, w, h, stepSize=None):
+    """
+  calculate sliding-windows with different scales
+   @:param image to rescale
+  :returns a tuple of image patch width height and its original postion in image
+   :author: Sufian Zaabalawi
+   """
     factor = 0.8
     width, height, _ = image.shape
     while factor > 0.2:
@@ -48,6 +61,14 @@ def slidingWindows(image, w, h, stepSize=None):
 
 
 def localisation(svm, hog, im, target=''):
+    """
+       localization using the classification method SVM and hog descriptor
+       @:param svm Model
+       @:param hog Descriptor
+       @:param im image to classify
+       @:param target searching for target label in image
+        :author: Sufian Zaabalawi
+        """
     fig, ax = plt.subplots(1)
     probability = -1
     bestRoi = (0, 0, 1, 1)
@@ -67,6 +88,12 @@ def localisation(svm, hog, im, target=''):
 
 
 def load_images(paths):
+    """
+    loads images from folders and assigns labels according to their order
+    @:param array of paths
+    :returns the whole data set as data and labels
+    :author: Sufian Zaabalawi
+    """
     data = []
     labels = []
     for path in paths:
@@ -80,6 +107,11 @@ def load_images(paths):
 
 
 def TrainingsPhase():
+    """
+    Train a new model or load already trained model from *.sav files
+   :returns trained model with decider
+    :author: Sufian Zaabalawi
+    """
     modelpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'svm.sav')
     try:
         return pickle.load(open(modelpath, 'rb')), hog
