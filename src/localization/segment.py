@@ -6,9 +6,11 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy import ndimage as sci
 from skimage import exposure as eq
-from src.background_separation import foreground
+from src.localization.background_separation import foreground
+
 """Localization and Segmentation using Background-foreground with PCA and low-rank approximation:
  Sufian Zaabalawi"""
+
 
 def segment(path, label, root_out_path='C:\\Users\Sufian\Downloads\data\DDD\out\\'):
     data = dict()
@@ -77,6 +79,13 @@ def segment(path, label, root_out_path='C:\\Users\Sufian\Downloads\data\DDD\out\
     print(f"Data written to file!")
 
 
+"""
+calculate the biggest connected mask
+@:returns biggest mask
+:author: Sufian Zaabalawi
+"""
+
+
 def bwareafilt(mask):
     image = mask.copy()
     image, contours, hierarchy = cv2.findContours(image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
@@ -92,6 +101,13 @@ def bwareafilt(mask):
     return biggest_contour, res
 
 
+"""
+calculate bounding box of a mask
+@:returns x, y, w, h are postion of the box and its 
+:author: Sufian Zaabalawi
+"""
+
+
 def boundingBox(mask):
     image, contours, hierarchy = cv2.findContours(mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     mx = (0, 0, 0, 0)
@@ -105,27 +121,11 @@ def boundingBox(mask):
     return mx
 
 
-def overlay_mask(mask, image):
-    mask = np.array(mask, dtype=np.uint8)
-    image = np.array(image, dtype=np.uint8)
-    rgb_mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2RGB)
-    rgb_mask[:, :, 1:2] = 0
-    img = cv2.addWeighted(rgb_mask, 0.1, image, 1, 0)
-    return img
-
-
-def reshape(L1, S1, x):
-    xy, p = L1.shape
-    y = int(xy / x)
-    L = np.zeros((x, y, p))
-    S = np.zeros((x, y, p))
-    for ii in range(p):
-        L[:, :, ii] = L1[:, ii].reshape(x, y, order='F').copy()
-        S[:, :, ii] = S1[:, ii].reshape(x, y, order='F').copy()
-    return L, S
-
-
 def hard_threshold(S):
+    """
+    apply Hardthresh holding on foreground image S
+    :author: Sufian Zaabalawi
+    """
     x, y, z = S.shape
     beta = np.power(0.5 * (3 * np.std(S[:].reshape(x * y * z, 1))), 2)
     O = 0.5 * S ** 2 > beta
@@ -133,6 +133,10 @@ def hard_threshold(S):
 
 
 def post_processing_method_2(bw):
+    """
+    Post processing pipeline to extract the mask from foreground image
+    :author: Sufian Zaabalawi
+    """
     kernel = cv2.getStructuringElement(cv2.MORPH_OPEN, (5, 5))
     bw = sci.binary_opening(bw, structure=np.ones((5, 5))).astype(float)
     bw = sci.gaussian_filter(bw.astype(float), sigma=7)
@@ -145,33 +149,21 @@ def post_processing_method_2(bw):
     return bw
 
 
-# def post_processing_method_3(bw, im):
-#     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-#
-#     bw = sci.median_filter(bw, size=2).astype(float)
-#     bw = np.array(bw, dtype=np.uint8)
-#     bw = cv2.morphologyEx(bw, cv2.MORPH_OPEN, kernel)
-#     contour_points, biggest_mask = bwareafilt(bw)
-#     bw = biggest_mask * bw
-#     snakeInit = contour_points.reshape(contour_points.shape[0], 2, order='F')
-#     snake = active_contour(im, snakeInit, alpha=0.01, beta=5, gamma=0.0001, w_edge=1)
-#     ctr = np.array(snake).reshape((-1, 1, 2)).astype(np.int32)
-#     snake2BW = np.zeros(bw.shape, np.uint8)
-#     cv2.drawContours(snake2BW, [ctr], -1, 255, -1)
-#     bw = cv2.morphologyEx(snake2BW, cv2.MORPH_CLOSE, kernel)
-#     bw = cv2.morphologyEx(bw, cv2.MORPH_OPEN, kernel)
-#     return bw
-
-
 def pre_processing_method_1(im):
-    # lbp = local_binary_pattern(im, 24, 3)
+    """
+       pre processing pipeline before applying background foreground separation
+       :author: Sufian Zaabalawi
+       """
     color_feature = eq.equalize_hist(im)
-    # beta = 0.1
-    # res = beta * lbp + (1 - beta) * color_feature
     return color_feature
 
 
 def show_localisation(mask, ax):
+    """
+       visualize localization bounding box
+       :author: Sufian Zaabalawi
+       """
+
     x, y, w, h = boundingBox(mask)
     rect = patches.Rectangle((x, y), w, h, linewidth=1, edgecolor='r', facecolor='none')
     ax.add_patch(rect)
@@ -179,6 +171,11 @@ def show_localisation(mask, ax):
 
 
 def show_segmentation(mask, ax):
+    """
+    visualize segmentation bounding box
+    :author: Sufian Zaabalawi
+    """
+
     contours, _ = bwareafilt(mask)
     points = contours.reshape(contours.shape[0], 2, order='F')
     ax.plot(points[:, 0], points[:, 1], '-b', lw=1)

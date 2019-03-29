@@ -102,7 +102,7 @@ def load_images(paths):
 
 def showPCA(reduced_data, cluster=5):
     """
-        visulize PC1 and PC2 from pca-model in Voronoi Diagram
+        visualize PC1 and PC2 from pca-model in Voronoi Diagram
         @:param reduced_data PCA space
         :author: Sufian Zaabalawi
         """
