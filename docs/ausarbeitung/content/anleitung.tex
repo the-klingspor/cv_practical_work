@@ -18,9 +18,10 @@ Vorbedingung: Es existiert ein Ordner der alle zu bearbeiten Tierbilder nach Tie
 Je nach Anzahl der Bilder dauert dieser Prozess einen Moment, da unter Umständen eine große Datenmenge bearbeitet werden muss.
 
 \subsection*{Lokalisierung}
-Nach der Sequenzierung von Bildern könnten die Sequenzen mit \textit{Hintergrund-Subtraktion} und \textit{Hintergrundapproximation} lokalisiert bzw. segmentiert werden. Dafür kann die Methode \textit{``segment''} in der Klasse \textit{``segment.py''} verwendet werden.
-Die Parametern sind der Pfad des Überordners, der alle Unterordner von Sequenzen enthält, die ``label'' von jeweiligen Tier und der Ausgabepfad von den Segmentierten Bildern.\\\\
-Für die Lokalisierung mit \textit{Sliding-Windows} und PCA-Klassifikator man kann die Methode \textit{``TrainingsPhase''} in der Klasse \textit{``pca\_knn.py''} anpassen, um die Pfade von den Schnittbildern festzulegen. Die Schnittbilder sollen möglichst quadratische Maßen haben und das Tier enthalten. Defaultmäßig wird das trainiertes \textit{``pca.sav und knn.sav''} Model geladen. Anschließend kann das gesuchte Tier in den Bildern mithilfe von der Methode \textit{``localisation''} gefunden und ausgegeben werden. Analog kann die Lokalisierung mit \textit{Sliding-Windows} und HOG-Klassifikator in der Klasse \textit{``hog\_svm.py''} verwendet werden.
+Nach der Sequenzierung der Bilderdatenbank könnten die Sequenzen mit \textit{Hintergrund-Subtraktion} und \textit{Hintergrundapproximation} lokalisiert bzw. segmentiert werden. Dafür kann die Methode \textit{``segment''} in der Klasse \textit{``segment.py''} verwendet werden.
+Die Parametern sind der Pfad des Überordners, der alle Unterordner der Sequenzen enthält, die ``label'' von jeweiligen Tier und der Ausgabepfad von den Segmentierten Bildern.\\\\
+Für die Lokalisierung mit \textit{Sliding-Windows} und PCA-Klassifikator man kann die Methode \textit{``TrainingsPhase''} in der Klasse \textit{``pca\_knn.py''} anpassen, um die Pfade von den Schnittbildern festzulegen. Die Schnittbilder sollen möglichst quadratisch sein und müssen das Tier enthalten. Defaultmäßig wird das trainierte \textit{``pca.sav und knn.sav''} Model geladen. Anschließend kann das gesuchte Tier in den Bildern mithilfe der Methode \textit{``localisation''} gefunden und ausgegeben werden. Analog kann die Lokalisierung mit \textit{Sliding-Windows} und HOG-Klassifikator in der Klasse \textit{``hog\_svm.py''} verwendet werden.
+
 \subsection*{Klassifizierung mit HOG}
 Zur Klassifizierung mit HOG muss wie in REFF ZU PCA beschrieben bereits die Segmentierung erfolgreich durchlaufen sein. Insbesondere werden die gespeicherten Numpy Arrays benötigt, welche die Dateipfade, ROIs und Labels enthalten.
 
