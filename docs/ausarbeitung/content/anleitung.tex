@@ -2,11 +2,13 @@
 \section*{Anleitung}
 \addcontentsline{toc}{section}{Anleitung}
 Im folgendem wird eine kurze Anleitung zur Verwendung der in dieser Arbeit implementierten Programms gegeben. Aufgrund des Umfangs kann nicht auf alle spezifischen Parameter und Optionen eingegangen werden. Daher ist diese Anleitung eher als ein \emph{Quick Start Guide} zu betrachten. Weiter Details können gegebenenfalls der Codedokumentation entnommen werden
+
 \subsection*{Systemvoraussetzungen}
 Zur Verwendung des Codes wird eine Python 3.6-Umgebung vorausgesetzt. Die Installation von Python 3.6 wird auf der offiziellen Homepage beschrieben \url{https://www.python.org/}. Des Weiteren wird zur Sequenzierung das ExifTool von Phil Harvey in Version 11.33 verwendet. Die Installation für verschiedene Betriebssysteme wird auf der entsprechenden Homepage beschrieben \url{http://www.sno.phy.queensu.ca/~phil/exiftool/}. Zusätzlich müssen die folgenden Python-Pakete installiert sein: Matplotlib (Version 3.0.2), Numpy (Version 1.15.4), Scipy (1.2.1),  OpenCV mit \texttt{opencv-contrib-python} (Version 3.4.2.17), python-dateutil (Version 2.7.5), Scikit-image (Version 0.14.2), Scikit-learn (Version 0.20.2) und Numba (Version 0.43.0).
 \subsection*{Sequenzierung}
-Die Sequenzierung der Bilddatenbank kann auf zwei Varianten durchgeführt werden. Zum einen über die DATAPROVIDER oder über die einfachere und Benutzerfreundliche Variante mit GUI. Dazu muss das Pythonskript  \emph{camera\_trap\_sequencer.py} ausgeführt werden, das im Verzeichnis \emph{src/sequences} zu finden ist. Die GUI ist in Abbildung~\ref{fig:SequencerGUI} gezeigt.
-Einzelschritte:
+Die Sequenzierung der Bilddatenbank kann auf zwei Varianten durchgeführt werden. Zum einen über die DataProvider-Klasse (siehe Abschnitt \nameref{sec:Tut:DataProvider}) oder über die einfachere und Benutzerfreundliche Variante mit GUI. Dazu muss das Pythonskript  \emph{camera\_trap\_sequencer.py} ausgeführt werden, das im Verzeichnis \emph{src/sequences} zu finden ist. Die GUI ist in Abbildung~\ref{fig:SequencerGUI} gezeigt. \\
+\\
+Schritt für Schritt Anleitung:\\
 Vorbedingung: Es existiert ein Ordner der alle zu bearbeiten Tierbilder nach Tierart sortiert in Ordnern besitzt (<data folder>)
 \begin{enumerate}
 \item Starte \emph{camera\_trap\_sequencer.py}
@@ -17,13 +19,13 @@ Vorbedingung: Es existiert ein Ordner der alle zu bearbeiten Tierbilder nach Tie
 \end{enumerate}
 Je nach Anzahl der Bilder dauert dieser Prozess einen Moment, da unter Umständen eine große Datenmenge bearbeitet werden muss.
 
-\subsection*{Lokalisierung}
+\subsection*{Lokalisierung} \label{ssec:Tut:Loc}
 Nach der Sequenzierung der Bilderdatenbank könnten die Sequenzen mit \textit{Hintergrund-Subtraktion} und \textit{Hintergrundapproximation} lokalisiert bzw. segmentiert werden. Dafür kann die Methode \textit{``segment''} in der Klasse \textit{``segment.py''} verwendet werden.
 Die Parametern sind der Pfad des Überordners, der alle Unterordner der Sequenzen enthält, die ``label'' von jeweiligen Tier und der Ausgabepfad von den Segmentierten Bildern.\\\\
 Für die Lokalisierung mit \textit{Sliding-Windows} und PCA-Klassifikator man kann die Methode \textit{``TrainingsPhase''} in der Klasse \textit{``pca\_knn.py''} anpassen, um die Pfade von den Schnittbildern festzulegen. Die Schnittbilder sollen möglichst quadratisch sein und müssen das Tier enthalten. Defaultmäßig wird das trainierte \textit{``pca.sav und knn.sav''} Model geladen. Anschließend kann das gesuchte Tier in den Bildern mithilfe der Methode \textit{``localisation''} gefunden und ausgegeben werden. Analog kann die Lokalisierung mit \textit{Sliding-Windows} und HOG-Klassifikator in der Klasse \textit{``hog\_svm.py''} verwendet werden.
 
-\subsection*{Verwendung DataProvider Klasse}
-Die DataProvider Klasse ist eine Klasse zu vereinfachten Handhabung der Trainings- und Testdaten die für dieses Projekt benötigt werden. Sie bietet die Möglichkeit die Sequenzierung und Segmentierung der Datenbank Bilder auszuführen, aber vor allem eine gute Methode um die Daten in Trainingsdaten und Testdaten aufzuteilen. Es ist ebenfalls möglich die Daten zufällig anzuordnen. Die DataProvider Klasse ist in \emph{<src>/datautils/data\_provider.py} zu finden.
+\subsection*{Verwendung DataProvider Klasse} \label{sec:Tut:DataProvider}
+Die DataProvider Klasse ist eine Klasse zu vereinfachten Handhabung der Trainings- und Testdaten die für dieses Projekt benötigt werden. Sie bietet die Möglichkeit die Sequenzierung und Segmentierung der Datenbank Bilder auszulösen, aber vor allem eine gute Methode um die Daten in Trainingsdaten und Testdaten aufzuteilen. Es ist ebenfalls möglich die Daten zufällig anzuordnen. Die DataProvider Klasse ist in \emph{<src>/datautils/data\_provider.py} zu finden.
 
 Beispiel Verwendung:
 \begin{minted}[
@@ -36,21 +38,15 @@ linenos
 ]{python}
 # Erzeugen eines DataProvider-Objektes
 provider = DataProvider(
-   "<Path>/data", 		# Pfad zu den Bilderdaten in separaten Ordnern für jedes Tier
-					# Optional falls die Sequenzierung bereits durchgeführt wurde
-   "<Path>/sequ", 		# Pfad an die Sequenzen gespeichert sind, bzw. gespeichert werden sollen
-					# Optional falls die Sequenzierung bereits durchgeführt wurde
-   "<Path>/npy",   		# Pfad zu den Numpy-Arrays, die Dateipfad, ROI und Label enthalten
-   True,				# Ungenutztes Artefakt, wurde verwendet um die ROIs anzuzeigen
-   {"dayvision", "day"},  	# Unterordner die zur Sequenzierung betrachtet werden sollen
-   					# Optional falls die Sequenzierung bereits durchgeführt wurde
-   0.66,  				# Prozentsatz der Daten die zum Training verwendet werden
-   True,  				# Angabe ob alle Tierklassen mit gleich vielen Trainingsdaten trainiert werden
-   True,  				# Ob Training- und Testdaten zufällig sortiert werden sollen
-   					# Ermöglicht leichte Variation der Datenmenge
-   0) 					# Setzen des Seeds für den Zufallsgennerator zum mischen der Daten
-   					# 0 entspricht einer zufälligen Sortierung. Alle anderen positiven Werte
-   					# geben eine konstante Sortierung vor. Dient der Reproduzierbarkeit
+   "<Path>/data", # Pfad zu den Bilderdaten in separaten Ordnern für jedes Tier. Optional falls die Sequenzierung bereits durchgeführt wurde
+   "<Path>/sequ", # Pfad an die Sequenzen gespeichert sind, bzw. gespeichert werden sollen. Optional falls die Sequenzierung bereits durchgeführt wurde
+   "<Path>/npy", # Pfad zu den Numpy-Arrays, die Dateipfad, ROI und Label enthalten
+   True, # Ungenutztes Artefakt, wurde verwendet um die ROIs anzuzeigen
+   {"dayvision", "day"}, # Unterordner die zur Sequenzierung betrachtet werden sollen Optional falls die Sequenzierung bereits durchgeführt wurde
+   0.66, # Prozentsatz der Daten die zum Training verwendet werden
+   True, # Angabe ob alle Tierklassen mit gleich vielen Trainingsdaten trainiert werden
+   True, # Ob Training- und Testdaten zufällig sortiert werden sollen Ermöglicht leichte Variation der Datenmenge
+   0) # Setzen des Seeds für den Zufallsgenerator zum mischen der Daten 0 entspricht einer zufälligen Sortierung. Alle anderen positiven Werte geben eine konstante Sortierung vor. Dient der Reproduzierbarkeit
 
 provider.generate_sequences() # Sequnziert die Daten. nur aufrufen wenn dies noch nicht durchgeführt wurde
 provider.segment_sequences() # Segmentiert die Daten mit PCA. Nur aufrufen wenn dies noch nicht durchgeführt wurde
@@ -81,13 +77,43 @@ classifier.train(provider.get_training_data(), False, True)
 # Testen der Testdaten
 classifier.test(provider.get_test_data())
 \end{minted}
-
-Es ist auch möglich multiple Iterationen der Trainings- und Testdurchläufe zu starten. Dazu muss lediglich die Klassenmethode \texttt{test\_multiple\_times(<number of runs>)} aufgerufen werden. Spezifische Testparameter müssen in der Methode selbst angepasst werden. Dies betrifft vor allem das dort erstellte DataProvider-Objekt
-
-
-
-\subsection*{SPM}
+Es ist auch möglich multiple Iterationen der Trainings- und Testdurchläufe zu starten. Dazu muss lediglich die Klassenmethode \texttt{test\_multiple\_times(<number of runs>)} aufgerufen werden. Spezifische Testparameter müssen in der Methode selbst angepasst werden. Dies betrifft vor allem das dort erstellte DataProvider-Objekt.
 
 
 
+\subsection*{Klassifizierung mit SPM}
+Zur Klassifizierung werden in der Pythondatei \emph{spatial\_pyramid\_matching.py} vier praktische Pipelines zur Verfügung gestellt:
+\begin{list}{}{}
+\item \texttt{call\_DDD\_sift\_pipeline()}
+\item \texttt{call\_DDD\_lbp\_pipeline()}
+\item \texttt{call\_DDD\_plus\_sift\_lbp\_pipeline()}:
+\item \texttt{call\_DDD\_plus\_sift\_pipeline()}:
+\end{list}
+Die ersten beiden Pipelines sind für die Dachs und Damhirsch Datenbank optimiert und wenden, wie der Pipelinename andeutet, entweder denn auf SIFT basierenden Deskriptor oder den auf Local-Binary-Patterns basierenden Deskriptor an. Die beiden unteren Pipelines sind für die Verwendung mit der erweiterten Datenbank optimiert.
+Zur Verwendung der jeweiligen Pipeline muss das in der Pipeline verwendete DataProvider-Objekt an die lokale Datenstruktur angepasst werden. Dies wird hier exemplarisch für alle Pipelines an der \texttt{call\_DDD\_sift\_pipeline()} erklärt:
+Es wird vorausgesetzt, dass die Daten bereits Sequenziert wurden (siehe \nameref{ssec:Tut:Loc}) und ebenfalls die ROI Detektion mit PCA bereits abgeschlossen ist. Der relevante Code Bereich ist jeweils der oberste in der Pipeline und ist im folgendem gezeigt:
 
+\begin{minted}[
+frame=lines,
+framesep=2mm,
+baselinestretch=1.2,
+bgcolor=mediumgray,
+fontsize=\footnotesize,
+linenos
+]{python}
+print("Calling SIFT pipeline on the DDD.")
+seq_data_dir = "/home/data/DDD_seqs"
+segment_data_dir = "/home/data/DDD_segs"
+provider = DataProvider(image_data_dir=None,
+                        sequences_data_dir=seq_data_dir,
+                        segments_dir=segment_data_dir,
+                        show_images_with_roi=True,
+                        folder_names_to_process=None,
+                        max_training_data_percentage=0.7,
+                        train_with_equal_image_amount=False,
+                        shuffle_data=True,
+                        seed=0)
+
+# provider.segment_sequences()
+\end{minted}
+Es muss lediglich in Zeile 2 für \texttt{seq\_data\_dir} der Pfad zum Oberordner der Sequenzierten Tierklassen angegeben werden und in Zeile 3 für \texttt{segment\_data\_dir} der Pfad zu den aus der ROI Detektion mit PCA erzeugten Numpy Arrays angegeben werden. Anschließend kann die Pipeline durchgeführt werden. Falls PCA noch nicht ausgeführt wurde muss für Zeile 14 die Kommentierung entfernt werden. Es wird empfohlen aus Zeitgründen diese Zeile wieder zu kommentieren wenn PCA mit der unveränderten Datenbank bereits durchgeführt wurde, die Pipeline aber erneut durchgeführt wird, da so viel Rechenzeit gespart werden kann. 
