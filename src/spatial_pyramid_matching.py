@@ -44,7 +44,7 @@ def call_DDD_sift_pipeline():
     ])
 
     param_dist = {
-        'spm_transformer__codebook_size': [512, 1024, 2048],
+        'spm_transformer__codebook_size': [256, 512, 1024],
         'spm_transformer__alpha': reciprocal(100, 1000),
         'spm_transformer__sigma': reciprocal(50, 500),
         'spm_transformer__pooling': ['max', 'sum'],
@@ -70,6 +70,7 @@ def call_DDD_sift_pipeline():
 
     predictions = final_classifier.predict(X_test)
     conf = confusion_matrix(y_test, predictions)
+    print("Labels: ", label_map)
     print("Confusion Matrix:\n", conf)
 
     accuracy = accuracy_score(y_test, predictions)
@@ -141,6 +142,7 @@ def call_DDD_lbp_pipeline():
 
     predictions = final_classifier.predict(X_test)
     conf = confusion_matrix(y_test, predictions)
+    print("Labels: ", label_map)
     print("Confusion matrix:\n", conf)
 
     accuracy = accuracy_score(y_test, predictions)
@@ -180,7 +182,7 @@ def call_DDD_plus_sift_pipeline():
 
     param_dist = {
         'spm_transformer__density': ['dense'],
-        'spm_transformer__codebook_size': [512, 1024],
+        'spm_transformer__codebook_size': [256, 512, 1024],
         'spm_transformer__alpha': reciprocal(100, 1000),
         'spm_transformer__sigma': reciprocal(50, 500),
         'spm_transformer__pooling': ['max', 'sum'],
@@ -206,7 +208,7 @@ def call_DDD_plus_sift_pipeline():
 
     predictions = final_classifier.predict(X_test)
     conf = confusion_matrix(y_test, predictions)
-    print("Label: \n", label_map)
+    print("Labels: ", label_map)
     print("Confusion matrix:\n", conf)
 
     accuracy = accuracy_score(y_test, predictions)
@@ -278,6 +280,7 @@ def call_DDD_plus_sift_lbp_pipeline():
 
     predictions = full_pipeline.predict(X_test)
     conf = confusion_matrix(y_test, predictions)
+    print("Labels: ", label_map)
     print("Confusion matrix:\n", conf)
 
     accuracy = accuracy_score(y_test, predictions)

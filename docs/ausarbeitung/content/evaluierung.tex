@@ -11,7 +11,7 @@ Als Testdaten liegt uns eine umfangreiche Datenbank von Bildern aus dem niederl�
 Für unsere Tests haben wir zwei verschiedene Datenbanken angelegt. In der Dachs-Damhirsch-Datenbank (DDD) befinden sich alle Tagbilder der Spezies \emph{Meles Meles} (Dachs) und \emph{Dama Dama} (Damhirsch). Für diese liegen jeweils 37 beziehungsweise 262 Bilder vor. \\
 Um unserer Verfahren auf komplexeren Datensätzen zu testen, haben wir zusätzlich die Dachs-Damhirsch-Datenbank+ (DDD+) zusammengestellt. Diese umfasst insgesamt 2336 Tag- und Nachtbilder von Rotfuchs, Damhirsch, Wildschwein, Feldhase, Dachs und Wildschaf. Für jede Klasse liegen zwischen 240 und 490 Bilder vor, wobei die Anteile von Tag- und Nachtbildern zwischen den Klassen abweichen. Beim nachtaktiven Dachs liegen beispielsweise kaum Tagbilder vor, während diese beim Wildschaf dominieren. Die Bilder in der DDD+ wurden zufällig aus der Gesamtdatenbank ausgewählt, ohne auf die Komplexität (z.B. Witterung oder Pose der Tiere) zu achten. Die einzigen Voraussetzungen waren die Auswahl von zusammenhängenden Sequenzen und dass sich auf den Bildern nicht Individuen verschiedener Spezies befinden. Das wäre problematisch, weil wir die Ordnerstruktur zum Auslesen der Label benutzen und so zu falschen Labels kommen könnte.
 
-\subsection{Experimentelle Optimierung und Auswertung SVM mit HOG} \label{sec:HOG_parameter_and_results}
+\subsection{Experimentelle Optimierung und Auswertung der SVM mit HOG} \label{sec:HOG_parameter_and_results}
 In diesem Kapitel wird die experimentelle Bestimmung der besten Parameter für den HOG-Deskriptor und die SVM behandelt. Für diesen Teil wurden die Tagesbilder von Dachs und Damhirsch verwendet.
 
 
@@ -76,7 +76,7 @@ Experimentell wurde der HOG-Klassifizierer auch auf eine Datenbank mit Bildern v
 
 \subsubsection{Laufzeit}
 
-In der Praxis hat sich die Laufzeit von SPM mit LLC als der limitierende Faktor herausgestellt. Unsere Bildausschnitte, die von PCA bestimmt wurden, werden vor der Berechnung auf eine Größe von 300 Pixeln Seitenlänge oder Höhe verkleinert, um die Anzahl der zu berechnenden Features zu verringern. Trotzdem liegen die Laufzeiten pro Bild momentan in einem Bereich, der eine praktische Anwendung schwierig macht. Alle folgenden Tests wurden auf einem Desktop-PC aus dem Jahr 2014 mit einer i5-.... CPU mit vier Kernen à 3.3GHz durchgeführt.
+In der Praxis hat sich die Laufzeit von SPM mit LLC als der limitierende Faktor herausgestellt. Unsere Bildausschnitte, die von PCA bestimmt wurden, werden vor der Berechnung auf eine Größe von 300 Pixeln Seitenlänge oder Höhe verkleinert, um die Anzahl der zu berechnenden Features zu verringern. Trotzdem liegen die Laufzeiten pro Bild momentan in einem Bereich, der eine praktische Anwendung schwierig macht. Alle folgenden Tests wurden auf einem Desktop-PC aus dem Jahr 2014 mit einer i5-4590 CPU mit vier Kernen à 3.3GHz und 8GB RAM durchgeführt.
 
 Wir haben festgestellt, dass der überwiegende Teil der Berechnungszeit für die Berechnung der LLC-Codes verwendet wird. Das Training der SVM mit linearem Kernel und die Berechnung der Features sowie das Training des Codebooks sind wie erwartet schnell. Die genaue Laufzeit ist abhängig von der Größe des Codebook, wobei die Lösung des linearen Gleichungssystems etwa 80 bis 95~\% der Berechnung ausmacht.
 
@@ -100,7 +100,7 @@ Eine Gegenüberstellung der Ergebnisse befindet sich in Tabelle~\ref{tab:runtime
 
 \subsubsection{Klassifizierung auf DDD}
 
-Dank der Implementierung des \texttt{SpmTransformers} als Scikit-learn-BaseEstimator waren wir in der Lage die Klassifizierung mit Spatial Pyramid Matching und einer linearen SVM problemlos in eine Pipeline einzubetten. Zur Bestimmung der optimalen Parameter haben wir die randomisierte Cross Validation \emph{RandomSearchCV} mit fünf Folds benutzt. Hierbei wurden 80~\% der Daten fürs Training und 20~\% zum Testen benutzt. Insgesamt wurden für SIFT- und LBP-Features jeweils zwanzig zufällige Parametersätze getestet.\\
+Dank der Implementierung des \texttt{SpmTransformers} als Scikit-learn-BaseEstimator waren wir in der Lage die Klassifizierung mit Spatial Pyramid Matching und einer linearen SVM problemlos in eine Pipeline einzubetten. Zur Bestimmung der optimalen Parameter haben wir die randomisierte Cross Validation \emph{RandomizedSearchCV} mit fünf Folds benutzt. Hierbei wurden 80~\% der Daten fürs Training und 20~\% zum Testen benutzt. Insgesamt wurden für SIFT- und LBP-Features jeweils zwanzig zufällige Parametersätze getestet.\\
 Die Parameterverteilung sah wie folgt aus:
 \begin{itemize}
 	\item Codebookgröße: [256, 512, 1025]
