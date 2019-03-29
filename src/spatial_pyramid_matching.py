@@ -10,6 +10,12 @@ from src.datautils.classify_util import split_data_labels
 from src.datautils.local_binary_patterns import LocalBinaryPatterns
 
 
+# directories for sequences and segmentation files for DDD and DDD+
+DIR_DDD_SEQUENCES = "/home/joschi/Documents/DDD_seqs"
+DIR_DDD_SEGMENTS = "/home/joschi/Documents/DDD_segs"
+DIR_DDD_PLUS_SEQUENCES = "/home/joschi/Documents/DDD+_seqs"
+DIR_DDD_PLUS_SEGMENTS = "/home/joschi/Documents/DDD+_segs"
+
 def call_DDD_sift_pipeline():
     """
     Call a pipeline with SIFT features and spatial pyramid matching on the DDD.
@@ -18,18 +24,16 @@ def call_DDD_sift_pipeline():
     :author: Joschka Strüber
     """
     print("Calling SIFT pipeline on the DDD.")
-    seq_data_dir = "/home/joschi/Documents/DDD_seqs"
-    segment_data_dir = "/home/joschi/Documents/DDD_segs"
     provider = DataProvider(image_data_dir=None,
-                            sequences_data_dir=seq_data_dir,
-                            segments_dir=segment_data_dir,
+                            sequences_data_dir=DIR_DDD_SEQUENCES,
+                            segments_dir=DIR_DDD_SEGMENTS,
                             show_images_with_roi=True,
                             folder_names_to_process=None,
                             max_training_data_percentage=0.7,
                             train_with_equal_image_amount=False,
                             shuffle_data=True,
                             seed=0)
-    # provider.segment_sequences()
+    provider.segment_sequences()
 
     labeled_data = provider.get_data_list()
     X, y, label_map = split_data_labels(labeled_data)
@@ -44,7 +48,7 @@ def call_DDD_sift_pipeline():
     ])
 
     param_dist = {
-        'spm_transformer__codebook_size': [512, 1024, 2048],
+        'spm_transformer__codebook_size': [256, 512, 1024],
         'spm_transformer__alpha': reciprocal(100, 1000),
         'spm_transformer__sigma': reciprocal(50, 500),
         'spm_transformer__pooling': ['max', 'sum'],
@@ -70,6 +74,7 @@ def call_DDD_sift_pipeline():
 
     predictions = final_classifier.predict(X_test)
     conf = confusion_matrix(y_test, predictions)
+    print("Labels: ", label_map)
     print("Confusion Matrix:\n", conf)
 
     accuracy = accuracy_score(y_test, predictions)
@@ -87,11 +92,9 @@ def call_DDD_lbp_pipeline():
     :author: Joschka Strüber
     """
     print("Calling LBP pipeline on the DDD.")
-    seq_data_dir = "/home/joschi/Documents/DDD_seqs"
-    segment_data_dir = "/home/joschi/Documents/DDD_segs"
     provider = DataProvider(image_data_dir=None,
-                            sequences_data_dir=seq_data_dir,
-                            segments_dir=segment_data_dir,
+                            sequences_data_dir=DIR_DDD_SEQUENCES,
+                            segments_dir=DIR_DDD_SEGMENTS,
                             show_images_with_roi=True,
                             folder_names_to_process=None,
                             max_training_data_percentage=0.7,
@@ -141,6 +144,7 @@ def call_DDD_lbp_pipeline():
 
     predictions = final_classifier.predict(X_test)
     conf = confusion_matrix(y_test, predictions)
+    print("Labels: ", label_map)
     print("Confusion matrix:\n", conf)
 
     accuracy = accuracy_score(y_test, predictions)
@@ -156,18 +160,17 @@ def call_DDD_plus_sift_pipeline():
     :author: Joschka Strüber
     """
     print("Calling SIFT pipeline on the DDD+.")
-    seq_data_dir = "/home/joschi/Documents/DDD+_seqs"
-    segment_data_dir = "/home/joschi/Documents/DDD+_segs"
     provider = DataProvider(image_data_dir=None,
-                            sequences_data_dir=seq_data_dir,
-                            segments_dir=segment_data_dir,
+                            sequences_data_dir=DIR_DDD_PLUS_SEQUENCES,
+                            segments_dir=DIR_DDD_PLUS_SEGMENTS,
                             show_images_with_roi=True,
                             folder_names_to_process=None,
                             max_training_data_percentage=0.7,
                             train_with_equal_image_amount=False,
                             shuffle_data=True,
                             seed=0)
-    # provider.segment_sequences()
+    provider.segment_sequences()
+    
     labeled_data = provider.get_data_list()
     X, y, label_map = split_data_labels(labeled_data)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
@@ -180,7 +183,7 @@ def call_DDD_plus_sift_pipeline():
 
     param_dist = {
         'spm_transformer__density': ['dense'],
-        'spm_transformer__codebook_size': [512, 1024],
+        'spm_transformer__codebook_size': [256, 512, 1024],
         'spm_transformer__alpha': reciprocal(100, 1000),
         'spm_transformer__sigma': reciprocal(50, 500),
         'spm_transformer__pooling': ['max', 'sum'],
@@ -206,7 +209,7 @@ def call_DDD_plus_sift_pipeline():
 
     predictions = final_classifier.predict(X_test)
     conf = confusion_matrix(y_test, predictions)
-    print("Label: \n", label_map)
+    print("Labels: ", label_map)
     print("Confusion matrix:\n", conf)
 
     accuracy = accuracy_score(y_test, predictions)
@@ -224,11 +227,9 @@ def call_DDD_plus_sift_lbp_pipeline():
     :author: Joschka Strüber
     """
     print("Calling LBP/SIFT pipeline on the DDD+.")
-    seq_data_dir = "/home/joschi/Documents/DDD+_seqs"
-    segment_data_dir = "/home/joschi/Documents/DDD+_segs"
     provider = DataProvider(image_data_dir=None,
-                            sequences_data_dir=seq_data_dir,
-                            segments_dir=segment_data_dir,
+                            sequences_data_dir=DIR_DDD_PLUS_SEQUENCES,
+                            segments_dir=DIR_DDD_PLUS_SEGMENTS,
                             show_images_with_roi=True,
                             folder_names_to_process=None,
                             max_training_data_percentage=0.7,
@@ -278,6 +279,7 @@ def call_DDD_plus_sift_lbp_pipeline():
 
     predictions = full_pipeline.predict(X_test)
     conf = confusion_matrix(y_test, predictions)
+    print("Labels: ", label_map)
     print("Confusion matrix:\n", conf)
 
     accuracy = accuracy_score(y_test, predictions)
@@ -298,7 +300,8 @@ if __name__ == '__main__':
     possible.
     
     The images are expected to be already ordered in sequences in the
-    SEQ_DATA_DIR. For this you can use the "Camera Trap Sequencer" for example.
+    directories DIR_DDD_SEQUENCES and DIR_DDD_PLUS_SEQUENCES. For this you can 
+    use the "Camera Trap Sequencer" for example.
     
     :author: Joschka Strüber
     """
@@ -307,6 +310,6 @@ if __name__ == '__main__':
 
     call_DDD_lbp_pipeline()
 
-    call_DDD_plus_sift_lbp_pipeline()
-
     call_DDD_plus_sift_pipeline()
+    
+    call_DDD_plus_sift_lbp_pipeline()

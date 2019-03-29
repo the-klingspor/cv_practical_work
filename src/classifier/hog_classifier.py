@@ -1,55 +1,57 @@
-from itertools import permutations
-
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.patches as patches
 from typing import List, Tuple
-import xml.etree.ElementTree as ET
-import pickle
-import re
 
 from src.datautils.classify_util import get_roi_with_aspect_ratio
 from datautils.data_provider import DataProvider
-
 
 # For type hints
 TupleList = List[Tuple[str, Tuple[int, int, int, int], str]]
 
 
 class HogClassifier:
+    """An object used to train a SVM to function as classifier using HOG descriptors
+    :author: Thomas Poschadel"""
 
-    PATCH_SIZE = (128, 128)
+    PATCH_SIZE = (64, 128)
+
+    # for debug purpose only
     SHOW_TRAINING_ROI = False
     SHOW_TRAINING_TIME = 1000
 
+    # private class parameters
     _hog_descriptor = None
     _svm = None
     _show_classified_img = False
     _label_map =[]
 
-    def __int__(self):
+    def __int__(self, show_classified_image: bool = False):
         self._hog_descriptor = None
         self._svm = None
-        self._show_classified_img = False
+        self._show_classified_img = show_classified_image
         self._label_map = []
 
     def _read_image(self, file_path):
-        """Private helper function to unify image loading"""
+        """Private helper function to unify image loading
+        :author: Thomas Poschadel"""
         return cv2.imread(file_path, flags=cv2.IMREAD_GRAYSCALE)
 
     def _rescale(self, img, scale=PATCH_SIZE):
-        """Private helper function to unify and simplify image rescale operations"""
+        """Private helper function to unify and simplify image rescale operations
+        :author: Thomas Poschadel"""
         return cv2.resize(img, scale, interpolation=cv2.INTER_CUBIC)
 
     def _create_hog_descriptor(self):
         """Helper function to create a cv2.HOGDescriptor and set necessary parameters.
 
-          The parameter values can be seen in the openCV documentation"""
+          The parameter values can be seen in the openCV documentation
+          :author: Thomas Poschadel"""
         winSize = self.PATCH_SIZE
-        blockSize = (32, 32)
-        blockStride = (16, 16)
         cellSize = (16, 16)
+        blockSize = (int(cellSize[0]*2), int(cellSize[1]*2))
+        blockStride = (int(blockSize[0]/2), int(blockSize[1]/2))
         nbins = 9
         derivAperture = 1
         winSigma = -1.
@@ -63,13 +65,14 @@ class HogClassifier:
         self._hog_descriptor = hog
         return hog
 
-    def _svm_init(self, C=12.5, gamma=0.50625):
-        """Private helper function to create a Support Vector Machine"""
+    def _svm_init(self, C=12.5, gamma=0.50625, kernel=cv2.ml.SVM_RBF, type=cv2.ml.SVM_C_SVC):
+        """Private helper function to create a Support Vector Machine
+        :author: Thomas Poschadel"""
         svm = cv2.ml.SVM_create()
         svm.setGamma(gamma)
         svm.setC(C)
-        svm.setKernel(cv2.ml.SVM_RBF)
-        svm.setType(cv2.ml.SVM_C_SVC)
+        svm.setKernel(kernel)
+        svm.setType(type)
         self._svm = svm
 
     def _svm_train(self, descriptors, labels):
@@ -79,6 +82,7 @@ class HogClassifier:
         :param labels: The labels assigned to the 'training_data' features in the saem order. This can be a list of
         strings or numerical values and will be mapped to integers. This maping needs to be undone in the detection
         process
+        :author: Thomas Poschadel
         """
         labels = self._map_labels_to_int(labels)
         self._svm.train(descriptors, cv2.ml.ROW_SAMPLE, labels)
@@ -86,9 +90,10 @@ class HogClassifier:
 
     def _svm_predict(self, sample):
         """Private helper function to simply the access to the SVM prediction function and perform prediction on a
-        singel descriptor
+        single descriptor
 
         :param sample: A feature
+        :author: Thomas Poschadel
         """
         return self._svm.predict(np.array([sample]))[1].ravel()
 
@@ -98,6 +103,7 @@ class HogClassifier:
         :param hog: openCV HOGDescriptor used to calculate the feature
         :param img: An openCV image. This image is rescaled and HOG is calculated
         :return: A HOG feature
+        :author: Thomas Poschadel
         """
         img = self._rescale(img)
         img = cv2.equalizeHist(img)
@@ -117,6 +123,7 @@ class HogClassifier:
         :param calc_additional_data: If True the vertical mirrored image with used to calculate a feature and to the
         results
         :return: A list of features and a list of labels
+        :author: Thomas Poschadel
         """
         descriptors = []
         label = []
@@ -139,6 +146,7 @@ class HogClassifier:
         :param training_data: A list of tuples containing (<a image path>, <A ROI x, y, w, h>, <A label string>)
         :param calc_additional_data: If True the vertical mirrored image with used to calculate a feature and to the
         results
+        :author: Thomas Poschadel
         """
         print('Training started ...')
         hog = self._create_hog_descriptor()
@@ -152,7 +160,9 @@ class HogClassifier:
         print('Training finished!')
 
     def _svm_train_auto(self, descriptors, labels):
-        # ToDo: use the the available auto_train function
+        """Private helper funtion to automatically select the best values of a SVM.
+        This is basically a convenient wraper function for a call to OpenCVs tainAuto methode
+        :author: Thomas Poschadel"""
         labels = self._map_labels_to_int(labels)
         self._svm.trainAuto(descriptors, cv2.ml.ROW_SAMPLE, labels)
         pass
@@ -228,65 +238,18 @@ class HogClassifier:
         print(f"total: {total_ok_sum}/{total_count_sum}={total_ok_sum/total_count_sum:1.3f}")
         return evaluation_dict
 
-    # ToDo: Dirty test hack from http://answers.opencv.org/question/56655/how-to-use-a-custom-svm-with-hogdescriptor-in-python/
-    def dirty_test(self):
-        self._svm.save("svm.xml")
-        tree = ET.parse('svm.xml')
-        root = tree.getroot()
-        # now this is really dirty, but after ~3h of fighting OpenCV its what happens :-)
-        SVs = root.getchildren()[0].getchildren()[-2].getchildren()[0]
-        rho = float(root.getchildren()[0].getchildren()[-1].getchildren()[0].getchildren()[1].text)
-        svmvec = [float(x) for x in re.sub('\s+', ' ', SVs.text).strip().split(' ')]
-        svmvec.append(-rho)
-        pickle.dump(svmvec, open("svm.pickle", 'wb'))
-        svm = pickle.load(open("svm.pickle", "rb"))
-        self._hog_descriptor.setSVMDetector(np.array(svm))
-        del svm
 
-    def detect(self, img):
-        # self.dirty_test()
-        ############## NOT REAL EXAMPLE
-        # tada = cv2.ml.SVM_load("svm.xml")
-        self._hog_descriptor.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
-        ###################################################
-        detected = False
-        (rois, weights) = self._hog_descriptor.detectMultiScale(img, 0, (256, 128), (4, 4), 1.1)
-        for (x, y, w, h) in rois:
-            if not detected:
-                detected = True
-            cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
-            roi = img[y:y + h, x:x + w]
-        if detected:
-            window_name = f'detected image'
-            cv2.namedWindow(window_name, cv2.WND_PROP_ASPECT_RATIO)
-            cv2.imshow(window_name, img)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
-            print('|', end='', flush=True)
-        else:
-            print('.', end='', flush=True)
-
-    def my_detect(self, img):
-        # iterate over image
-            # calculate descriptor with 128 x 64 roi
-            # calculate descriptor with 64 x 128 roi
-            # ca
-        pass
-
-    def __init__(self, show_classified_image: bool = False):
-        self._show_classified_img = show_classified_image
-
-
-def test_multiple_times(number_of_runns):
+def test_multiple_times(number_of_runs):
     evals = []
-    for i in range(0, number_of_runns):
+    for i in range(0, number_of_runs):
         print(f"RUN {i} STARTED: ")
         provider = DataProvider("/home/tp/Downloads/CVSequences/data",
                                 "/home/tp/Downloads/CVSequences/sequ",
-                                # "/home/tp/Downloads/CVSequences/npy",
-                                "/home/tp/Downloads/CVSequences/CVSequences",
+                                "/home/tp/Downloads/CVSequences/npy",
+                                # "/home/tp/Downloads/CVSequences/CVSequences",
                                 True,
-                                {"dayvision", "day", "nightvision", "night"},  # the subfoldernames that are used for sequence separations
+                                # {"dayvision", "day", "nightvision", "night"},  # the subfoldernames that are used for sequence separations
+                                {"dayvision", "day"},  # the subfoldernames that are used for sequence separations
                                 0.66,  # the maximum % of images of a kind that are used as training data
                                 True,  # If any animal should be trained with equal amount of images
                                 True,  # if the images should be shuffled
@@ -343,8 +306,6 @@ if __name__ == '__main__':
     #                         True,  # if the images should be shuffled
     #                         0, # the random seed for shuffle. If 0 is choosen the seed is random too. Any other number can be choosen to increase the reproducibility of the experiment
     #                         1)  # overtrain factor
-
-    # good seeds: 8034652065224866011
 
     test_multiple_times(50)
     #
